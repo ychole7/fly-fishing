@@ -1118,16 +1118,82 @@ const GEAR = {
   }
 };
 
-// 장착형 미끼: 여러 종류를 사서 하나를 장착. 효과가 서로 다름.
+// 아이템 등급 (상점 카드 색상)
+const TIERS = {
+  1: {
+    name: "일반",
+    color: "#8a9a92",
+    bg: "#f4f7f5"
+  },
+  2: {
+    name: "고급",
+    color: "#4a90c0",
+    bg: "#eef5fb"
+  },
+  3: {
+    name: "희귀",
+    color: "#8a5fc0",
+    bg: "#f4effb"
+  },
+  4: {
+    name: "전설",
+    color: "#d09020",
+    bg: "#fdf6e7"
+  }
+};
+
+// 장착형 미끼: 여러 종류를 사서 하나를 장착. 효과가 서로 다름. stats는 별점(0~5).
 const BAITS = {
   basic: {
     name: "기본파리",
     icon: "🪰",
     cost: 0,
+    tier: 1,
     desc: "평범한 미끼. 무난하다.",
+    stats: {
+      입질: 2,
+      정확: 2,
+      대물: 0
+    },
     eff: {
       approachMul: 1.0,
       fakeMul: 1.0,
+      bigBoost: 0,
+      nightMul: 1.0
+    }
+  },
+  worm: {
+    name: "지렁이",
+    icon: "🪱",
+    cost: 600,
+    tier: 1,
+    desc: "만만한 국민 미끼. 입질이 조금 잦다.",
+    stats: {
+      입질: 3,
+      정확: 2,
+      대물: 0
+    },
+    eff: {
+      approachMul: 1.2,
+      fakeMul: 1.05,
+      bigBoost: 0,
+      nightMul: 1.0
+    }
+  },
+  dough: {
+    name: "떡밥",
+    icon: "🟤",
+    cost: 1200,
+    tier: 2,
+    desc: "입질이 잦지만 헛입질이 아주 많다.",
+    stats: {
+      입질: 5,
+      정확: 1,
+      대물: 0
+    },
+    eff: {
+      approachMul: 1.4,
+      fakeMul: 1.9,
       bigBoost: 0,
       nightMul: 1.0
     }
@@ -1136,7 +1202,13 @@ const BAITS = {
     name: "반짝파리",
     icon: "✨",
     cost: 1800,
+    tier: 2,
     desc: "고급 어종이 잘 문다.",
+    stats: {
+      입질: 2,
+      정확: 3,
+      대물: 3
+    },
     eff: {
       approachMul: 1.1,
       fakeMul: 0.8,
@@ -1148,7 +1220,13 @@ const BAITS = {
     name: "야광파리",
     icon: "💡",
     cost: 2600,
+    tier: 3,
     desc: "밤에 강력. 전체 입질↑.",
+    stats: {
+      입질: 4,
+      정확: 3,
+      대물: 1
+    },
     eff: {
       approachMul: 1.25,
       fakeMul: 0.7,
@@ -1156,28 +1234,40 @@ const BAITS = {
       nightMul: 1.5
     }
   },
-  dough: {
-    name: "떡밥",
-    icon: "🟤",
-    cost: 1200,
-    desc: "입질이 잦지만 헛입질이 아주 많다.",
-    eff: {
-      approachMul: 1.4,
-      fakeMul: 1.9,
-      bigBoost: 0,
-      nightMul: 1.0
-    }
-  },
   lure: {
     name: "루어",
     icon: "🎣",
     cost: 3800,
+    tier: 3,
     desc: "대물 전문. 잡어는 잘 안 문다.",
+    stats: {
+      입질: 2,
+      정확: 4,
+      대물: 5
+    },
     eff: {
       approachMul: 1.0,
       fakeMul: 0.45,
       bigBoost: 1.7,
       nightMul: 1.0
+    }
+  },
+  gold: {
+    name: "황금파리",
+    icon: "🌟",
+    cost: 7000,
+    tier: 4,
+    desc: "전설의 미끼. 모든 면에서 뛰어나다.",
+    stats: {
+      입질: 4,
+      정확: 4,
+      대물: 4
+    },
+    eff: {
+      approachMul: 1.3,
+      fakeMul: 0.6,
+      bigBoost: 1.2,
+      nightMul: 1.2
     }
   }
 };
@@ -1188,29 +1278,56 @@ const CREELS = {
     name: "소쿠리",
     icon: "🧺",
     cost: 0,
+    tier: 1,
     mult: 1.0,
-    desc: "기본 어망."
+    desc: "기본 어망.",
+    stats: {
+      보너스: 0
+    }
   },
   net: {
     name: "망태기",
     icon: "🎒",
     cost: 1500,
+    tier: 2,
     mult: 1.15,
-    desc: "점수 +15%."
+    desc: "점수 +15%.",
+    stats: {
+      보너스: 2
+    }
   },
   basket: {
     name: "대나무 살림망",
     icon: "🪣",
     cost: 4000,
+    tier: 3,
     mult: 1.35,
-    desc: "점수 +35%."
+    desc: "점수 +35%.",
+    stats: {
+      보너스: 3
+    }
   },
   pro: {
     name: "프로 살림망",
     icon: "⚜️",
     cost: 9000,
+    tier: 3,
     mult: 1.6,
-    desc: "점수 +60%."
+    desc: "점수 +60%.",
+    stats: {
+      보너스: 4
+    }
+  },
+  gold: {
+    name: "황금 어망",
+    icon: "👑",
+    cost: 16000,
+    tier: 4,
+    mult: 1.85,
+    desc: "전설의 어망. 점수 +85%.",
+    stats: {
+      보너스: 5
+    }
   }
 };
 const POOL_W = 720,
@@ -1457,6 +1574,7 @@ function FlyFishingGame() {
   const [ownedCreels, setOwnedCreels] = useState(["basic"]); // 보유 어망
   const [equippedCreel, setEquippedCreel] = useState("basic"); // 장착 어망
   const [shopTab, setShopTab] = useState("gear"); // 상점 탭: gear|bait|creel
+  const [buyFx, setBuyFx] = useState(null); // 구매 연출 {key, t}
   const [anglerExp, setAnglerExp] = useState(0); // 강태공 누적 경험치
   const [levelUpInfo, setLevelUpInfo] = useState(null); // 결과 화면 레벨업 표시
   const [isNewPlayer, setIsNewPlayer] = useState(false); // 첫 플레이 여부
@@ -2219,6 +2337,10 @@ function FlyFishingGame() {
       return;
     }
     play("buy");
+    setBuyFx({
+      key: "gear-" + key,
+      t: Date.now()
+    });
     const nextLvls = {
         ...gearLvl,
         [key]: lvl + 1
@@ -2243,6 +2365,10 @@ function FlyFishingGame() {
       return;
     }
     play("buy");
+    setBuyFx({
+      key: "bait-" + key,
+      t: Date.now()
+    });
     const nextOwned = [...ownedBaits, key],
       nextCoins = coins - cost;
     setOwnedBaits(nextOwned);
@@ -2275,6 +2401,10 @@ function FlyFishingGame() {
       return;
     }
     play("buy");
+    setBuyFx({
+      key: "creel-" + key,
+      t: Date.now()
+    });
     const nextOwned = [...ownedCreels, key],
       nextCoins = coins - cost;
     setOwnedCreels(nextOwned);
@@ -3485,6 +3615,136 @@ function FlyFishingGame() {
 
   // ─── 상점 ───
   if (screen === "shop") {
+    const Stars = ({
+      n
+    }) => /*#__PURE__*/React.createElement("span", {
+      style: {
+        letterSpacing: 1
+      }
+    }, [1, 2, 3, 4, 5].map(i => /*#__PURE__*/React.createElement("span", {
+      key: i,
+      style: {
+        color: i <= n ? "#f0b429" : "#d8e2dd",
+        fontSize: 10
+      }
+    }, "★")));
+    const fxOn = k => buyFx && buyFx.key === k && Date.now() - buyFx.t < 900;
+    // 아이템 카드 (미끼·어망 공용)
+    const ItemCard = ({
+      k,
+      item,
+      owned,
+      equipped,
+      onBuy,
+      onEquip,
+      fxKey
+    }) => {
+      const t = TIERS[item.tier],
+        afford = coins >= item.cost;
+      return /*#__PURE__*/React.createElement("div", {
+        key: k,
+        style: {
+          background: equipped ? "#e3f2ec" : t.bg,
+          borderRadius: 13,
+          padding: "10px 12px",
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          border: `2px solid ${equipped ? "#27ae8f" : t.color}`,
+          boxShadow: item.tier >= 4 ? "0 0 10px rgba(208,144,32,.35)" : "none",
+          animation: fxOn(fxKey) ? "buypop .55s ease-out" : "none"
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 26,
+          filter: !owned && !afford ? "grayscale(.6) opacity(.7)" : "none"
+        }
+      }, item.icon), /*#__PURE__*/React.createElement("div", {
+        style: {
+          flex: 1,
+          minWidth: 0
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: "flex",
+          alignItems: "center",
+          gap: 6
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontFamily: "'Jua',sans-serif",
+          fontSize: 14.5,
+          color: "#0c3b34"
+        }
+      }, item.name), /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 9.5,
+          fontFamily: "'Jua',sans-serif",
+          color: "#fff",
+          background: t.color,
+          borderRadius: 6,
+          padding: "1.5px 6px"
+        }
+      }, t.name), equipped && /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 10.5,
+          color: "#27ae8f",
+          fontFamily: "'Jua',sans-serif"
+        }
+      }, "장착 중")), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: "#5a7d77",
+          margin: "2px 0 3px"
+        }
+      }, item.desc), /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: "flex",
+          gap: 10,
+          flexWrap: "wrap"
+        }
+      }, Object.entries(item.stats).map(([sn, sv]) => /*#__PURE__*/React.createElement("span", {
+        key: sn,
+        style: {
+          fontSize: 10,
+          color: "#7a948c"
+        }
+      }, sn, " ", /*#__PURE__*/React.createElement(Stars, {
+        n: sv
+      }))))), owned ? equipped ? /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 14,
+          color: "#27ae8f"
+        }
+      }, "✓") : /*#__PURE__*/React.createElement("button", {
+        onClick: onEquip,
+        style: {
+          fontFamily: "'Jua',sans-serif",
+          fontSize: 12.5,
+          border: "none",
+          borderRadius: 10,
+          padding: "7px 12px",
+          cursor: "pointer",
+          background: "#cfe2da",
+          color: "#2c6f86"
+        }
+      }, "장착") : /*#__PURE__*/React.createElement("button", {
+        onClick: onBuy,
+        disabled: !afford,
+        style: {
+          fontFamily: "'Jua',sans-serif",
+          fontSize: 12.5,
+          border: "none",
+          borderRadius: 10,
+          padding: "7px 11px",
+          minWidth: 62,
+          cursor: afford ? "pointer" : "default",
+          background: afford ? "linear-gradient(135deg,#ffd86b,#ff9f43)" : "#e0e0e0",
+          color: afford ? "#5a3a00" : "#999",
+          boxShadow: afford ? "0 3px 0 #d97f1e" : "none"
+        }
+      }, "🪙", item.cost));
+    };
     return /*#__PURE__*/React.createElement(Center, null, /*#__PURE__*/React.createElement(Fonts, null), /*#__PURE__*/React.createElement("div", {
       style: {
         ...cardStyle,
@@ -3510,16 +3770,68 @@ function FlyFishingGame() {
       }
     }, "🪙 ", coins)), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontSize: 12,
+        display: "flex",
+        gap: 8,
+        width: "100%",
+        marginTop: 10
+      }
+    }, [{
+      icon: GEAR.rod.icon,
+      label: GEAR.rod.levelNames[gearLvl.rod - 1],
+      sub: `Lv.${gearLvl.rod}`
+    }, {
+      icon: GEAR.line.icon,
+      label: GEAR.line.levelNames[gearLvl.line - 1],
+      sub: `Lv.${gearLvl.line}`
+    }, {
+      icon: BAITS[equippedBait].icon,
+      label: BAITS[equippedBait].name,
+      sub: TIERS[BAITS[equippedBait].tier].name
+    }, {
+      icon: CREELS[equippedCreel].icon,
+      label: CREELS[equippedCreel].name,
+      sub: TIERS[CREELS[equippedCreel].tier].name
+    }].map((s, i) => /*#__PURE__*/React.createElement("div", {
+      key: i,
+      style: {
+        flex: 1,
+        background: "#f1f8f5",
+        borderRadius: 12,
+        padding: "8px 4px",
+        textAlign: "center",
+        border: "1.5px solid #dcebe4"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 20
+      }
+    }, s.icon), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 9.5,
+        fontFamily: "'Jua',sans-serif",
+        color: "#0c3b34",
+        marginTop: 2,
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis"
+      }
+    }, s.label), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 8.5,
+        color: "#7a948c"
+      }
+    }, s.sub)))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11.5,
         color: "#5a7d77",
-        marginTop: 4
+        marginTop: 6
       }
     }, "장비를 갖출수록 새 장소가 열려요 (진척도 ", gearSum(gearLvl, ownedBaits), ")"), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         gap: 6,
         width: "100%",
-        marginTop: 12
+        marginTop: 10
       }
     }, [["gear", "🎣 장비"], ["bait", "🪰 미끼"], ["creel", "🧺 어망"]].map(([key, label]) => /*#__PURE__*/React.createElement("button", {
       key: key,
@@ -3538,10 +3850,10 @@ function FlyFishingGame() {
     }, label))), shopTab === "gear" && /*#__PURE__*/React.createElement("div", {
       style: {
         width: "100%",
-        marginTop: 14,
+        marginTop: 12,
         display: "flex",
         flexDirection: "column",
-        gap: 12
+        gap: 10
       }
     }, Object.keys(GEAR).map(key => {
       const g = GEAR[key],
@@ -3551,20 +3863,24 @@ function FlyFishingGame() {
         afford = coins >= cost;
       const curName = g.levelNames[lvl - 1],
         nextName = !maxed ? g.levelNames[lvl] : null;
+      const tier = lvl; // 레벨=등급 취급 (1~3)
+      const t = TIERS[tier];
       return /*#__PURE__*/React.createElement("div", {
         key: key,
         style: {
-          background: "#f1f8f5",
-          borderRadius: 14,
-          padding: "12px 14px",
+          background: t.bg,
+          borderRadius: 13,
+          padding: "11px 13px",
           display: "flex",
           alignItems: "center",
-          gap: 12,
-          textAlign: "left"
+          gap: 11,
+          textAlign: "left",
+          border: `2px solid ${t.color}`,
+          animation: fxOn("gear-" + key) ? "buypop .55s ease-out" : "none"
         }
       }, /*#__PURE__*/React.createElement("div", {
         style: {
-          fontSize: 30
+          fontSize: 28
         }
       }, g.icon), /*#__PURE__*/React.createElement("div", {
         style: {
@@ -3572,22 +3888,32 @@ function FlyFishingGame() {
         }
       }, /*#__PURE__*/React.createElement("div", {
         style: {
+          display: "flex",
+          alignItems: "center",
+          gap: 6
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
           fontFamily: "'Jua',sans-serif",
-          fontSize: 16,
+          fontSize: 15,
           color: "#0c3b34"
         }
-      }, curName, " ", /*#__PURE__*/React.createElement("span", {
+      }, curName), /*#__PURE__*/React.createElement("span", {
         style: {
-          color: "#2c6f86",
-          fontSize: 12
+          fontSize: 9.5,
+          fontFamily: "'Jua',sans-serif",
+          color: "#fff",
+          background: t.color,
+          borderRadius: 6,
+          padding: "1.5px 6px"
         }
       }, "Lv.", lvl)), /*#__PURE__*/React.createElement("div", {
         style: {
-          fontSize: 11.5,
+          fontSize: 11,
           color: "#5a7d77",
           margin: "2px 0 4px"
         }
-      }, g.desc, nextName ? ` · 다음: ${nextName}` : ""), /*#__PURE__*/React.createElement("div", {
+      }, g.desc, nextName ? ` · 다음: ${nextName}` : " · 최고 단계!"), /*#__PURE__*/React.createElement("div", {
         style: {
           display: "flex",
           gap: 4
@@ -3595,7 +3921,7 @@ function FlyFishingGame() {
       }, [1, 2, 3].map(n => /*#__PURE__*/React.createElement("div", {
         key: n,
         style: {
-          width: 22,
+          width: 26,
           height: 6,
           borderRadius: 3,
           background: n <= lvl ? "#27ae8f" : "#d4e4de"
@@ -3605,11 +3931,11 @@ function FlyFishingGame() {
         disabled: maxed || !afford,
         style: {
           fontFamily: "'Jua',sans-serif",
-          fontSize: 14,
+          fontSize: 13,
           border: "none",
-          borderRadius: 12,
-          padding: "8px 12px",
-          minWidth: 72,
+          borderRadius: 11,
+          padding: "8px 11px",
+          minWidth: 68,
           cursor: maxed || !afford ? "default" : "pointer",
           background: maxed ? "#bcd" : afford ? "linear-gradient(135deg,#ffd86b,#ff9f43)" : "#e0e0e0",
           color: maxed ? "#fff" : afford ? "#5a3a00" : "#999",
@@ -3619,205 +3945,41 @@ function FlyFishingGame() {
     })), shopTab === "bait" && /*#__PURE__*/React.createElement("div", {
       style: {
         width: "100%",
-        marginTop: 14,
-        textAlign: "left"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontFamily: "'Jua',sans-serif",
-        fontSize: 16,
-        color: "#0c3b34",
-        marginBottom: 8
-      }
-    }, "🪰 미끼 ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 12,
-        color: "#5a7d77"
-      }
-    }, "· 하나 골라 장착")), /*#__PURE__*/React.createElement("div", {
-      style: {
+        marginTop: 12,
         display: "flex",
         flexDirection: "column",
         gap: 8
       }
-    }, Object.keys(BAITS).map(key => {
-      const bt = BAITS[key],
-        owned = ownedBaits.includes(key),
-        equipped = equippedBait === key,
-        afford = coins >= bt.cost;
-      return /*#__PURE__*/React.createElement("div", {
-        key: key,
-        style: {
-          background: equipped ? "#e3f2ec" : "#f1f8f5",
-          borderRadius: 12,
-          padding: "10px 12px",
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          border: equipped ? "1.5px solid #27ae8f" : "1.5px solid transparent"
-        }
-      }, /*#__PURE__*/React.createElement("div", {
-        style: {
-          fontSize: 24
-        }
-      }, bt.icon), /*#__PURE__*/React.createElement("div", {
-        style: {
-          flex: 1
-        }
-      }, /*#__PURE__*/React.createElement("div", {
-        style: {
-          fontFamily: "'Jua',sans-serif",
-          fontSize: 15,
-          color: "#0c3b34"
-        }
-      }, bt.name, equipped && /*#__PURE__*/React.createElement("span", {
-        style: {
-          fontSize: 11,
-          color: "#27ae8f",
-          marginLeft: 6
-        }
-      }, "장착 중")), /*#__PURE__*/React.createElement("div", {
-        style: {
-          fontSize: 11.5,
-          color: "#5a7d77"
-        }
-      }, bt.desc)), owned ? equipped ? /*#__PURE__*/React.createElement("span", {
-        style: {
-          fontSize: 12,
-          color: "#27ae8f",
-          fontFamily: "'Jua',sans-serif"
-        }
-      }, "✓") : /*#__PURE__*/React.createElement("button", {
-        onClick: () => equipBait(key),
-        style: {
-          fontFamily: "'Jua',sans-serif",
-          fontSize: 13,
-          border: "none",
-          borderRadius: 10,
-          padding: "7px 12px",
-          cursor: "pointer",
-          background: "#cfe2da",
-          color: "#2c6f86"
-        }
-      }, "장착") : /*#__PURE__*/React.createElement("button", {
-        onClick: () => buyBait(key),
-        disabled: !afford,
-        style: {
-          fontFamily: "'Jua',sans-serif",
-          fontSize: 13,
-          border: "none",
-          borderRadius: 10,
-          padding: "7px 12px",
-          minWidth: 64,
-          cursor: afford ? "pointer" : "default",
-          background: afford ? "linear-gradient(135deg,#ffd86b,#ff9f43)" : "#e0e0e0",
-          color: afford ? "#5a3a00" : "#999",
-          boxShadow: afford ? "0 3px 0 #d97f1e" : "none"
-        }
-      }, "🪙", bt.cost));
+    }, Object.keys(BAITS).map(key => /*#__PURE__*/React.createElement(ItemCard, {
+      key: key,
+      k: key,
+      item: BAITS[key],
+      fxKey: "bait-" + key,
+      owned: ownedBaits.includes(key),
+      equipped: equippedBait === key,
+      onBuy: () => buyBait(key),
+      onEquip: () => equipBait(key)
     }))), shopTab === "creel" && /*#__PURE__*/React.createElement("div", {
       style: {
         width: "100%",
-        marginTop: 14,
-        textAlign: "left"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontFamily: "'Jua',sans-serif",
-        fontSize: 16,
-        color: "#0c3b34",
-        marginBottom: 8
-      }
-    }, "🧺 어망 ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 12,
-        color: "#5a7d77"
-      }
-    }, "· 점수 보너스")), /*#__PURE__*/React.createElement("div", {
-      style: {
+        marginTop: 12,
         display: "flex",
         flexDirection: "column",
         gap: 8
       }
-    }, Object.keys(CREELS).map(key => {
-      const cr = CREELS[key],
-        owned = ownedCreels.includes(key),
-        equipped = equippedCreel === key,
-        afford = coins >= cr.cost;
-      return /*#__PURE__*/React.createElement("div", {
-        key: key,
-        style: {
-          background: equipped ? "#e3f2ec" : "#f1f8f5",
-          borderRadius: 12,
-          padding: "10px 12px",
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          border: equipped ? "1.5px solid #27ae8f" : "1.5px solid transparent"
-        }
-      }, /*#__PURE__*/React.createElement("div", {
-        style: {
-          fontSize: 24
-        }
-      }, cr.icon), /*#__PURE__*/React.createElement("div", {
-        style: {
-          flex: 1
-        }
-      }, /*#__PURE__*/React.createElement("div", {
-        style: {
-          fontFamily: "'Jua',sans-serif",
-          fontSize: 15,
-          color: "#0c3b34"
-        }
-      }, cr.name, equipped && /*#__PURE__*/React.createElement("span", {
-        style: {
-          fontSize: 11,
-          color: "#27ae8f",
-          marginLeft: 6
-        }
-      }, "장착 중")), /*#__PURE__*/React.createElement("div", {
-        style: {
-          fontSize: 11.5,
-          color: "#5a7d77"
-        }
-      }, cr.desc)), owned ? equipped ? /*#__PURE__*/React.createElement("span", {
-        style: {
-          fontSize: 12,
-          color: "#27ae8f",
-          fontFamily: "'Jua',sans-serif"
-        }
-      }, "✓") : /*#__PURE__*/React.createElement("button", {
-        onClick: () => equipCreel(key),
-        style: {
-          fontFamily: "'Jua',sans-serif",
-          fontSize: 13,
-          border: "none",
-          borderRadius: 10,
-          padding: "7px 12px",
-          cursor: "pointer",
-          background: "#cfe2da",
-          color: "#2c6f86"
-        }
-      }, "장착") : /*#__PURE__*/React.createElement("button", {
-        onClick: () => buyCreel(key),
-        disabled: !afford,
-        style: {
-          fontFamily: "'Jua',sans-serif",
-          fontSize: 13,
-          border: "none",
-          borderRadius: 10,
-          padding: "7px 12px",
-          minWidth: 64,
-          cursor: afford ? "pointer" : "default",
-          background: afford ? "linear-gradient(135deg,#ffd86b,#ff9f43)" : "#e0e0e0",
-          color: afford ? "#5a3a00" : "#999",
-          boxShadow: afford ? "0 3px 0 #d97f1e" : "none"
-        }
-      }, "🪙", cr.cost));
+    }, Object.keys(CREELS).map(key => /*#__PURE__*/React.createElement(ItemCard, {
+      key: key,
+      k: key,
+      item: CREELS[key],
+      fxKey: "creel-" + key,
+      owned: ownedCreels.includes(key),
+      equipped: equippedCreel === key,
+      onBuy: () => buyCreel(key),
+      onEquip: () => equipCreel(key)
     }))), /*#__PURE__*/React.createElement(BigBtn, {
       onClick: () => setScreen("map"),
       variant: "ghost"
-    }, "← 지도로")));
+    }, "← 지도로")), /*#__PURE__*/React.createElement("style", null, `@keyframes buypop { 0%{transform:scale(1)} 30%{transform:scale(1.06);box-shadow:0 0 18px rgba(255,200,60,.8)} 100%{transform:scale(1)} }`));
   }
 
   // ─── 결과 ───
