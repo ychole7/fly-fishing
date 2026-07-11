@@ -565,6 +565,11 @@ export default function FlyFishingGame() {
   const dailyRef = useRef(null); dailyRef.current = daily;
   const runStats = useRef({ caught: 0, big: 0 }); // 이번 판 미션 추적
   const creelMulRef = useRef(1); // 장착 어망 점수 배율
+  const rushRef = useRef({ until: 0, next: 0 }); // 물고기 떼 러시
+  const goldRef = useRef(0); // 다음 황금물고기 시각
+  const trashRef = useRef(0); // 다음 쓰레기 시각
+  const [rushOn, setRushOn] = useState(false);
+  const rushOnRef = useRef(false);
   const poolBoxRef = useRef(null); // 게임 낚시터 컨테이너
   const creelBoxRef = useRef(null); // 하단 어망
   const eff = useRef({}), spotRef = useRef(SPOTS[0]);
@@ -761,11 +766,36 @@ export default function FlyFishingGame() {
     });
   };
 
-  const spawnFish = () => {
-    const name = pickFishType(); const type = FISH[name];
+  const spawnFish = (special) => {
     const spot = spotRef.current;
     const dir = Math.random() < 0.5 ? 1 : -1;
     const y = WATER_TOP + 40 + Math.random() * (POOL_H - WATER_TOP - 80);
+    if (special === "gold") {
+      // 황금 물고기: 아주 빠르게 지나감, 잡으면 대박 보너스
+      fishesRef.current.push({
+        id: fishIdRef.current++, name: "황금물고기",
+        type: { color: "#ffcf3f", points: 500, holdMs: 1100, size: 1.1, fight: 1, emoji: "🐠", rarity: 5, cm: 40, desc: "" },
+        special: "gold",
+        x: dir === 1 ? -40 : POOL_W + 40, y, baseY: y,
+        vx: dir * 190 * spot.flow, dir, state: "swim", targetLine: null, biteStart: 0, isFake: false,
+        wiggleSeed: Math.random() * 6.28, targetY: y, nextDepth: 0, pitch: 0,
+      });
+      return;
+    }
+    if (special === "trash") {
+      // 쓰레기(장화): 잡으면 감점, 물지 않게 조심
+      const junk = [["장화", "🥾"], ["헌 신발", "👟"], ["깡통", "🥫"], ["비닐봉지", "🛍️"]][Math.floor(Math.random() * 4)];
+      fishesRef.current.push({
+        id: fishIdRef.current++, name: junk[0],
+        type: { color: "#8a8a8a", points: 0, holdMs: 1600, size: 0.9, fight: 1, emoji: junk[1], rarity: 1, cm: 0, desc: "" },
+        special: "trash",
+        x: dir === 1 ? -40 : POOL_W + 40, y, baseY: y,
+        vx: dir * (30 + Math.random() * 20) * spot.flow, dir, state: "swim", targetLine: null, biteStart: 0, isFake: false,
+        wiggleSeed: Math.random() * 6.28, targetY: y, nextDepth: 0, pitch: 0,
+      });
+      return;
+    }
+    const name = pickFishType(); const type = FISH[name];
     fishesRef.current.push({
       id: fishIdRef.current++, name, type,
       x: dir === 1 ? -40 : POOL_W + 40, y, baseY: y,
@@ -791,7 +821,35 @@ export default function FlyFishingGame() {
     const flowHold = 1 / spot.flow; // 물살 세면 유지시간 짧아짐
     const maxBites = E.maxBites;
 
-    if (ts - lastSpawn.current > spawnGap + Math.random() * 400) { lastSpawn.current = ts; if (fishesRef.current.length < (inFever ? 12 : 9)) spawnFish(); }
+    // ── 물고기 떼 러시: 게임당 한두 번, 5초간 물고기 쏟아짐 ──
+    const nowMs = ts;
+    if (rushRef.current.next === 0) rushRef.current.next = ts + 12000 + Math.random() * 10000; // 첫 러시 예약
+    const inRush = nowMs < rushRef.current.until;
+    if (!inRush && nowMs > rushRef.current.next && elapsedRef.current < 52) {
+      rushRef.current.until = nowMs + 5000;
+      rushRef.current.next = nowMs + 22000 + Math.random() * 12000;
+      addPop(POOL_W / 2, WATER_TOP + 40, "🐟 떼가 몰려온다!", "#ffe066");
+      play("fever"); setRushOn(true);
+    }
+    if (inRush !== rushOnRef.current) { rushOnRef.current = inRush; setRushOn(inRush); }
+
+    // ── 황금 물고기: 가끔 빠르게 등장 (놓치기 쉬움, 대박) ──
+    if (goldRef.current === 0) goldRef.current = ts + 15000 + Math.random() * 15000;
+    if (nowMs > goldRef.current && elapsedRef.current < 55) {
+      goldRef.current = nowMs + 20000 + Math.random() * 20000;
+      if (fishesRef.current.length < 12) spawnFish("gold");
+    }
+    // ── 쓰레기: 가끔 등장 (물면 감점) ──
+    if (trashRef.current === 0) trashRef.current = ts + 8000 + Math.random() * 10000;
+    if (nowMs > trashRef.current && elapsedRef.current < 55) {
+      trashRef.current = nowMs + 12000 + Math.random() * 12000;
+      if (fishesRef.current.length < 10) spawnFish("trash");
+    }
+
+    const rushGap = inRush ? 250 : 0;
+    const effSpawnGap = spawnGap - rushGap;
+    const spawnCap = inRush ? 16 : (inFever ? 12 : 9);
+    if (ts - lastSpawn.current > effSpawnGap + Math.random() * 400) { lastSpawn.current = ts; if (fishesRef.current.length < spawnCap) spawnFish(); }
 
     const fishes = fishesRef.current; const missQueue = [];
     for (const f of fishes) {
@@ -865,6 +923,8 @@ export default function FlyFishingGame() {
     getCtx(); computeEff(gearLvl, equippedBait); spotRef.current = SPOTS[idx]; setSpotIdx(idx);
     if (soundOn.current) bgm.start();
     creelMulRef.current = (CREELS[equippedCreel] || CREELS.basic).mult;
+    rushRef.current = { until: 0, next: 0 }; goldRef.current = 0; trashRef.current = 0;
+    rushOnRef.current = false; setRushOn(false);
     const w = rollWeather();
     setWeather(w);
     weatherRef.current = { ...w, approachMul: TIMES[w.time].approachMul * SKIES[w.sky].approachMul, fakeMul: SKIES[w.sky].fakeMul };
@@ -884,6 +944,28 @@ export default function FlyFishingGame() {
   useEffect(() => () => cancelAnimationFrame(raf.current), []);
 
   const landFish = (f, line, mult, label) => {
+    // 쓰레기: 잡으면 감점, 도감·어망 기록 없음
+    if (f.special === "trash") {
+      occupiedLines.current.delete(line); f.state = "caught"; f.vx = 0; f.targetLine = null;
+      const penalty = 50;
+      setScore((s) => Math.max(0, s - penalty));
+      setCombo(0); // 콤보 끊김
+      addPop(lineX(line), HOOK_Y - 10, `${f.type.emoji} ${f.name}… -${penalty}`, "#c0c0c0");
+      play("miss"); vibrate(20); addSplash(lineX(line), HOOK_Y, false);
+      return;
+    }
+    // 황금 물고기: 대박 보너스, 도감엔 없음
+    if (f.special === "gold") {
+      occupiedLines.current.delete(line); f.state = "caught"; f.vx = 0; f.targetLine = null;
+      const g = Math.round(500 * mult * creelMulRef.current);
+      setScore((s) => s + g); bumpCombo();
+      addPop(lineX(line), HOOK_Y - 10, `🐠 황금물고기! +${g}`, "#ffcf3f");
+      showFanfare("🐠 GOLD!"); play("big"); setTimeout(() => play("perfect"), 80);
+      vibrate([20, 40, 20, 40]); addSplash(lineX(line), HOOK_Y, true); triggerShake(9);
+      flyToCreel(f.name, line);
+      runStats.current.exp += 120;
+      return;
+    }
     const c = comboRef.current, feverBonus = feverRef.current ? 2 : 1;
     const g = Math.round(f.type.points * mult * (1 + c * 0.1) * feverBonus * creelMulRef.current);
     setScore((s) => s + g); bumpCombo();
@@ -1102,6 +1184,7 @@ export default function FlyFishingGame() {
       { emoji: "❗", title: "입질이 오면 탭!", body: "물고기가 줄을 물면 그 줄이 흔들리고 ❗ 표시가 떠요. 그 줄을 탭하면 낚여요. 타이밍이 정확할수록 점수가 커져요(👍 → ✨ → ⚡)." },
       { emoji: "🎣", title: "대물은 끌어올리기", body: "큰 물고기는 무니까 줄이 팽팽해져요. 화면을 연타해서 끌어올리세요. 미끼·장비를 키우고 도감을 채우면 더 멀리, 더 깊이 떠날 수 있어요!" },
       { emoji: "⏱️", title: "한 판은 60초!", body: "제한 시간은 60초예요. 입질을 놓치거나 빈 줄을 잘못 치면 미스(❌)가 쌓이는데, 5번 쌓이면 그 자리에서 끝나요. 침착하게, 확실할 때만 챔질하세요!" },
+      { emoji: "🐠", title: "특별한 순간들", body: "가끔 황금물고기(🐠)가 빠르게 지나가요 — 잡으면 대박! 반대로 장화·깡통 같은 쓰레기(🥾)를 낚으면 감점이니 조심하세요. 또 '떼가 몰려온다!' 러시 타임엔 물고기가 우르르 쏟아져요!" },
     ];
     const s = steps[Math.min(tutStep, steps.length) - 1];
     const last = tutStep >= steps.length;
@@ -1744,6 +1827,7 @@ export default function FlyFishingGame() {
             🎣 {score}
             {combo > 1 && <span style={{ fontSize: 14, marginLeft: 8, color: "#ffe066" }}>🔥{combo}</span>}
             {fever && <span style={{ fontSize: 14, marginLeft: 8, color: "#ff5ca8" }}>★FEVER</span>}
+            {rushOn && <span style={{ fontSize: 14, marginLeft: 8, color: "#7fe0c0" }}>🐟 러시!</span>}
           </div>
           <div style={{ textAlign: "right", fontSize: 13 }}>
             <div>{spot.name} · ⏱{timeLeft}s</div>
