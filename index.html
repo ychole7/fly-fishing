@@ -1410,150 +1410,253 @@ function noise({
   src.start(t);
   src.stop(t + dur + 0.02);
 }
-const sfx = {
-  // 입질: 톡톡 두드리는 느낌 + 약한 물방울
-  bite: () => {
+// ── 음원 파일 지원 ──
+// sounds/ 폴더에 mp3를 넣으면 자동으로 그 소리를 사용. 없으면 합성음(fallback).
+// 파일명: bite.mp3, catch.mp3, perfect.mp3, big.mp3, splash.mp3, miss.mp3,
+//         pull.mp3, fever.mp3, buy.mp3, unlock.mp3
+const SOUND_FILES = ["bite", "catch", "perfect", "big", "splash", "miss", "pull", "fever", "buy", "unlock"];
+const audioBuffers = {}; // 로드된 음원
+const audioTried = {}; // 로드 시도 여부
+function loadSound(key) {
+  if (audioTried[key]) return;
+  audioTried[key] = true;
+  const ctx = getCtx();
+  if (!ctx) return;
+  fetch(`sounds/${key}.mp3`).then(r => r.ok ? r.arrayBuffer() : Promise.reject()).then(buf => ctx.decodeAudioData(buf)).then(decoded => {
+    audioBuffers[key] = decoded;
+  }).catch(() => {}); // 파일 없으면 조용히 합성음 사용
+}
+function playFile(key, vol = 0.7) {
+  const ctx = getCtx();
+  if (!ctx || !audioBuffers[key]) return false;
+  if (ctx.state === "suspended") ctx.resume();
+  const src = ctx.createBufferSource();
+  src.buffer = audioBuffers[key];
+  const g = ctx.createGain();
+  g.gain.value = vol;
+  src.connect(g);
+  g.connect(ctx.destination);
+  src.start();
+  return true;
+}
+
+// 물 튀는 소리 (여러 겹으로 사실감 ↑)
+function splashNoise(strength = 1) {
+  // 1) 초기 "촥" — 넓은 대역 노이즈가 빠르게 감쇠
+  noise({
+    dur: 0.09 * strength,
+    vol: 0.2 * strength,
+    type: "highpass",
+    freq: 900,
+    slideTo: 3000
+  });
+  // 2) 물살 갈라짐 — 중역 대역이 아래로
+  noise({
+    dur: 0.22 * strength,
+    vol: 0.16 * strength,
+    type: "bandpass",
+    freq: 1800,
+    q: 0.7,
+    slideTo: 400,
+    delay: 0.02
+  });
+  // 3) 잔물결 — 낮게 깔리는 여운
+  noise({
+    dur: 0.3 * strength,
+    vol: 0.09 * strength,
+    type: "lowpass",
+    freq: 700,
+    slideTo: 200,
+    delay: 0.06
+  });
+  // 4) 물방울 몇 개 튐
+  for (let i = 0; i < 3; i++) {
+    const f = 900 + Math.random() * 1200;
     tone({
-      freq: 340,
-      slideTo: 200,
-      dur: 0.08,
-      type: "triangle",
-      vol: 0.18
-    });
-    noise({
-      dur: 0.06,
-      vol: 0.06,
-      freq: 900
-    });
-  },
-  // 챔질 성공: "척!" 물 가르는 노이즈 + 맑은 띵
-  catch: () => {
-    noise({
-      dur: 0.14,
-      vol: 0.18,
-      type: "highpass",
-      freq: 600,
-      slideTo: 2200
-    });
-    tone({
-      freq: 600,
-      slideTo: 920,
-      dur: 0.12,
-      type: "square",
-      vol: 0.13
-    });
-    tone({
-      freq: 920,
-      dur: 0.12,
-      type: "sine",
-      vol: 0.12,
-      delay: 0.07
-    });
-  },
-  // 완벽: 청량한 상승 아르페지오 + 반짝
-  perfect: () => {
-    noise({
-      dur: 0.12,
-      vol: 0.14,
-      type: "highpass",
-      freq: 1200,
-      slideTo: 4000
-    });
-    [784, 1047, 1318, 1568].forEach((f, i) => tone({
       freq: f,
-      dur: 0.12,
-      type: "triangle",
-      vol: 0.15,
-      delay: i * 0.05
-    }));
-  },
-  // 대물: 묵직한 저음 + 첨벙
-  big: () => {
-    tone({
-      freq: 140,
-      slideTo: 70,
-      dur: 0.32,
-      type: "sawtooth",
-      vol: 0.2
-    });
-    noise({
-      dur: 0.3,
-      vol: 0.2,
-      type: "lowpass",
-      freq: 500,
-      slideTo: 160
-    });
-    [440, 587, 740].forEach((f, i) => tone({
-      freq: f,
-      dur: 0.16,
-      type: "triangle",
-      vol: 0.13,
-      delay: 0.12 + i * 0.07
-    }));
-  },
-  miss: () => {
-    tone({
-      freq: 200,
-      slideTo: 80,
-      dur: 0.2,
-      type: "sawtooth",
-      vol: 0.15
-    });
-    noise({
-      dur: 0.12,
-      vol: 0.08,
-      freq: 400
-    });
-  },
-  pull: () => {
-    tone({
-      freq: 240 + Math.random() * 120,
+      slideTo: f * 1.7,
       dur: 0.05,
-      type: "square",
+      type: "sine",
+      vol: 0.05 * strength,
+      delay: 0.08 + i * 0.05
+    });
+  }
+}
+const sfx = {
+  // 입질: 미끼를 톡 건드리는 느낌 (물속에서 둔탁하게)
+  bite: () => {
+    if (playFile("bite", 0.6)) return;
+    tone({
+      freq: 300,
+      slideTo: 170,
+      dur: 0.07,
+      type: "triangle",
+      vol: 0.16
+    });
+    noise({
+      dur: 0.05,
+      vol: 0.07,
+      type: "lowpass",
+      freq: 700
+    });
+    tone({
+      freq: 620,
+      dur: 0.04,
+      type: "sine",
+      vol: 0.06,
+      delay: 0.04
+    });
+  },
+  // 챔질 성공: 물을 가르며 낚아채는 "촥!"
+  catch: () => {
+    if (playFile("catch", 0.7)) return;
+    splashNoise(0.85);
+    tone({
+      freq: 520,
+      slideTo: 880,
+      dur: 0.11,
+      type: "triangle",
       vol: 0.12
     });
-    noise({
-      dur: 0.04,
-      vol: 0.07,
-      freq: 1500
+    tone({
+      freq: 880,
+      dur: 0.13,
+      type: "sine",
+      vol: 0.11,
+      delay: 0.08
     });
   },
-  fever: () => [523, 659, 784, 1047].forEach((f, i) => tone({
-    freq: f,
-    dur: 0.14,
-    type: "triangle",
-    vol: 0.16,
-    delay: i * 0.08
-  })),
+  // 완벽 타이밍: 물 가름 + 청량한 상승음
+  perfect: () => {
+    if (playFile("perfect", 0.7)) return;
+    splashNoise(0.9);
+    [784, 1047, 1318, 1760].forEach((f, i) => tone({
+      freq: f,
+      dur: 0.13,
+      type: "triangle",
+      vol: 0.14,
+      delay: 0.04 + i * 0.055
+    }));
+    tone({
+      freq: 2637,
+      dur: 0.18,
+      type: "sine",
+      vol: 0.07,
+      delay: 0.24
+    });
+  },
+  // 대물: 묵직하게 끌려 올라오며 크게 첨벙
+  big: () => {
+    if (playFile("big", 0.8)) return;
+    tone({
+      freq: 130,
+      slideTo: 62,
+      dur: 0.36,
+      type: "sawtooth",
+      vol: 0.18
+    });
+    tone({
+      freq: 190,
+      slideTo: 90,
+      dur: 0.3,
+      type: "triangle",
+      vol: 0.12,
+      delay: 0.02
+    });
+    splashNoise(1.5);
+    [440, 587, 740].forEach((f, i) => tone({
+      freq: f,
+      dur: 0.17,
+      type: "triangle",
+      vol: 0.12,
+      delay: 0.18 + i * 0.07
+    }));
+  },
+  // 물보라 (대물 잡을 때 덧입힘)
+  splash: () => {
+    if (playFile("splash", 0.6)) return;
+    splashNoise(1.1);
+  },
+  // 실패: 놓쳤을 때 힘 빠지는 소리
+  miss: () => {
+    if (playFile("miss", 0.6)) return;
+    tone({
+      freq: 210,
+      slideTo: 75,
+      dur: 0.22,
+      type: "sawtooth",
+      vol: 0.13
+    });
+    noise({
+      dur: 0.14,
+      vol: 0.07,
+      type: "lowpass",
+      freq: 450,
+      slideTo: 180
+    });
+  },
+  // 연타(대물과 씨름): 줄이 팽팽하게 당겨지는 느낌
+  pull: () => {
+    if (playFile("pull", 0.5)) return;
+    const f = 230 + Math.random() * 130;
+    tone({
+      freq: f,
+      slideTo: f * 1.25,
+      dur: 0.05,
+      type: "square",
+      vol: 0.1
+    });
+    noise({
+      dur: 0.05,
+      vol: 0.06,
+      type: "bandpass",
+      freq: 1600,
+      q: 1.2
+    });
+  },
+  fever: () => {
+    if (playFile("fever", 0.7)) return;
+    [523, 659, 784, 1047].forEach((f, i) => tone({
+      freq: f,
+      dur: 0.14,
+      type: "triangle",
+      vol: 0.16,
+      delay: i * 0.08
+    }));
+  },
   buy: () => {
+    if (playFile("buy", 0.6)) return;
     tone({
       freq: 700,
       dur: 0.1,
       type: "square",
-      vol: 0.15
+      vol: 0.14
     });
     tone({
       freq: 1050,
-      dur: 0.12,
-      vol: 0.14,
+      dur: 0.13,
+      type: "sine",
+      vol: 0.13,
       delay: 0.08
     });
+    tone({
+      freq: 1400,
+      dur: 0.1,
+      type: "sine",
+      vol: 0.08,
+      delay: 0.16
+    });
   },
-  unlock: () => [523, 659, 784, 1047, 1318].forEach((f, i) => tone({
-    freq: f,
-    dur: 0.16,
-    type: "triangle",
-    vol: 0.16,
-    delay: i * 0.09
-  })),
-  splash: () => noise({
-    dur: 0.2,
-    vol: 0.14,
-    type: "bandpass",
-    freq: 1400,
-    q: 0.6,
-    slideTo: 500
-  })
+  unlock: () => {
+    if (playFile("unlock", 0.7)) return;
+    [523, 659, 784, 1047, 1318].forEach((f, i) => tone({
+      freq: f,
+      dur: 0.16,
+      type: "triangle",
+      vol: 0.16,
+      delay: i * 0.09
+    }));
+  }
 };
 
 // 배경음 사용 안 함 (효과음만 유지). start/stop는 호출돼도 아무 동작 없음.
@@ -2262,6 +2365,7 @@ function FlyFishingGame() {
   }, [screen, endGame]);
   const startSpot = idx => {
     getCtx();
+    SOUND_FILES.forEach(loadSound);
     computeEff(gearLvl, equippedBait);
     spotRef.current = SPOTS[idx];
     setSpotIdx(idx);
