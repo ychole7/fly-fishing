@@ -5134,11 +5134,12 @@ function Center({
   return /*#__PURE__*/React.createElement("div", {
     style: {
       minHeight: "100vh",
+      maxHeight: "100vh",
       display: "grid",
       placeItems: "center",
       background: "#0c3b34",
       fontFamily: "'Gowun Dodum',sans-serif",
-      padding: 16,
+      padding: 8,
       boxSizing: "border-box"
     }
   }, /*#__PURE__*/React.createElement(RotateHint, null), children);
@@ -5181,9 +5182,12 @@ function RotateHint() {
 const cardStyle = {
   background: "#fff",
   borderRadius: 22,
-  padding: "26px 22px",
+  padding: "18px 18px",
   width: "100%",
   maxWidth: 380,
+  maxHeight: "calc(100vh - 24px)",
+  overflowY: "auto",
+  WebkitOverflowScrolling: "touch",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
