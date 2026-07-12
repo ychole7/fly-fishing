@@ -4,13 +4,31 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="파리낚시" />
 <meta name="theme-color" content="#0c3b34" />
+<meta name="description" content="전국 방방곡곡, 한 마리 낚으러 가자. 20개 하천에서 31종의 토종 민물고기를 낚는 캐주얼 낚시 게임." />
 <title>파리낚시</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+
 <style>
-  html, body { margin: 0; padding: 0; background: #0c3b34; overscroll-behavior: none; }
+  html, body {
+    margin: 0; padding: 0; background: #0c3b34;
+    overscroll-behavior: none;
+    /* 앱처럼: 스크롤·선택·당겨서새로고침 방지 */
+    overflow: hidden;
+    position: fixed;
+    width: 100%; height: 100%;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
+  }
   * { -webkit-tap-highlight-color: transparent; }
-  #root { width: 100%; min-height: 100vh; }
+  #root { width: 100%; height: 100%; overflow: auto; -webkit-overflow-scrolling: touch; }
 </style>
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -5294,6 +5312,41 @@ function FishArt({
 
 var root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(React.createElement(FlyFishingGame));
+</script>
+
+<script>
+// ── PWA: 서비스워커 등록 (오프라인 지원) ──
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("sw.js").catch(function () {});
+  });
+}
+
+// ── 가로 고정 시도 ──
+// PWA 전체화면(설치 후 실행)일 때 화면을 가로로 잠금.
+// 브라우저 탭에서는 잠금이 허용되지 않으므로, 게임 내 회전 안내가 대신 뜬다.
+function lockLandscape() {
+  try {
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock("landscape").catch(function () {});
+    }
+  } catch (e) {}
+}
+// 설치된 앱(전체화면/standalone)으로 실행된 경우에만 잠금 시도
+function isStandalone() {
+  return (window.matchMedia && window.matchMedia("(display-mode: fullscreen), (display-mode: standalone)").matches)
+    || window.navigator.standalone === true;
+}
+if (isStandalone()) {
+  lockLandscape();
+  // 회전이 풀리면 다시 잠금
+  window.addEventListener("orientationchange", lockLandscape);
+}
+// 첫 사용자 입력 시에도 한 번 더 시도 (일부 브라우저는 제스처 후에만 허용)
+document.addEventListener("pointerdown", function once() {
+  if (isStandalone()) lockLandscape();
+  document.removeEventListener("pointerdown", once);
+}, { once: true });
 </script>
 </body>
 </html>
