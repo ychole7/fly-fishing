@@ -1797,6 +1797,7 @@ function FlyFishingGame() {
   const [ownedCreels, setOwnedCreels] = useState(["basic"]); // 보유 어망
   const [equippedCreel, setEquippedCreel] = useState("basic"); // 장착 어망
   const [shopTab, setShopTab] = useState("gear");
+  const [chargeNotice, setChargeNotice] = useState(false); // 충전소 준비중 안내 배지
   const [showDaily, setShowDaily] = useState(false);
   const [nickname, setNickname] = useState("");
   const [nickDraft, setNickDraft] = useState("");
@@ -4441,7 +4442,7 @@ function FlyFishingGame() {
         width: "100%",
         marginTop: 10
       }
-    }, [["gear", "🎣 장비"], ["bait", "🪰 미끼"], ["creel", "🧺 어망"]].map(([key, label]) => /*#__PURE__*/React.createElement("button", {
+    }, [["gear", "🎣 장비"], ["bait", "🪰 미끼"], ["creel", "🧺 어망"], ["charge", "💎 충전소"]].map(([key, label]) => /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setShopTab(key),
       style: {
@@ -4451,9 +4452,9 @@ function FlyFishingGame() {
         border: "none",
         cursor: "pointer",
         fontFamily: "'Jua',sans-serif",
-        fontSize: 14,
-        background: shopTab === key ? "#27ae8f" : "#eef5f2",
-        color: shopTab === key ? "#fff" : "#5a7d77"
+        fontSize: key === "charge" ? 12.5 : 14,
+        background: shopTab === key ? (key === "charge" ? "#8a5fc0" : "#27ae8f") : key === "charge" ? "#f2edf9" : "#eef5f2",
+        color: shopTab === key ? "#fff" : key === "charge" ? "#8a5fc0" : "#5a7d77"
       }
     }, label))), shopTab === "gear" && /*#__PURE__*/React.createElement("div", {
       style: {
@@ -4534,7 +4535,9 @@ function FlyFishingGame() {
           borderRadius: 3,
           background: n <= lvl ? "#27ae8f" : "#d4e4de"
         }
-      })))), /*#__PURE__*/React.createElement("button", {
+      })))), /*#__PURE__*/React.createElement("div", {
+        style: { display: "flex", flexDirection: "column", gap: 5, alignItems: "stretch" }
+      }, /*#__PURE__*/React.createElement("button", {
         onClick: () => buyUpgrade(key),
         disabled: maxed || !afford,
         style: {
@@ -4549,7 +4552,19 @@ function FlyFishingGame() {
           color: maxed ? "#fff" : afford ? "#5a3a00" : "#999",
           boxShadow: maxed || !afford ? "none" : "0 3px 0 #d97f1e"
         }
-      }, maxed ? "MAX" : `🪙${cost}`));
+      }, maxed ? "MAX" : `🪙${cost}`), !maxed && !afford && /*#__PURE__*/React.createElement("button", {
+        onClick: () => setShopTab("charge"),
+        style: {
+          fontFamily: "'Jua',sans-serif",
+          fontSize: 10.5,
+          border: "none",
+          borderRadius: 9,
+          padding: "4px 6px",
+          cursor: "pointer",
+          background: "#f2edf9",
+          color: "#8a5fc0"
+        }
+      }, "💎 충전")));
     })), shopTab === "bait" && /*#__PURE__*/React.createElement("div", {
       style: {
         width: "100%",
@@ -4584,7 +4599,68 @@ function FlyFishingGame() {
       equipped: equippedCreel === key,
       onBuy: () => buyCreel(key),
       onEquip: () => equipCreel(key)
-    }))), /*#__PURE__*/React.createElement(BigBtn, {
+    }))), shopTab === "charge" && (() => {
+      const h = React.createElement;
+      const notify = () => {
+        setChargeNotice(true);
+        play("miss");
+        setTimeout(() => setChargeNotice(false), 1600);
+      };
+      const packs = [
+        { coin: 300, bonus: 0, price: "₩1,200" },
+        { coin: 1200, bonus: 150, price: "₩4,400", popular: true },
+        { coin: 3000, bonus: 500, price: "₩9,900" },
+        { coin: 7000, bonus: 1500, price: "₩19,900" }
+      ];
+      return h("div", {
+        style: { width: "100%", marginTop: 12, display: "flex", flexDirection: "column", gap: 10, textAlign: "left" }
+      },
+        h("div", { style: { fontSize: 11, color: "#8a6fae", background: "#f2edf9", borderRadius: 10, padding: "7px 10px" } },
+          "💎 코인은 게임 재화, 이 탭은 실제 결제예요."),
+        h("div", {
+          style: {
+            background: "linear-gradient(120deg,#8a5fc0,#5f3f96)",
+            borderRadius: 13, padding: "11px 13px",
+            display: "flex", alignItems: "center", gap: 11, color: "#fff"
+          }
+        },
+          h("div", { style: { fontSize: 26 } }, "🚫"),
+          h("div", { style: { flex: 1 } },
+            h("div", { style: { fontFamily: "'Jua',sans-serif", fontSize: 14.5 } }, "광고 제거"),
+            h("div", { style: { fontSize: 10.5, opacity: 0.85, marginTop: 2 } }, "한 번 구매하면 평생 적용돼요")),
+          h("button", {
+            onClick: notify,
+            style: {
+              fontFamily: "'Jua',sans-serif", fontSize: 12.5, border: "none", borderRadius: 10,
+              padding: "7px 11px", cursor: "pointer", background: "rgba(255,255,255,.92)", color: "#5f3f96"
+            }
+          }, "₩3,900")),
+        h("div", { style: { fontSize: 11, color: "#7a948c", marginTop: 2 } }, "🪙 코인 충전"),
+        h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
+          packs.map((p, i) => h("button", {
+            key: i,
+            onClick: notify,
+            style: {
+              position: "relative",
+              background: p.popular ? "#e3f2ec" : "#f7f9f8",
+              border: p.popular ? "2px solid #27ae8f" : "2px solid transparent",
+              borderRadius: 12, padding: "12px 8px", textAlign: "center", cursor: "pointer"
+            }
+          },
+            p.popular && h("span", {
+              style: {
+                position: "absolute", top: -9, left: "50%", transform: "translateX(-50%)",
+                background: "#27ae8f", color: "#fff", fontSize: 9.5, padding: "2px 8px",
+                borderRadius: 999, fontFamily: "'Jua',sans-serif"
+              }
+            }, "인기"),
+            h("div", { style: { fontFamily: "'Jua',sans-serif", fontSize: 14, color: "#0c3b34", marginTop: p.popular ? 4 : 0 } },
+              "🪙", p.coin.toLocaleString(), p.bonus > 0 && h("span", { style: { color: "#27ae8f", fontSize: 11 } }, " +", p.bonus)),
+            h("div", { style: { fontSize: 11.5, color: "#5a7d77", marginTop: 4 } }, p.price)))),
+        chargeNotice && h("div", {
+          style: { fontSize: 11, color: "#8a5a00", background: "#fff5e2", borderRadius: 10, padding: "8px 10px", textAlign: "center" }
+        }, "🚧 결제 연동은 준비 중이에요"));
+    })(), /*#__PURE__*/React.createElement(BigBtn, {
       onClick: () => setScreen("map"),
       variant: "ghost"
     }, "← 지도로")), /*#__PURE__*/React.createElement("style", null, `@keyframes buypop { 0%{transform:scale(1)} 30%{transform:scale(1.06);box-shadow:0 0 18px rgba(255,200,60,.8)} 100%{transform:scale(1)} }`));
