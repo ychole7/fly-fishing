@@ -1770,7 +1770,9 @@ function FlyFishingGame() {
     bgmVol: 0.35
   });
   const settingsRef = useRef(settings);
-  settingsRef.current = settings; // 상점 탭: gear|bait|creel
+  settingsRef.current = settings;
+  const screenRef = useRef(screen);
+  screenRef.current = screen; // 상점 탭: gear|bait|creel
   const [buyFx, setBuyFx] = useState(null); // 구매 연출 {key, t}
   const [anglerExp, setAnglerExp] = useState(0); // 강태공 누적 경험치
   const [levelUpInfo, setLevelUpInfo] = useState(null); // 결과 화면 레벨업 표시
@@ -2095,6 +2097,7 @@ function FlyFishingGame() {
     return weighted[0].name;
   }, []);
   const endGame = useCallback(() => {
+    if (!runningRef.current) return; // 이중 호출 방지
     runningRef.current = false;
     cancelAnimationFrame(raf.current);
     bgm.stop();
@@ -2171,8 +2174,7 @@ function FlyFishingGame() {
     setCombo(0);
     setMissCount(m => {
       const nm = m + n;
-      if (nm >= 5) endGame();
-      return nm;
+      return nm >= 5 ? 5 : nm; // endGame은 useEffect에서 처리
     });
   };
   const bumpCombo = () => {
@@ -2451,7 +2453,12 @@ function FlyFishingGame() {
     force(n => n + 1);
     raf.current = requestAnimationFrame(loop);
   }, [lineX, pickFishType, endGame]);
+  // missCount가 5에 도달하면 안전하게 endGame 호출 (setState 콜백 밖에서)
   useEffect(() => {
+    if (screen === "playing" && missCount >= 5) endGame();
+  }, [missCount, screen, endGame]);
+
+    useEffect(() => {
     if (screen !== "playing") {
       bgm.stop();
       return;
@@ -2618,7 +2625,7 @@ function FlyFishingGame() {
     play(big ? "big" : mult >= 3 ? "perfect" : "catch");
     if (big) setTimeout(() => play("splash"), 60);
     buzz(big ? [20, 40, 30, 40, 20] : mult >= 3 ? [15, 30, 15] : 18);
-    flyToCreel(f.name, line);
+    requestAnimationFrame(() => flyToCreel(f.name, line)); // DOM 안정 후 호출
     addSplash(lineX(line), HOOK_Y, big);
     triggerShake(big ? 8 : mult >= 3 ? 6 : 3.5);
     if (f.type.rarity >= 5) showFanfare(`🎉 ${f.name}!`);else if (big) showFanfare(`✨ ${f.name}`);else if (mult >= 3) showFanfare("PERFECT!");
@@ -2632,7 +2639,7 @@ function FlyFishingGame() {
     runStats.current.exp += Math.round(f.type.points * (mult >= 3 ? 1.3 : 1));
   };
   const yankLine = i => {
-    if (screen !== "playing") return;
+    if (screenRef.current !== "playing") return;
     const d = dragRef.current;
     // 대물 연타 중에는 어느 줄/어디를 눌러도 연타로 인정 (미스 없음)
     if (d) {
