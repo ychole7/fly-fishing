@@ -1930,6 +1930,9 @@ function FlyFishingGame() {
     const n = lineCount();
     return 60 + (POOL_W - 120) / (n - 1) * i;
   }, []);
+  // 낚싯줄마다 길이(깊이)를 살짝 다르게 -- 순수 시각+판정 통일용, 어종/밸런스에는 영향 없음
+  const LINE_DEPTH_PATTERN = [0, 16, -9, 9, -14, 18, 4, -11, 13, -5, 19, -8];
+  const lineDepth = useCallback(i => HOOK_Y + LINE_DEPTH_PATTERN[i % LINE_DEPTH_PATTERN.length], []);
   // 해금 진척도: 막대+낚싯줄 레벨 합 + 보유 미끼 수 (기존 조건 범위와 맞춤)
   const gearSum = (gl, baits) => gl.rod + gl.line + (baits ? baits.length : 1);
   const persist = useCallback(async next => {
@@ -2101,7 +2104,7 @@ function FlyFishingGame() {
       cr = creel.getBoundingClientRect();
     // 시작: 잡힌 줄의 화면 위치 (POOL 좌표 → 실제 픽셀)
     const sx = pr.left + lineX(lineIdx) / POOL_W * pr.width;
-    const sy = pr.top + HOOK_Y / POOL_H * pr.height;
+    const sy = pr.top + lineDepth(lineIdx) / POOL_H * pr.height;
     // 도착: 어망 중앙
     const ex = cr.left + cr.width / 2,
       ey = cr.top + cr.height / 2;
@@ -2432,7 +2435,7 @@ function FlyFishingGame() {
         }
       } else if (f.state === "approach") {
         const tx = lineX(f.targetLine),
-          ty = HOOK_Y - (f.isFake ? 14 : 0);
+          ty = lineDepth(f.targetLine) - (f.isFake ? 14 : 0);
         const dx = tx - f.x,
           dy = ty - f.y,
           dist = Math.hypot(dx, dy),
@@ -2467,7 +2470,7 @@ function FlyFishingGame() {
       } else if (f.state === "bite") {
         const held = now - f.biteStart;
         f.x = lineX(f.targetLine) + Math.sin(now / 50) * 3;
-        f.y = HOOK_Y + Math.sin(now / 40) * 2;
+        f.y = lineDepth(f.targetLine) + Math.sin(now / 40) * 2;
         if (held > f.type.holdMs * E.holdMul * flowHold) {
           missQueue.push(f.targetLine);
           occupiedLines.current.delete(f.targetLine);
@@ -2477,7 +2480,7 @@ function FlyFishingGame() {
         }
       } else if (f.state === "fighting") {
         f.x = lineX(f.dragLine) + Math.sin(now / 70) * 10;
-        f.y = HOOK_Y + Math.sin(now / 90) * 4;
+        f.y = lineDepth(f.dragLine) + Math.sin(now / 90) * 4;
       } else if (f.state === "flee" || f.state === "caught") {
         f.x += f.vx * dt;
         if (f.state === "caught") f.y -= 130 * dt;
@@ -2492,13 +2495,13 @@ function FlyFishingGame() {
         ff.vx = ff.dir * 130;
       }
       occupiedLines.current.delete(d.line);
-      addPop(lineX(d.line), HOOK_Y, "놓쳤다!", "#ff6b6b");
+      addPop(lineX(d.line), lineDepth(d.line), "놓쳤다!", "#ff6b6b");
       play("miss");
       setDrag(null);
       registerMiss(1);
     }
     if (missQueue.length > 0) {
-      missQueue.forEach(li => addPop(lineX(li), HOOK_Y + 24, "놓침!", "#ff6b6b"));
+      missQueue.forEach(li => addPop(lineX(li), lineDepth(li) + 24, "놓침!", "#ff6b6b"));
       play("miss");
       registerMiss(missQueue.length);
     }
@@ -2600,10 +2603,10 @@ function FlyFishingGame() {
       const penalty = 50;
       setScore(s => Math.max(0, s - penalty));
       setCombo(0); // 콤보 끊김
-      addPop(lineX(line), HOOK_Y - 10, `${f.type.emoji} ${f.name}… -${penalty}`, "#c0c0c0");
+      addPop(lineX(line), lineDepth(line) - 10, `${f.type.emoji} ${f.name}… -${penalty}`, "#c0c0c0");
       play("miss");
       buzz(20);
-      addSplash(lineX(line), HOOK_Y, false);
+      addSplash(lineX(line), lineDepth(line), false);
       return;
     }
     // 황금 물고기: 대박 보너스, 도감엔 없음
@@ -2616,12 +2619,12 @@ function FlyFishingGame() {
       setScore(s => s + g);
       setScorePopKey(k => k + 1);
       bumpCombo();
-      addPop(lineX(line), HOOK_Y - 10, `🐠 황금물고기! +${g}`, "#ffcf3f");
+      addPop(lineX(line), lineDepth(line) - 10, `🐠 황금물고기! +${g}`, "#ffcf3f");
       showFanfare("🐠 GOLD!");
       play("big");
       setTimeout(() => play("perfect"), 80);
       buzz([20, 40, 20, 40]);
-      addSplash(lineX(line), HOOK_Y, true);
+      addSplash(lineX(line), lineDepth(line), true);
       triggerShake(9);
       flyToCreel(f.name, line);
       runStats.current.exp += 120;
@@ -2633,7 +2636,7 @@ function FlyFishingGame() {
     setScore(s => s + g);
     setScorePopKey(k => k + 1);
     bumpCombo();
-    addPop(lineX(line), HOOK_Y - 10, `${label} +${g}`, f.name === "황금잉어" ? "#ffcf3f" : "#ffe066");
+    addPop(lineX(line), lineDepth(line) - 10, `${label} +${g}`, f.name === "황금잉어" ? "#ffcf3f" : "#ffe066");
     setFlash(cf => ({
       ...cf,
       [line]: Date.now()
@@ -2656,7 +2659,7 @@ function FlyFishingGame() {
     setBestSize(bs => {
       const prevBest = bs[f.name] || 0;
       if (sizeCm > prevBest) {
-        if (prevBest > 0) addPop(lineX(line), HOOK_Y - 44, `📏 신기록 ${sizeCm}cm!`, "#ffd86b");
+        if (prevBest > 0) addPop(lineX(line), lineDepth(line) - 44, `📏 신기록 ${sizeCm}cm!`, "#ffd86b");
         return {
           ...bs,
           [f.name]: sizeCm
@@ -2668,7 +2671,7 @@ function FlyFishingGame() {
       const isNew = !bk[f.name];
       if (isNew) {
         setNewCatches(nc => nc.includes(f.name) ? nc : [...nc, f.name]);
-        addPop(lineX(line), HOOK_Y - 28, "✨ 도감 등록!", "#7fe0c0");
+        addPop(lineX(line), lineDepth(line) - 28, "✨ 도감 등록!", "#7fe0c0");
       }
       return {
         ...bk,
@@ -2684,7 +2687,7 @@ function FlyFishingGame() {
     if (big) setTimeout(() => play("splash"), 60);
     buzz(big ? [20, 40, 30, 40, 20] : mult >= 3 ? [15, 30, 15] : 18);
     requestAnimationFrame(() => flyToCreel(f.name, line)); // DOM 안정 후 호출
-    addSplash(lineX(line), HOOK_Y, big);
+    addSplash(lineX(line), lineDepth(line), big);
     triggerShake(big ? 8 : mult >= 3 ? 6 : 3.5);
     if (f.type.rarity >= 5) showFanfare(`🎉 ${f.name}!`);else if (big) showFanfare(`✨ ${f.name}`);else if (mult >= 3) showFanfare("PERFECT!");
     advanceDaily("catch", {
@@ -2742,12 +2745,12 @@ function FlyFishingGame() {
           until: performance.now() + 2800,
           line: i
         });
-        addPop(lineX(i), HOOK_Y - 10, "연타로 끌어올려!", "#fff");
+        addPop(lineX(i), lineDepth(i) - 10, "연타로 끌어올려!", "#fff");
         play("bite");
         buzz([10, 20, 10]);
       } else landFish(f, i, mult, label);
     } else {
-      addPop(lineX(i), HOOK_Y, "헛챔질", "#ff9f43");
+      addPop(lineX(i), lineDepth(i), "헛챔질", "#ff9f43");
       play("miss");
       registerMiss(1);
     }
@@ -5286,13 +5289,13 @@ function FlyFishingGame() {
         left: x - 18,
         top: RAIL_Y,
         width: 36,
-        height: HOOK_Y - RAIL_Y + 30,
+        height: lineDepth(i) - RAIL_Y + 30,
         cursor: "pointer",
         zIndex: 6
       }
     }, /*#__PURE__*/React.createElement("svg", {
       width: "36",
-      height: HOOK_Y - RAIL_Y + 30,
+      height: lineDepth(i) - RAIL_Y + 30,
       style: {
         position: "absolute",
         left: 0,
@@ -5303,14 +5306,14 @@ function FlyFishingGame() {
       x1: "18",
       y1: "0",
       x2: 18 + sway,
-      y2: HOOK_Y - RAIL_Y,
+      y2: lineDepth(i) - RAIL_Y,
       stroke: isBite ? "rgba(255,224,102,.95)" : "rgba(255,255,255,.5)",
       strokeWidth: isBite ? 2.4 : 1.4
     })), /*#__PURE__*/React.createElement("div", {
       style: {
         position: "absolute",
         left: 9 + sway,
-        top: HOOK_Y - RAIL_Y - 6,
+        top: lineDepth(i) - RAIL_Y - 6,
         fontSize: 13,
         animation: isBite ? "wiggle .25s infinite" : "none"
       }
@@ -5345,7 +5348,7 @@ function FlyFishingGame() {
     style: {
       position: "absolute",
       left: lineX(drag.line) - 30,
-      top: HOOK_Y + 18,
+      top: lineDepth(drag.line) + 18,
       width: 60,
       height: 8,
       background: "rgba(0,0,0,.35)",
