@@ -1387,7 +1387,10 @@ function tone({
 }) {
   const ctx = getCtx();
   if (!ctx) return;
-  if (ctx.state === "suspended") ctx.resume();
+  if (ctx.state === "suspended") {
+    ctx.resume().then(() => tone({ freq, dur, type, vol, slideTo, attack, delay }));
+    return;
+  }
   const t = ctx.currentTime + delay,
     osc = ctx.createOscillator(),
     gain = ctx.createGain();
@@ -1414,7 +1417,10 @@ function noise({
 }) {
   const ctx = getCtx();
   if (!ctx) return;
-  if (ctx.state === "suspended") ctx.resume();
+  if (ctx.state === "suspended") {
+    ctx.resume().then(() => noise({ dur, vol, type, freq, q, slideTo, delay }));
+    return;
+  }
   const t = ctx.currentTime + delay;
   const n = Math.floor(ctx.sampleRate * dur);
   const buf = ctx.createBuffer(1, n, ctx.sampleRate);
@@ -1455,7 +1461,10 @@ function loadSound(key) {
 function playFile(key, vol = 0.7) {
   const ctx = getCtx();
   if (!ctx || !audioBuffers[key]) return false;
-  if (ctx.state === "suspended") ctx.resume();
+  if (ctx.state === "suspended") {
+    ctx.resume().then(() => playFile(key, vol));
+    return true;
+  }
   const src = ctx.createBufferSource();
   src.buffer = audioBuffers[key];
   const g = ctx.createGain();
@@ -1685,13 +1694,15 @@ const sfx = {
   }
 };
 
-// 배경음 사용 안 함 (효과음만 유지). start/stop는 호출돼도 아무 동작 없음.
-let bgmNodes = null;
+// 배경음: 앱을 켜는 동안 계속 은은하게 흐르고, 실제 낚시 플레이 중엔 살짝 낮춰(덕킹)
+// 효과음이 더 잘 들리게 한다. 화면 전환마다 start/stop을 반복하지 않는다.
 const BGM_SRC = "bgm.mp3"; // Kevin MacLeod - "Almost New" (CC BY 4.0)
 const bgm = {
   el: null,
-  vol: 0.35,
+  vol: 0.35,       // 사용자가 설정한 기준 볼륨(0~1)
+  duckFactor: 1,    // 1 = 평상시, <1 = 낮춤(플레이 중)
   fadeTimer: null,
+  wantPlaying: false, // 설정상 재생을 원하는 상태인지
   _ensure() {
     if (this.el) return this.el;
     try {
@@ -1705,9 +1716,16 @@ const bgm = {
     }
     return this.el;
   },
+  _target() {
+    return this.vol * this.duckFactor;
+  },
   setVolume(v) {
     this.vol = Math.max(0, Math.min(1, v));
-    if (this.el && !this.fadeTimer) this.el.volume = this.el.paused ? 0 : this.vol;
+    if (this.el && !this.el.paused) this._fade(this._target(), 200);
+  },
+  setDuck(factor, ms = 350) {
+    this.duckFactor = factor;
+    if (this.el && !this.el.paused) this._fade(this._target(), ms);
   },
   _fade(to, ms, done) {
     const a = this.el;
@@ -1727,24 +1745,25 @@ const bgm = {
     }, 50);
   },
   start() {
+    this.wantPlaying = true;
     const a = this._ensure();
     if (!a) return;
+    if (!a.paused) {
+      this._fade(this._target(), 300); // 이미 재생 중이면 볼륨만 목표치로
+      return;
+    }
     // 브라우저 자동재생 정책: 사용자 제스처 이후에만 성공한다. 실패해도 조용히 넘어간다.
     const pr = a.play();
     if (pr && pr.catch) pr.catch(() => {});
-    this._fade(this.vol, 700);
+    this._fade(this._target(), 700);
   },
   stop() {
+    this.wantPlaying = false;
     const a = this.el;
-    if (!a) return;
+    if (!a || a.paused) return;
     this._fade(0, 400, () => {
       try { a.pause(); } catch (e) {}
     });
-  },
-  duck(on) {
-    // 결과 화면 등에서 잠깐 소리를 낮춤
-    if (!this.el || this.el.paused) return;
-    this._fade(on ? this.vol * 0.28 : this.vol, 250);
   }
 };
 function FlyFishingGame() {
@@ -2100,7 +2119,7 @@ function FlyFishingGame() {
     if (!runningRef.current) return; // 이중 호출 방지
     runningRef.current = false;
     cancelAnimationFrame(raf.current);
-    bgm.stop();
+    bgm.setDuck(1, 400); // 결과 화면에서는 배경음을 다시 원래 볼륨으로
     const earned = scoreRef.current;
     setLastEarned(earned);
     setDrag(null);
@@ -2458,11 +2477,12 @@ function FlyFishingGame() {
     if (screen === "playing" && missCount >= 5) endGame();
   }, [missCount, screen, endGame]);
 
-    useEffect(() => {
-    if (screen !== "playing") {
-      bgm.stop();
-      return;
-    }
+  // 화면 전환 시 배경음은 끄지 않고 볼륨만 조절한다 (플레이 중엔 살짝 낮춰 효과음이 잘 들리게)
+  useEffect(() => {
+    bgm.setDuck(screen === "playing" ? 0.55 : 1);
+  }, [screen]);
+  useEffect(() => {
+    if (screen !== "playing") return;
     const iv = setInterval(() => {
       setTimeLeft(tl => {
         if (tl <= 1) {
@@ -2476,7 +2496,8 @@ function FlyFishingGame() {
     return () => clearInterval(iv);
   }, [screen, endGame]);
   const startSpot = idx => {
-    getCtx();
+    const ctx = getCtx();
+    if (ctx && ctx.state === "suspended") ctx.resume(); // 유저 탭 시점에 확실히 깨움
     SOUND_FILES.forEach(loadSound);
     computeEff(gearLvl, equippedBait);
     spotRef.current = SPOTS[idx];
@@ -3132,7 +3153,6 @@ function FlyFishingGame() {
   // ─── 지도(여정 맵) ───
   if (screen === "map") {
     const h = React.createElement;
-    if (settings.bgm && bgm.el && bgm.el.paused) bgm.start();
     const sel = selPin != null ? SPOTS[selPin] : null;
     const selUnlocked = sel && unlocked.includes(sel.id);
     const selOkGear = sel && gearSum(gearLvl, ownedBaits) >= sel.unlock.gearSum;
@@ -3352,10 +3372,30 @@ function FlyFishingGame() {
         zIndex: 20
       }
     },
-    h("div", { style: { ...hudPill, fontSize: 16 } }, "🗺️ 낚시 여행", claimed.all && h("span", { style: { fontSize: 11, color: "#d08020" } }, ALL_TITLE)),
+    h("button", {
+      onClick: () => { setPrevScreen("map"); setScreen("settings"); },
+      style: {
+        ...hudPill,
+        gap: 8,
+        border: "none",
+        cursor: "pointer",
+        pointerEvents: "auto"
+      }
+    },
+      h("div", {
+        style: {
+          width: 26, height: 26, borderRadius: "50%",
+          background: "linear-gradient(135deg,#7fc4ad,#2c6f86)",
+          display: "grid", placeItems: "center", fontSize: 13, flex: "0 0 auto",
+          boxShadow: "inset 0 0 0 2px rgba(255,255,255,.6)"
+        }
+      }, "🎣"),
+      h("div", { style: { display: "flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1.2 } },
+        h("span", { style: { fontSize: 12.5, whiteSpace: "nowrap", maxWidth: 108, overflow: "hidden", textOverflow: "ellipsis" } }, nickname || "이름 없는 낚시꾼"),
+        h("span", { style: { fontSize: 9.5, color: "#2c6f86" } }, "Lv.", lv, " ", anglerTitle(lv))),
+      claimed.all && h("span", { style: { fontSize: 13 } }, "👑")),
     h("div", { style: { ...hudPill, flex: 1, minWidth: 0, gap: 8 } },
-      h("span", { style: { fontSize: 13 } }, "🎣"),
-      h("span", { style: { fontSize: 12, whiteSpace: "nowrap" } }, "Lv.", lv, " ", h("span", { style: { color: "#2c6f86" } }, anglerTitle(lv))),
+      h("span", { style: { fontSize: 13 } }, "✨"),
       h("div", { style: { flex: 1, minWidth: 24, height: 6, background: "#e4efea", borderRadius: 3 } },
         h("div", { style: { width: `${pct}%`, height: "100%", background: "linear-gradient(90deg,#27ae8f,#7fe0c0)", borderRadius: 3, transition: "width .3s" } })),
       h("span", { style: { fontSize: 10, color: "#7a948c", fontFamily: "'Gowun Dodum',sans-serif" } }, anglerExp - curBase, "/", nextBase - curBase)),
@@ -3998,7 +4038,7 @@ function FlyFishingGame() {
           display: "grid",
           placeItems: "center",
           zIndex: 40,
-          padding: 20,
+          padding: "3dvh 20px",
           backdropFilter: "blur(3px)"
         }
       }, /*#__PURE__*/React.createElement("div", {
@@ -4008,14 +4048,17 @@ function FlyFishingGame() {
           borderRadius: 20,
           width: "100%",
           maxWidth: 320,
-          overflow: "hidden",
+          maxHeight: "94dvh",
+          overflowY: "auto",
+          WebkitOverflowScrolling: "touch",
+          overscrollBehavior: "contain",
           boxShadow: "0 20px 50px rgba(0,0,0,.4)",
           animation: "cardpop .25s ease-out"
         }
       }, /*#__PURE__*/React.createElement("div", {
         style: {
           background: `linear-gradient(135deg, ${RARITY[f.rarity].color}, ${RARITY[f.rarity].color}cc)`,
-          padding: "18px 18px 14px",
+          padding: "14px 18px 10px",
           color: "#fff",
           position: "relative"
         }
@@ -4038,15 +4081,15 @@ function FlyFishingGame() {
         style: {
           background: "rgba(255,255,255,.25)",
           borderRadius: 16,
-          padding: "10px 18px"
+          padding: "8px 16px"
         }
       }, /*#__PURE__*/React.createElement(FishArt, {
         name: bookSel,
-        size: 150
+        size: 108
       }))), /*#__PURE__*/React.createElement("div", {
         style: {
           fontFamily: "'Jua',sans-serif",
-          fontSize: 24,
+          fontSize: 22,
           textAlign: "center",
           marginTop: 10,
           textShadow: "0 1px 4px rgba(0,0,0,.3)"
