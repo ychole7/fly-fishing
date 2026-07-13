@@ -2160,7 +2160,7 @@ function FlyFishingGame() {
       cur: prog[m.id]
     }));
     const earnedStars = results.filter(r => r.done).length;
-    const prevStars = stars[spot.id] || 0;
+    const prevStars = stateRef.current.stars[spot.id] || 0;
     setLastStarResult({
       earnedStars,
       prevStars,
@@ -2169,7 +2169,7 @@ function FlyFishingGame() {
 
     // 강태공 경험치·레벨업 처리
     const gainedExp = runStats.current.exp || 0;
-    const prevExp = anglerExp,
+    const prevExp = stateRef.current.anglerExp,
       newExp = prevExp + gainedExp;
     const prevLevel = anglerLevelFromExp(prevExp),
       newLevel = anglerLevelFromExp(newExp);
@@ -2211,7 +2211,7 @@ function FlyFishingGame() {
       return nc;
     });
     setScreen("result");
-  }, [saveAll, stars, anglerExp]);
+  }, [saveAll]);
   const registerMiss = (n = 1) => {
     setCombo(0);
     setMissCount(m => {
@@ -3244,8 +3244,7 @@ function FlyFishingGame() {
       dir: k % 2 === 0 ? 1 : -1,
       size: 11 + (k % 3) * 3,
       dur: 3.2 + (k % 5) * 0.6,
-      delay: (k % 7) * 0.6,
-      jump: k % 4 === 0 // 일부는 수면 위로 점프하는 연출
+      delay: (k % 7) * 0.6
     }));
     return h("div", {
       style: {
@@ -3342,14 +3341,12 @@ function FlyFishingGame() {
         x: rf.x,
         y: rf.y,
         fontSize: rf.size,
-        opacity: rf.jump ? undefined : 0.4,
+        opacity: 0.4,
         style: {
           "--fdir": rf.dir,
           transformBox: "fill-box",
           transformOrigin: "center",
-          animation: rf.jump
-            ? `mapfishjump ${rf.dur + 1.6}s ease-in-out ${rf.delay}s infinite`
-            : `mapfishswim ${rf.dur}s ease-in-out ${rf.delay}s infinite`
+          animation: `mapfishswim ${rf.dur}s ease-in-out ${rf.delay}s infinite`
         }
       }, "🐟")),
       h("text", { x: nodeX(N - 1) - 4, y: 46, fontSize: 30 }, "🏔️")
@@ -3567,7 +3564,7 @@ function FlyFishingGame() {
         animation: "jbob 1.6s ease-in-out infinite"
       }
     }, "낚시터를 눌러보세요 📍"),
-    h("style", null, `@keyframes pinpulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,159,67,.5),0 4px 9px rgba(0,0,0,.28)} 50%{box-shadow:0 0 0 8px rgba(255,159,67,0),0 4px 9px rgba(0,0,0,.28)} } @keyframes jflow { to { stroke-dashoffset: -12; } } @keyframes jslideup { from { opacity:0; transform: translate(-50%,10px);} to { opacity:1; transform: translate(-50%,0);} } @keyframes jfade { from { opacity:0; transform: translateY(10px);} to { opacity:1; transform: translateY(0);} } @keyframes jbob { 0%,100%{ transform: translate(-50%,0);} 50%{ transform: translate(-50%,-5px);} } @keyframes mapfishswim { 0%,100%{ transform: translateX(0) scaleX(var(--fdir,1)); } 50%{ transform: translateX(26px) scaleX(var(--fdir,1)); } } @keyframes mapfishjump { 0%,80%,100%{ transform: translateY(0) rotate(0deg) scaleX(var(--fdir,1)); opacity:.35; } 87%{ transform: translateY(-24px) rotate(-14deg) scaleX(var(--fdir,1)); opacity:1; } 92%{ transform: translateY(-28px) rotate(10deg) scaleX(var(--fdir,1)); opacity:1; } 97%{ transform: translateY(-2px) rotate(0deg) scaleX(var(--fdir,1)); opacity:.6; } }`));
+    h("style", null, `@keyframes pinpulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,159,67,.5),0 4px 9px rgba(0,0,0,.28)} 50%{box-shadow:0 0 0 8px rgba(255,159,67,0),0 4px 9px rgba(0,0,0,.28)} } @keyframes jflow { to { stroke-dashoffset: -12; } } @keyframes jslideup { from { opacity:0; transform: translate(-50%,10px);} to { opacity:1; transform: translate(-50%,0);} } @keyframes jfade { from { opacity:0; transform: translateY(10px);} to { opacity:1; transform: translateY(0);} } @keyframes jbob { 0%,100%{ transform: translate(-50%,0);} 50%{ transform: translate(-50%,-5px);} } @keyframes mapfishswim { 0%,100%{ transform: translateX(0) scaleX(var(--fdir,1)); } 50%{ transform: translateX(26px) scaleX(var(--fdir,1)); } }`));
   }
 
   // ─── 설정 ───
