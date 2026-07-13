@@ -1836,6 +1836,7 @@ function FlyFishingGame() {
   const [bookSel, setBookSel] = useState(null); // 도감 상세로 볼 어종명
 
   const [score, setScore] = useState(0);
+  const [scorePopKey, setScorePopKey] = useState(0); // 점수 오를 때 팝 애니메이션 재생용
   const [combo, setCombo] = useState(0);
   const [missCount, setMissCount] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
@@ -2609,6 +2610,7 @@ function FlyFishingGame() {
       f.targetLine = null;
       const g = Math.round(500 * mult * creelMulRef.current);
       setScore(s => s + g);
+      setScorePopKey(k => k + 1);
       bumpCombo();
       addPop(lineX(line), HOOK_Y - 10, `🐠 황금물고기! +${g}`, "#ffcf3f");
       showFanfare("🐠 GOLD!");
@@ -2625,6 +2627,7 @@ function FlyFishingGame() {
       feverBonus = feverRef.current ? 2 : 1;
     const g = Math.round(f.type.points * mult * (1 + c * 0.1) * feverBonus * creelMulRef.current);
     setScore(s => s + g);
+    setScorePopKey(k => k + 1);
     bumpCombo();
     addPop(lineX(line), HOOK_Y - 10, `${label} +${g}`, f.name === "황금잉어" ? "#ffcf3f" : "#ffe066");
     setFlash(cf => ({
@@ -4753,72 +4756,119 @@ function FlyFishingGame() {
       alignItems: "flex-start",
       zIndex: 12,
       color: "#fff",
-      textShadow: "0 1px 3px rgba(0,0,0,.6)",
       pointerEvents: "none"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       alignItems: "center",
-      gap: 8
+      gap: 6
     }
   }, /*#__PURE__*/React.createElement("div", {
+    key: scorePopKey,
     style: {
       fontFamily: "'Jua',sans-serif",
-      fontSize: 22
+      fontSize: 18,
+      background: "rgba(0,0,0,.32)",
+      backdropFilter: "blur(3px)",
+      borderRadius: 999,
+      padding: "5px 13px",
+      boxShadow: "0 3px 8px rgba(0,0,0,.25)",
+      animation: "scorepop .28s ease-out"
     }
-  }, "🎣 ", score, combo > 1 && /*#__PURE__*/React.createElement("span", {
+  }, "🎣 ", score), combo > 1 && /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 14,
-      marginLeft: 8,
-      color: "#ffe066"
+      fontFamily: "'Jua',sans-serif",
+      fontSize: 13,
+      color: "#3a2400",
+      background: "linear-gradient(135deg,#ffe066,#ffb238)",
+      borderRadius: 999,
+      padding: "5px 11px",
+      boxShadow: "0 3px 8px rgba(0,0,0,.25)"
     }
-  }, "🔥", combo), fever && /*#__PURE__*/React.createElement("span", {
+  }, "🔥", combo), fever && /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 14,
-      marginLeft: 8,
-      color: "#ff5ca8"
+      fontFamily: "'Jua',sans-serif",
+      fontSize: 13,
+      color: "#fff",
+      background: "linear-gradient(135deg,#ff5ca8,#b83a7a)",
+      borderRadius: 999,
+      padding: "5px 11px",
+      boxShadow: "0 3px 8px rgba(0,0,0,.25)",
+      animation: "hudpulse 1s ease-in-out infinite"
     }
-  }, "★FEVER"), rushOn && /*#__PURE__*/React.createElement("span", {
+  }, "★FEVER"), rushOn && /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 14,
-      marginLeft: 8,
-      color: "#7fe0c0"
+      fontFamily: "'Jua',sans-serif",
+      fontSize: 13,
+      color: "#063d30",
+      background: "linear-gradient(135deg,#a4f3d8,#4fd8a8)",
+      borderRadius: 999,
+      padding: "5px 11px",
+      boxShadow: "0 3px 8px rgba(0,0,0,.25)",
+      animation: "hudpulse .8s ease-in-out infinite"
     }
-  }, "🐟 러시!")), /*#__PURE__*/React.createElement("button", {
+  }, "🐟 러시!"), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       const on = !settingsRef.current.bgm;
       setSettings(v => ({ ...v, bgm: on, sfx: on }));
       if (on) bgm.start();else bgm.stop();
     },
     style: {
-      background: "rgba(0,0,0,.3)",
+      background: "rgba(0,0,0,.32)",
+      backdropFilter: "blur(3px)",
       border: "none",
-      borderRadius: 7,
+      borderRadius: 999,
       color: "#fff",
       fontSize: 12,
-      padding: "3px 8px",
+      padding: "5px 10px",
       cursor: "pointer",
-      pointerEvents: "auto"
+      pointerEvents: "auto",
+      boxShadow: "0 3px 8px rgba(0,0,0,.25)"
     }
   }, settings.bgm || settings.sfx ? "🔊" : "🔇"), /*#__PURE__*/React.createElement("button", {
     onClick: () => { setPaused(true); play("pull"); },
     style: {
-      background: "rgba(0,0,0,.3)",
+      background: "rgba(0,0,0,.32)",
+      backdropFilter: "blur(3px)",
       border: "none",
-      borderRadius: 7,
+      borderRadius: 999,
       color: "#fff",
       fontSize: 12,
-      padding: "3px 9px",
+      padding: "5px 11px",
       cursor: "pointer",
-      pointerEvents: "auto"
+      pointerEvents: "auto",
+      boxShadow: "0 3px 8px rgba(0,0,0,.25)"
     }
   }, "⏸️")), /*#__PURE__*/React.createElement("div", {
     style: {
-      textAlign: "right",
-      fontSize: 13
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "flex-end",
+      gap: 5
     }
-  }, /*#__PURE__*/React.createElement("div", null, spot.name, " · ⏱", timeLeft, "s"), /*#__PURE__*/React.createElement("div", null, BAITS[equippedBait].icon, CREELS[equippedCreel].icon, TIMES[weather.time].icon, SKIES[weather.sky].icon, " ", "❌".repeat(missCount) || ""))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Jua',sans-serif",
+      fontSize: 12.5,
+      background: "rgba(0,0,0,.32)",
+      backdropFilter: "blur(3px)",
+      borderRadius: 999,
+      padding: "5px 12px",
+      boxShadow: "0 3px 8px rgba(0,0,0,.25)",
+      whiteSpace: "nowrap"
+    }
+  }, spot.name, " · ⏱", timeLeft, "s"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      background: "rgba(0,0,0,.32)",
+      backdropFilter: "blur(3px)",
+      borderRadius: 999,
+      padding: "4px 11px",
+      boxShadow: "0 3px 8px rgba(0,0,0,.25)",
+      whiteSpace: "nowrap"
+    }
+  }, BAITS[equippedBait].icon, " ", CREELS[equippedCreel].icon, " ", TIMES[weather.time].icon, " ", SKIES[weather.sky].icon, missCount > 0 && /*#__PURE__*/React.createElement("span", { style: { marginLeft: 6, color: "#ff8a7a" } }, "❌".repeat(missCount))))), /*#__PURE__*/React.createElement("div", {
     ref: poolBoxRef,
     onPointerDown: () => {
       if (dragRef.current) yankLine(dragRef.current.line);
@@ -4991,6 +5041,28 @@ function FlyFishingGame() {
     points: "28,10 40,3 40,17",
     fill: "#0c3b34"
   }))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      top: WATER_TOP,
+      height: 10,
+      zIndex: 1,
+      overflow: "hidden",
+      pointerEvents: "none",
+      background: "linear-gradient(180deg, rgba(255,255,255,.55), transparent)",
+      mixBlendMode: "screen",
+      animation: "watershimmer 3.2s ease-in-out infinite"
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      inset: 0,
+      zIndex: 2,
+      pointerEvents: "none",
+      background: "radial-gradient(ellipse at 50% 42%, transparent 55%, rgba(4,20,18,.28) 100%)"
+    }
+  }), /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
       left: 0,
@@ -5399,6 +5471,9 @@ function FlyFishingGame() {
         @keyframes bgfishL { from{transform:translateX(${POOL_W + 50}px)} to{transform:translateX(-50px)} }
         @keyframes flycreel { 0%{transform:translate(var(--sx),var(--sy)) scale(1) rotate(0deg);opacity:1} 70%{opacity:1} 100%{transform:translate(var(--ex),var(--ey)) scale(.3) rotate(360deg);opacity:0.2} }
         @keyframes creelpop { 0%{transform:scale(1)} 40%{transform:scale(1.4)} 70%{transform:scale(.9)} 100%{transform:scale(1)} }
+        @keyframes scorepop { 0%{transform:scale(1)} 35%{transform:scale(1.22)} 100%{transform:scale(1)} }
+        @keyframes hudpulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+        @keyframes watershimmer { 0%,100%{opacity:.35;transform:translateX(-6%)} 50%{opacity:.8;transform:translateX(6%)} }
       `), paused && /*#__PURE__*/React.createElement("div", {
     onClick: e => e.stopPropagation(),
     style: {
