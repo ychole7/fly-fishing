@@ -1900,6 +1900,7 @@ function FlyFishingGame() {
   }); // 물고기 떼 러시
   const goldRef = useRef(0); // 다음 황금물고기 시각
   const trashRef = useRef(0); // 다음 쓰레기 시각
+  const shadowRef = useRef({ start: 0, end: 0, dir: 1, seed: 0 }); // 바닥을 지나가는 대물 그림자(예고)
   const [rushOn, setRushOn] = useState(false);
   const rushOnRef = useRef(false);
   const poolBoxRef = useRef(null); // 게임 낚시터 컨테이너
@@ -2376,9 +2377,14 @@ function FlyFishingGame() {
     }
 
     // ── 황금 물고기: 가끔 빠르게 등장 (놓치기 쉬움, 대박) ──
-    if (goldRef.current === 0) goldRef.current = ts + 15000 + Math.random() * 15000;
+    if (goldRef.current === 0) {
+      goldRef.current = ts + 15000 + Math.random() * 15000;
+      shadowRef.current = { start: goldRef.current - 3600, end: goldRef.current - 200, dir: Math.random() < 0.5 ? 1 : -1, seed: Math.random() * 99 };
+    }
     if (nowMs > goldRef.current && elapsedRef.current < 55) {
-      goldRef.current = nowMs + 20000 + Math.random() * 20000;
+      const nextGold = nowMs + 20000 + Math.random() * 20000;
+      goldRef.current = nextGold;
+      shadowRef.current = { start: nextGold - 3600, end: nextGold - 200, dir: Math.random() < 0.5 ? 1 : -1, seed: Math.random() * 99 };
       if (fishesRef.current.length < 12) spawnFish("gold");
     }
     // ── 쓰레기: 가끔 등장 (물면 감점) ──
@@ -5019,7 +5025,37 @@ function FlyFishingGame() {
       overflow: "hidden",
       pointerEvents: "none"
     }
-  }, BGFISH.map((b, i) => /*#__PURE__*/React.createElement("div", {
+  }, (() => {
+    const sh = shadowRef.current;
+    const now3 = performance.now();
+    if (now3 < sh.start || now3 > sh.end) return null;
+    const prog = (now3 - sh.start) / (sh.end - sh.start);
+    const sx = sh.dir === 1 ? -14 - prog * 4 : 114 + prog * 4; // 0~100% 구간을 벗어나 화면 밖에서 시작/종료
+    const travel = sh.dir === 1 ? prog * 128 : -prog * 128;
+    const fade = Math.min(1, Math.min(prog, 1 - prog) * 6); // 등장/퇴장 페이드
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        position: "absolute",
+        left: `${sx + travel}%`,
+        top: "88%",
+        width: 92,
+        height: 40,
+        opacity: 0.28 * fade,
+        filter: "blur(2.5px)",
+        transform: `translate(-50%,-50%) scaleX(${sh.dir}) scaleY(${1 + Math.sin(now3 / 300 + sh.seed) * 0.05})`,
+        zIndex: 0,
+        pointerEvents: "none"
+      }
+    }, /*#__PURE__*/React.createElement("svg", {
+      width: 92,
+      height: 40,
+      viewBox: "0 0 92 40"
+    }, /*#__PURE__*/React.createElement("ellipse", {
+      cx: 40, cy: 20, rx: 36, ry: 13, fill: "#02110f"
+    }), /*#__PURE__*/React.createElement("polygon", {
+      points: "72,20 92,6 92,34", fill: "#02110f"
+    })));
+  })(), BGFISH.map((b, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
     style: {
       position: "absolute",
@@ -5277,7 +5313,10 @@ function FlyFishingGame() {
     const isBite = !!biteFish,
       fighting = biteFish && biteFish.state === "fighting",
       fl = !!flash[i];
-    const sway = isBite ? Math.sin(performance.now() / 50) * (fighting ? 11 : 6) : 0;
+    const now2 = performance.now();
+    const flowAmp = 0.6 + (spot.flow || 1) * 0.9; // 물살이 셀수록 더 크게 흔들림
+    const idleSway = (Math.sin(now2 / 950 + i * 1.7) * 1.6 + Math.sin(now2 / 620 + i * 2.9) * 1.1) * flowAmp;
+    const sway = isBite ? Math.sin(performance.now() / 50) * (fighting ? 11 : 6) : idleSway;
     return /*#__PURE__*/React.createElement("div", {
       key: i,
       onClick: e => {
