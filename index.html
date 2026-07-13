@@ -2239,7 +2239,11 @@ function FlyFishingGame() {
   const spawnFish = special => {
     const spot = spotRef.current;
     const dir = Math.random() < 0.5 ? 1 : -1;
-    const y = WATER_TOP + 40 + Math.random() * (POOL_H - WATER_TOP - 80);
+    // 스폰될 물고기의 예상 크기를 먼저 파악해, 큰 물고기는 수면 위로 삐져나오지 않게 여백을 넉넉히 준다
+    const preName = special ? null : pickFishType();
+    const preSize = special === "gold" ? 1.1 : special === "trash" ? 0.9 : (FISH[preName] && FISH[preName].size) || 1;
+    const topMargin = 40 + Math.max(0, preSize - 1) * 30;
+    const y = WATER_TOP + topMargin + Math.random() * (POOL_H - WATER_TOP - topMargin - 40);
     if (special === "gold") {
       // 황금 물고기: 아주 빠르게 지나감, 잡으면 대박 보너스
       fishesRef.current.push({
@@ -2307,7 +2311,7 @@ function FlyFishingGame() {
       });
       return;
     }
-    const name = pickFishType();
+    const name = preName;
     const type = FISH[name];
     fishesRef.current.push({
       id: fishIdRef.current++,
@@ -4765,18 +4769,54 @@ function FlyFishingGame() {
       gap: 6
     }
   }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      background: "rgba(0,0,0,.32)",
+      backdropFilter: "blur(3px)",
+      borderRadius: 999,
+      boxShadow: "0 3px 8px rgba(0,0,0,.25)",
+      overflow: "hidden"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
     key: scorePopKey,
     style: {
       fontFamily: "'Jua',sans-serif",
       fontSize: 18,
-      background: "rgba(0,0,0,.32)",
-      backdropFilter: "blur(3px)",
-      borderRadius: 999,
-      padding: "5px 13px",
-      boxShadow: "0 3px 8px rgba(0,0,0,.25)",
+      padding: "5px 12px",
       animation: "scorepop .28s ease-out"
     }
-  }, "🎣 ", score), combo > 1 && /*#__PURE__*/React.createElement("div", {
+  }, "🎣 ", score), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      const on = !settingsRef.current.bgm;
+      setSettings(v => ({ ...v, bgm: on, sfx: on }));
+      if (on) bgm.start();else bgm.stop();
+    },
+    style: {
+      background: "rgba(255,255,255,.08)",
+      border: "none",
+      borderLeft: "1px solid rgba(255,255,255,.18)",
+      color: "#fff",
+      fontSize: 12,
+      padding: "5px 10px",
+      alignSelf: "stretch",
+      cursor: "pointer",
+      pointerEvents: "auto"
+    }
+  }, settings.bgm || settings.sfx ? "🔊" : "🔇"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => { setPaused(true); play("pull"); },
+    style: {
+      background: "rgba(255,255,255,.08)",
+      border: "none",
+      borderLeft: "1px solid rgba(255,255,255,.18)",
+      color: "#fff",
+      fontSize: 12,
+      padding: "5px 11px",
+      alignSelf: "stretch",
+      cursor: "pointer",
+      pointerEvents: "auto"
+    }
+  }, "⏸️")), combo > 1 && /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: "'Jua',sans-serif",
       fontSize: 13,
@@ -4808,64 +4848,29 @@ function FlyFishingGame() {
       boxShadow: "0 3px 8px rgba(0,0,0,.25)",
       animation: "hudpulse .8s ease-in-out infinite"
     }
-  }, "🐟 러시!"), /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      const on = !settingsRef.current.bgm;
-      setSettings(v => ({ ...v, bgm: on, sfx: on }));
-      if (on) bgm.start();else bgm.stop();
-    },
-    style: {
-      background: "rgba(0,0,0,.32)",
-      backdropFilter: "blur(3px)",
-      border: "none",
-      borderRadius: 999,
-      color: "#fff",
-      fontSize: 12,
-      padding: "5px 10px",
-      cursor: "pointer",
-      pointerEvents: "auto",
-      boxShadow: "0 3px 8px rgba(0,0,0,.25)"
-    }
-  }, settings.bgm || settings.sfx ? "🔊" : "🔇"), /*#__PURE__*/React.createElement("button", {
-    onClick: () => { setPaused(true); play("pull"); },
-    style: {
-      background: "rgba(0,0,0,.32)",
-      backdropFilter: "blur(3px)",
-      border: "none",
-      borderRadius: 999,
-      color: "#fff",
-      fontSize: 12,
-      padding: "5px 11px",
-      cursor: "pointer",
-      pointerEvents: "auto",
-      boxShadow: "0 3px 8px rgba(0,0,0,.25)"
-    }
-  }, "⏸️")), /*#__PURE__*/React.createElement("div", {
+  }, "🐟 러시!")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       flexDirection: "column",
-      alignItems: "flex-end",
-      gap: 5
+      alignItems: "stretch",
+      gap: 0,
+      background: "rgba(0,0,0,.32)",
+      backdropFilter: "blur(3px)",
+      borderRadius: 14,
+      padding: "5px 12px",
+      boxShadow: "0 3px 8px rgba(0,0,0,.25)",
+      textAlign: "right"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: "'Jua',sans-serif",
       fontSize: 12.5,
-      background: "rgba(0,0,0,.32)",
-      backdropFilter: "blur(3px)",
-      borderRadius: 999,
-      padding: "5px 12px",
-      boxShadow: "0 3px 8px rgba(0,0,0,.25)",
       whiteSpace: "nowrap"
     }
   }, spot.name, " · ⏱", timeLeft, "s"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 12,
-      background: "rgba(0,0,0,.32)",
-      backdropFilter: "blur(3px)",
-      borderRadius: 999,
-      padding: "4px 11px",
-      boxShadow: "0 3px 8px rgba(0,0,0,.25)",
+      marginTop: 2,
       whiteSpace: "nowrap"
     }
   }, BAITS[equippedBait].icon, " ", CREELS[equippedCreel].icon, " ", TIMES[weather.time].icon, " ", SKIES[weather.sky].icon, missCount > 0 && /*#__PURE__*/React.createElement("span", { style: { marginLeft: 6, color: "#ff8a7a" } }, "❌".repeat(missCount))))), /*#__PURE__*/React.createElement("div", {
