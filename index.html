@@ -1694,7 +1694,8 @@ function FlyFishingGame() {
   const [equippedBait, setEquippedBait] = useState("basic"); // 장착 미끼
   const [ownedCreels, setOwnedCreels] = useState(["basic"]); // 보유 어망
   const [equippedCreel, setEquippedCreel] = useState("basic"); // 장착 어망
-  const [shopTab, setShopTab] = useState("gear"); // 상점 탭: gear|bait|creel
+  const [shopTab, setShopTab] = useState("gear");
+  const [showDaily, setShowDaily] = useState(false); // 상점 탭: gear|bait|creel
   const [buyFx, setBuyFx] = useState(null); // 구매 연출 {key, t}
   const [anglerExp, setAnglerExp] = useState(0); // 강태공 누적 경험치
   const [levelUpInfo, setLevelUpInfo] = useState(null); // 결과 화면 레벨업 표시
@@ -3012,497 +3013,346 @@ function FlyFishingGame() {
     }, "건너뛰기"))));
   }
 
-  // ─── 지도(장소 선택) ───
+  // ─── 지도(여정 맵) ───
   if (screen === "map") {
+    const h = React.createElement;
     const sel = selPin != null ? SPOTS[selPin] : null;
     const selUnlocked = sel && unlocked.includes(sel.id);
     const selOkGear = sel && gearSum(gearLvl, ownedBaits) >= sel.unlock.gearSum;
     const selOkCoin = sel && coins >= sel.unlock.coin;
     const selCanUnlock = sel && !selUnlocked && selOkGear && selOkCoin;
-    return /*#__PURE__*/React.createElement(Center, null, /*#__PURE__*/React.createElement(Fonts, null), /*#__PURE__*/React.createElement("div", {
-      style: {
-        ...cardStyle,
-        maxWidth: 980,
-        height: "calc(100dvh - 16px)",
-        maxHeight: "calc(100dvh - 16px)",
-        padding: "10px 14px",
-        overflow: "hidden"
+    const N = SPOTS.length;
+    const GAP = 156, X0 = 110, SH = 300;
+    const W = X0 + (N - 1) * GAP + 170;
+    const nodeX = i => X0 + i * GAP;
+    const nodeY = i => i === N - 1 ? 88 : 152 + Math.round(58 * Math.sin(i * 1.15 + 0.6));
+    const progIdx = SPOTS.reduce((a, sp, i) => unlocked.includes(sp.id) ? i : a, 0);
+    const lv = anglerLevelFromExp(anglerExp);
+    const curBase = expForLevel(lv), nextBase = expForLevel(lv + 1);
+    const pct = Math.max(0, Math.min(100, (anglerExp - curBase) / (nextBase - curBase) * 100));
+    const claimable = daily ? daily.tasks.filter(t => t.done && !t.claimed).length : 0;
+    const typeIcon = { plain: "🌾", city: "🏙️", river: "🏞️", lake: "🌊", valley: "⛰️", jeju: "🍊" };
+    const pathD = (() => {
+      let d = `M ${nodeX(0)} ${nodeY(0)}`;
+      for (let i = 1; i < N; i++) {
+        const x0 = nodeX(i - 1), y0 = nodeY(i - 1), x1 = nodeX(i), y1 = nodeY(i);
+        d += ` C ${x0 + GAP * 0.5} ${y0}, ${x1 - GAP * 0.5} ${y1}, ${x1} ${y1}`;
       }
-    }, /*#__PURE__*/React.createElement("div", {
+      return d;
+    })();
+    const segD = i => {
+      const x0 = nodeX(i), y0 = nodeY(i), x1 = nodeX(i + 1), y1 = nodeY(i + 1);
+      return `M ${x0} ${y0} C ${x0 + GAP * 0.5} ${y0}, ${x1 - GAP * 0.5} ${y1}, ${x1} ${y1}`;
+    };
+    const hudPill = {
+      background: "rgba(255,255,255,.88)",
+      backdropFilter: "blur(6px)",
+      borderRadius: 999,
+      padding: "6px 13px",
+      boxShadow: "0 3px 10px rgba(12,59,52,.18)",
+      fontFamily: "'Jua',sans-serif",
+      color: "#0c3b34",
+      display: "flex",
+      alignItems: "center",
+      gap: 7,
+      pointerEvents: "auto"
+    };
+    const fabBtn = {
+      ...hudPill,
+      cursor: "pointer",
+      border: "none",
+      fontSize: 14,
+      padding: "9px 15px"
+    };
+    const scenery = [
+      [0.4, "🌾", 20], [1.05, "🏙️", 24], [1.6, "🦆", 15], [2.5, "🌸", 17],
+      [3.45, "🌉", 22], [4.5, "🛶", 16], [5.5, "🪨", 18], [6.45, "🌲", 22],
+      [7.5, "🦢", 15], [8.5, "🌳", 20], [9.45, "🌻", 17], [10.5, "⛵", 18],
+      [11.5, "🌲", 20], [12.45, "🎋", 18], [13.5, "🍂", 15], [14.5, "🪨", 17],
+      [15.45, "🌾", 18], [16.5, "🌊", 16], [17.5, "🍊", 18], [18.5, "❄️", 16]
+    ];
+    return h("div", {
       style: {
-        display: "flex",
-        alignItems: "center",
-        gap: 12,
         width: "100%",
-        flex: "0 0 auto"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontFamily: "'Jua',sans-serif",
-        fontSize: 19,
-        color: "#0c3b34",
-        whiteSpace: "nowrap",
-        flex: "0 0 auto"
-      }
-    }, "🗺️ 낚시 여행", claimed.all && /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 12,
-        marginLeft: 8,
-        color: "#d08020"
-      }
-    }, ALL_TITLE)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontFamily: "'Jua',sans-serif",
-        color: "#c8881f",
-        whiteSpace: "nowrap",
-        flex: "0 0 auto",
-        order: 3
-      }
-    }, "🪙 ", coins), (() => {
-      const lv = anglerLevelFromExp(anglerExp);
-      const curBase = expForLevel(lv),
-        nextBase = expForLevel(lv + 1);
-      const pct = Math.max(0, Math.min(100, (anglerExp - curBase) / (nextBase - curBase) * 100));
-      return /*#__PURE__*/React.createElement("div", {
-        style: {
-          flex: 1,
-          minWidth: 0,
-          order: 2,
-          background: "#f1f8f5",
-          borderRadius: 12,
-          padding: "4px 10px",
-          display: "flex",
-          alignItems: "center",
-          gap: 8
-        }
-      }, /*#__PURE__*/React.createElement("div", {
-        style: {
-          fontSize: 15
-        }
-      }, "🎣"), /*#__PURE__*/React.createElement("div", {
-        style: {
-          flex: 1,
-          textAlign: "left"
-        }
-      }, /*#__PURE__*/React.createElement("div", {
-        style: {
-          fontSize: 12.5,
-          color: "#0c3b34",
-          fontFamily: "'Jua',sans-serif"
-        }
-      }, "Lv.", lv, " ", /*#__PURE__*/React.createElement("span", {
-        style: {
-          color: "#2c6f86"
-        }
-      }, anglerTitle(lv))), /*#__PURE__*/React.createElement("div", {
-        style: {
-          height: 6,
-          background: "#e4efea",
-          borderRadius: 3,
-          marginTop: 3
-        }
-      }, /*#__PURE__*/React.createElement("div", {
-        style: {
-          width: `${pct}%`,
-          height: "100%",
-          background: "linear-gradient(90deg,#27ae8f,#7fe0c0)",
-          borderRadius: 3,
-          transition: "width .3s"
-        }
-      }))), /*#__PURE__*/React.createElement("div", {
-        style: {
-          fontSize: 10.5,
-          color: "#7a948c"
-        }
-      }, anglerExp - curBase, "/", nextBase - curBase));
-    })()), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        gap: 14,
-        width: "100%",
-        marginTop: 8,
-        alignItems: "stretch",
-        flex: 1,
-        minHeight: 0
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: "0 0 auto",
-        height: "100%",
-        aspectRatio: "200 / 280",
-        minWidth: 0
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: "relative",
-        width: "100%",
-        height: "100%"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: "relative",
-        width: "100%",
-        height: "100%",
+        height: "100dvh",
         overflow: "hidden",
-        borderRadius: 14,
-        touchAction: "none"
-      },
-      onDoubleClick: e => {
-        e.stopPropagation();
-        setMapZoom(z => z > 1.2 ? 1 : 2);
-        setMapPan({
-          x: 0,
-          y: 0
-        });
-      },
-      onPointerDown: e => {
-        if (mapZoom <= 1) return;
-        panRef.current = {
-          sx: e.clientX,
-          sy: e.clientY,
-          px: mapPan.x,
-          py: mapPan.y
-        };
-      },
-      onPointerMove: e => {
-        if (!panRef.current) return;
-        const dx = e.clientX - panRef.current.sx;
-        const dy = e.clientY - panRef.current.sy;
-        const lim = 140 * (mapZoom - 1);
-        setMapPan({
-          x: Math.max(-lim, Math.min(lim, panRef.current.px + dx)),
-          y: Math.max(-lim, Math.min(lim, panRef.current.py + dy))
-        });
-      },
-      onPointerUp: () => {
-        panRef.current = null;
-      },
-      onPointerLeave: () => {
-        panRef.current = null;
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
         position: "relative",
-        width: "100%",
-        height: "100%",
-        transform: `translate(${mapPan.x}px,${mapPan.y}px) scale(${mapZoom})`,
-        transformOrigin: "center center",
-        transition: panRef.current ? "none" : "transform .2s",
-        cursor: mapZoom > 1 ? "grab" : "default"
+        background: "linear-gradient(#bfe6f2 0%, #dff3ef 60%, #cfe9dd 100%)",
+        fontFamily: "'Gowun Dodum',sans-serif"
       }
-    }, /*#__PURE__*/React.createElement("svg", {
-      viewBox: "0 0 200 280",
-      preserveAspectRatio: "xMidYMid meet",
+    }, h(Fonts), h(RotateHint),
+    // ── 스크롤 여정 스트립 ──
+    h("div", {
+      ref: el => {
+        if (!el || el.dataset.init) return;
+        el.dataset.init = "1";
+        el.scrollLeft = Math.max(0, nodeX(progIdx) - el.clientWidth * 0.42);
+      },
+      onClick: e => { if (e.target === e.currentTarget) setSelPin(null); },
       style: {
-        width: "100%",
-        height: "100%",
-        display: "block"
+        position: "absolute",
+        inset: 0,
+        overflowX: "auto",
+        overflowY: "hidden",
+        WebkitOverflowScrolling: "touch"
       }
-    }, /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("linearGradient", {
-      id: "land",
-      x1: "0",
-      y1: "0",
-      x2: "0",
-      y2: "1"
-    }, /*#__PURE__*/React.createElement("stop", {
-      offset: "0%",
-      stopColor: "#cde7d4"
-    }), /*#__PURE__*/React.createElement("stop", {
-      offset: "100%",
-      stopColor: "#a7d8c2"
-    }))), /*#__PURE__*/React.createElement("rect", {
-      x: "0",
-      y: "0",
-      width: "200",
-      height: "280",
-      fill: "#bfe3ef",
-      rx: "14"
-    }), /*#__PURE__*/React.createElement("path", {
-      d: KOREA_PATH,
-      fill: "url(#land)",
-      stroke: "#5a9e84",
-      strokeWidth: "1.6",
-      strokeLinejoin: "round"
-    }), /*#__PURE__*/React.createElement("path", {
-      d: JEJU_PATH,
-      fill: "url(#land)",
-      stroke: "#5a9e84",
-      strokeWidth: "1.4",
-      strokeLinejoin: "round"
-    }), /*#__PURE__*/React.createElement("polyline", {
-      points: SPOTS.filter(s => !s.island).map(s => {
-        const p = geoToPct(s.geo.lat, s.geo.lon, false, s.id);
-        return `${p.x / 100 * 200},${p.y / 100 * 280}`;
-      }).join(" "),
-      fill: "none",
-      stroke: "rgba(255,159,67,.5)",
-      strokeWidth: "1.2",
-      strokeDasharray: "3 3"
-    })), SPOTS.map((s, idx) => {
-      const isUnlocked = unlocked.includes(s.id);
-      const okGear = gearSum(gearLvl, ownedBaits) >= s.unlock.gearSum;
-      const okCoin = coins >= s.unlock.coin;
+    }, h("div", {
+      style: { position: "relative", width: W, height: "100%" },
+      onClick: e => { if (e.target === e.currentTarget) setSelPin(null); }
+    },
+    h("svg", {
+      viewBox: `0 0 ${W} ${SH}`,
+      preserveAspectRatio: "none",
+      style: { position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }
+    },
+      h("defs", null,
+        h("linearGradient", { id: "jHillFar", x1: "0", y1: "0", x2: "1", y2: "0" },
+          h("stop", { offset: "0%", stopColor: "#b5dcae" }),
+          h("stop", { offset: "14%", stopColor: "#a9c4cf" }),
+          h("stop", { offset: "34%", stopColor: "#9fd0bd" }),
+          h("stop", { offset: "60%", stopColor: "#8fbfae" }),
+          h("stop", { offset: "82%", stopColor: "#93b8ab" }),
+          h("stop", { offset: "96%", stopColor: "#dfe9ec" }),
+          h("stop", { offset: "100%", stopColor: "#f2f4f0" })),
+        h("linearGradient", { id: "jHillNear", x1: "0", y1: "0", x2: "1", y2: "0" },
+          h("stop", { offset: "0%", stopColor: "#9ed49a" }),
+          h("stop", { offset: "14%", stopColor: "#8fb4c2" }),
+          h("stop", { offset: "34%", stopColor: "#7cc0a6" }),
+          h("stop", { offset: "60%", stopColor: "#69a98f" }),
+          h("stop", { offset: "82%", stopColor: "#6f9e8d" }),
+          h("stop", { offset: "96%", stopColor: "#cddfe2" }),
+          h("stop", { offset: "100%", stopColor: "#e8ece7" })),
+        h("linearGradient", { id: "jWater", x1: "0", y1: "0", x2: "0", y2: "1" },
+          h("stop", { offset: "0%", stopColor: "#9fd8e8" }),
+          h("stop", { offset: "100%", stopColor: "#5fb0c8" }))),
+      h("path", {
+        d: `M0,${SH * 0.52} ` + Array.from({ length: Math.ceil(W / 260) + 1 }, (_, k) => `Q ${k * 260 + 130} ${SH * 0.40} ${(k + 1) * 260} ${SH * 0.52}`).join(" ") + ` L${W},${SH} L0,${SH} Z`,
+        fill: "url(#jHillFar)",
+        opacity: 0.75
+      }),
+      h("path", {
+        d: `M0,${SH * 0.68} ` + Array.from({ length: Math.ceil(W / 340) + 1 }, (_, k) => `Q ${k * 340 + 170} ${SH * 0.55} ${(k + 1) * 340} ${SH * 0.68}`).join(" ") + ` L${W},${SH} L0,${SH} Z`,
+        fill: "url(#jHillNear)",
+        opacity: 0.85
+      }),
+      h("path", {
+        d: `M0,${SH * 0.84} ` + Array.from({ length: Math.ceil(W / 300) + 1 }, (_, k) => `Q ${k * 300 + 150} ${SH * 0.80} ${(k + 1) * 300} ${SH * 0.84}`).join(" ") + ` L${W},${SH} L0,${SH} Z`,
+        fill: "url(#jWater)"
+      }),
+      h("path", { d: pathD, fill: "none", stroke: "rgba(255,255,255,.55)", strokeWidth: 9, strokeLinecap: "round" }),
+      SPOTS.slice(0, -1).map((sp, i) => {
+        const doneSeg = unlocked.includes(SPOTS[i + 1].id);
+        const nextSeg = !doneSeg && unlocked.includes(sp.id);
+        return h("path", {
+          key: i,
+          d: segD(i),
+          fill: "none",
+          strokeWidth: 4.5,
+          strokeLinecap: "round",
+          stroke: doneSeg ? "#2c9c86" : nextSeg ? "#ff9f43" : "rgba(90,120,115,.35)",
+          strokeDasharray: doneSeg ? "none" : "2 10",
+          style: nextSeg ? { animation: "jflow 1.2s linear infinite" } : null
+        });
+      }),
+      scenery.map(([fi, em, fs], k) => h("text", {
+        key: "sc" + k,
+        x: X0 + fi * GAP,
+        y: k % 3 === 0 ? 262 : k % 3 === 1 ? 236 : 250,
+        fontSize: fs,
+        opacity: 0.9
+      }, em)),
+      h("text", { x: nodeX(N - 1) - 4, y: 46, fontSize: 30 }, "🏔️")
+    ),
+    // 노드 버튼들
+    SPOTS.map((sp, idx) => {
+      const isUnlocked = unlocked.includes(sp.id);
+      const okGear = gearSum(gearLvl, ownedBaits) >= sp.unlock.gearSum;
+      const okCoin = coins >= sp.unlock.coin;
       const canUnlock = !isUnlocked && okGear && okCoin;
       const selected = selPin === idx;
-      const p = geoToPct(s.geo.lat, s.geo.lon, s.island, s.id);
-      return /*#__PURE__*/React.createElement("button", {
-        key: s.id,
-        onClick: () => {
-          setSelPin(idx);
-          play("pull");
-        },
+      const st = stars[sp.id] || 0;
+      return h("div", {
+        key: sp.id,
         style: {
           position: "absolute",
-          left: `${p.x}%`,
-          top: `${p.y}%`,
+          left: nodeX(idx),
+          top: `${nodeY(idx) / SH * 100}%`,
           transform: "translate(-50%,-50%)",
-          width: selected ? 28 : 22,
-          height: selected ? 28 : 22,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          zIndex: selected ? 6 : 2
+        }
+      },
+      isUnlocked && h("div", {
+        style: { fontSize: 12, letterSpacing: 1, marginBottom: 2, textShadow: "0 1px 2px rgba(0,0,0,.25)" }
+      }, [0, 1, 2].map(i => h("span", { key: i, style: { color: i < st ? "#ffce3a" : "rgba(255,255,255,.75)" } }, "★"))),
+      h("button", {
+        onClick: () => { setSelPin(idx); play("pull"); },
+        style: {
+          width: selected ? 54 : 46,
+          height: selected ? 54 : 46,
           borderRadius: "50%",
-          border: (stars[s.id] || 0) >= 3 ? "2.5px solid #ffce3a" : selected ? "2.5px solid #fff" : "1.5px solid rgba(255,255,255,.8)",
-          background: isUnlocked ? s.id === "baekdu" ? "radial-gradient(circle,#ffe27a,#e8a72c)" : "radial-gradient(circle,#7fd8c0,#2c9c86)" : canUnlock ? "radial-gradient(circle,#ffd86b,#ff9f43)" : "rgba(120,140,150,.85)",
+          border: st >= 3 ? "3px solid #ffce3a" : selected ? "3px solid #fff" : "2px solid rgba(255,255,255,.9)",
+          background: isUnlocked ? (sp.id === "baekdu" ? "radial-gradient(circle at 35% 30%,#ffe27a,#e8a72c)" : "radial-gradient(circle at 35% 30%,#7fd8c0,#2c9c86)") : canUnlock ? "radial-gradient(circle at 35% 30%,#ffd86b,#ff9f43)" : "radial-gradient(circle at 35% 30%,#b9c6cc,#8a99a1)",
           color: "#fff",
-          fontSize: selected ? 12 : 10,
-          fontWeight: 700,
+          fontSize: selected ? 20 : 17,
+          fontFamily: "'Jua',sans-serif",
           cursor: "pointer",
-          boxShadow: selected ? "0 0 0 3px rgba(255,159,67,.35), 0 3px 6px rgba(0,0,0,.3)" : "0 2px 4px rgba(0,0,0,.3)",
+          boxShadow: selected ? "0 0 0 5px rgba(255,159,67,.3), 0 5px 12px rgba(0,0,0,.3)" : "0 4px 9px rgba(0,0,0,.28)",
           display: "grid",
           placeItems: "center",
           padding: 0,
-          zIndex: selected ? 6 : 2,
           animation: canUnlock && !selected ? "pinpulse 1.2s infinite" : "none",
-          transition: "width .15s, height .15s"
+          transition: "width .15s,height .15s"
         }
-      }, isUnlocked ? s.id === "baekdu" ? "★" : idx + 1 : canUnlock ? "🔓" : "🔒");
-    }))), /*#__PURE__*/React.createElement("div", {
+      }, isUnlocked ? (sp.id === "baekdu" ? "★" : idx + 1) : canUnlock ? "🔓" : "🔒"),
+      h("div", {
+        style: {
+          marginTop: 4,
+          background: selected ? "#0c3b34" : "rgba(255,255,255,.9)",
+          color: selected ? "#fff" : "#0c3b34",
+          borderRadius: 999,
+          padding: "2.5px 9px",
+          fontSize: 10.5,
+          fontFamily: "'Jua',sans-serif",
+          whiteSpace: "nowrap",
+          boxShadow: "0 2px 5px rgba(0,0,0,.15)"
+        }
+      }, typeIcon[sp.type] || "", " ", sp.name));
+    }))),
+    // ── 상단 HUD ──
+    h("div", {
       style: {
         position: "absolute",
-        right: 8,
-        bottom: 8,
-        display: "flex",
-        flexDirection: "column",
-        gap: 6,
-        zIndex: 10
-      }
-    }, /*#__PURE__*/React.createElement("button", {
-      onClick: () => {
-        setMapZoom(z => Math.min(2.5, +(z + 0.5).toFixed(1)));
-      },
-      style: zoomBtn
-    }, "＋"), /*#__PURE__*/React.createElement("button", {
-      onClick: () => {
-        setMapZoom(z => {
-          const nz = Math.max(1, +(z - 0.5).toFixed(1));
-          if (nz === 1) setMapPan({
-            x: 0,
-            y: 0
-          });
-          return nz;
-        });
-      },
-      style: zoomBtn
-    }, "－")), mapZoom > 1 && /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: "absolute",
-        left: 8,
-        bottom: 8,
-        fontSize: 10,
-        color: "#5a7d77",
-        background: "rgba(255,255,255,.8)",
-        padding: "2px 7px",
-        borderRadius: 8,
-        zIndex: 10
-      }
-    }, "×", mapZoom, " · 끌어서 이동"))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: 1,
-        minWidth: 0,
-        minHeight: 0,
-        display: "flex",
-        flexDirection: "column",
-        gap: 8,
-        overflowY: "auto",
-        WebkitOverflowScrolling: "touch",
-        paddingRight: 2
-      }
-    }, sel ? /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: "100%",
-        borderRadius: 14,
-        overflow: "hidden",
-        background: `linear-gradient(120deg, ${sel.bg[1]}, ${sel.bg[2]})`,
-        color: "#fff",
-        textAlign: "left"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        padding: "12px 14px"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontFamily: "'Jua',sans-serif",
-        fontSize: 19,
-        textShadow: "0 1px 3px rgba(0,0,0,.4)"
-      }
-    }, selUnlocked ? "" : selCanUnlock ? "🔓 " : "🔒 ", sel.name), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 12,
-        opacity: 0.9
-      }
-    }, "물살 ", "🌊".repeat(Math.round(sel.flow * 1.6)))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 12,
-        opacity: 0.92,
-        margin: "3px 0 6px",
-        textShadow: "0 1px 2px rgba(0,0,0,.4)"
-      }
-    }, sel.sub), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 12.5,
-        marginBottom: 8
-      }
-    }, sel.fish.map(([n]) => `${FISH[n].emoji}${n}`).join("  ")), selUnlocked && /*#__PURE__*/React.createElement("div", {
-      style: {
-        marginBottom: 8
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 16,
-        letterSpacing: 2,
-        marginBottom: 4
-      }
-    }, [0, 1, 2].map(i => /*#__PURE__*/React.createElement("span", {
-      key: i,
-      style: {
-        color: i < (stars[sel.id] || 0) ? "#ffce3a" : "rgba(255,255,255,.4)"
-      }
-    }, "★")), bestBySpot[sel.id] != null && /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 11,
-        opacity: 0.85,
-        marginLeft: 8
-      }
-    }, "최고 🪙", bestBySpot[sel.id])), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 10.5,
-        opacity: 0.85,
-        lineHeight: 1.5
-      }
-    }, spotMissions(sel).map((m, i) => /*#__PURE__*/React.createElement("div", {
-      key: i
-    }, "· ", m.label)))), selUnlocked ? /*#__PURE__*/React.createElement("button", {
-      onClick: () => startSpot(selPin),
-      style: mapBtn()
-    }, "낚시하러 가기 →") : selCanUnlock ? /*#__PURE__*/React.createElement("button", {
-      onClick: () => tryUnlock(selPin),
-      style: mapBtn()
-    }, "🔓 해금하기 🪙", sel.unlock.coin) : /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 11.5,
-        background: "rgba(0,0,0,.28)",
-        borderRadius: 10,
-        padding: "6px 9px"
-      }
-    }, "해금 조건: 🪙", sel.unlock.coin, " ", selOkCoin ? "✓" : "(부족)", " · 장비 진척도 ", sel.unlock.gearSum, " ", selOkGear ? "✓" : `(현재 ${gearSum(gearLvl, ownedBaits)})`))) : /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: "100%",
-        textAlign: "center",
-        color: "#5a7d77",
-        fontSize: 13,
-        padding: "20px 0"
-      }
-    }, "지도에서 낚시터를 골라보세요 📍"), daily && /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: "100%",
-        background: "#f1f8f5",
-        borderRadius: 14,
-        padding: "10px 12px"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontFamily: "'Jua',sans-serif",
-        fontSize: 14,
-        color: "#0c3b34",
-        marginBottom: 8,
-        textAlign: "left"
-      }
-    }, "📋 오늘의 도전"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        gap: 7
-      }
-    }, daily.tasks.map(t => /*#__PURE__*/React.createElement("div", {
-      key: t.id,
-      style: {
+        top: "max(8px, env(safe-area-inset-top))",
+        left: "max(10px, env(safe-area-inset-left))",
+        right: "max(10px, env(safe-area-inset-right))",
         display: "flex",
         alignItems: "center",
-        gap: 8,
+        gap: 10,
+        pointerEvents: "none",
+        zIndex: 20
+      }
+    },
+    h("div", { style: { ...hudPill, fontSize: 16 } }, "🗺️ 낚시 여행", claimed.all && h("span", { style: { fontSize: 11, color: "#d08020" } }, ALL_TITLE)),
+    h("div", { style: { ...hudPill, flex: 1, minWidth: 0, gap: 8 } },
+      h("span", { style: { fontSize: 13 } }, "🎣"),
+      h("span", { style: { fontSize: 12, whiteSpace: "nowrap" } }, "Lv.", lv, " ", h("span", { style: { color: "#2c6f86" } }, anglerTitle(lv))),
+      h("div", { style: { flex: 1, minWidth: 24, height: 6, background: "#e4efea", borderRadius: 3 } },
+        h("div", { style: { width: `${pct}%`, height: "100%", background: "linear-gradient(90deg,#27ae8f,#7fe0c0)", borderRadius: 3, transition: "width .3s" } })),
+      h("span", { style: { fontSize: 10, color: "#7a948c", fontFamily: "'Gowun Dodum',sans-serif" } }, anglerExp - curBase, "/", nextBase - curBase)),
+    h("div", { style: { ...hudPill, fontSize: 16, color: "#c8881f" } }, "🪙 ", coins)),
+    // ── 좌하단: 오늘의 도전 ──
+    daily && h("button", {
+      onClick: () => setShowDaily(v => !v),
+      style: {
+        ...fabBtn,
+        position: "absolute",
+        left: "max(10px, env(safe-area-inset-left))",
+        bottom: "max(10px, env(safe-area-inset-bottom))",
+        zIndex: 21
+      }
+    }, "📋 도전", claimable > 0 && h("span", {
+      style: { background: "#e2574a", color: "#fff", borderRadius: 999, fontSize: 11, padding: "1px 7px", marginLeft: 2 }
+    }, claimable)),
+    daily && showDaily && h("div", {
+      style: {
+        position: "absolute",
+        left: "max(10px, env(safe-area-inset-left))",
+        bottom: "calc(max(10px, env(safe-area-inset-bottom)) + 48px)",
+        width: 290,
+        maxWidth: "70vw",
+        maxHeight: "58dvh",
+        overflowY: "auto",
+        background: "rgba(255,255,255,.96)",
+        backdropFilter: "blur(8px)",
+        borderRadius: 16,
+        padding: "12px 14px",
+        boxShadow: "0 10px 30px rgba(12,59,52,.3)",
+        zIndex: 21,
+        animation: "jfade .18s ease-out",
         textAlign: "left"
       }
-    }, /*#__PURE__*/React.createElement("div", {
+    },
+    h("div", { style: { fontFamily: "'Jua',sans-serif", fontSize: 14, color: "#0c3b34", marginBottom: 8 } }, "📋 오늘의 도전"),
+    h("div", { style: { display: "flex", flexDirection: "column", gap: 8 } },
+      daily.tasks.map(t => h("div", { key: t.id, style: { display: "flex", alignItems: "center", gap: 8 } },
+        h("div", { style: { flex: 1 } },
+          h("div", { style: { fontSize: 12.5, color: t.done ? "#27ae8f" : "#37544d" } }, t.done ? "✓ " : "", t.label),
+          h("div", { style: { height: 5, background: "#e4efea", borderRadius: 3, marginTop: 3 } },
+            h("div", { style: { width: `${Math.min(100, t.prog / t.target * 100)}%`, height: "100%", background: t.done ? "#27ae8f" : "#7fc4ad", borderRadius: 3 } }))),
+        h("div", { style: { minWidth: 56, textAlign: "right" } },
+          t.claimed ? h("span", { style: { fontSize: 11, color: "#aab" } }, "완료")
+          : t.done ? h("button", { onClick: () => claimDaily(t.id), style: rewardBtn }, "🪙", t.reward)
+          : h("span", { style: { fontSize: 11, color: "#9bb0a8" } }, t.prog, "/", t.target)))))),
+    // ── 우하단: 상점/도감/랭킹 ──
+    h("div", {
       style: {
-        flex: 1
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 12.5,
-        color: t.done ? "#27ae8f" : "#37544d"
-      }
-    }, t.done ? "✓ " : "", t.label), /*#__PURE__*/React.createElement("div", {
-      style: {
-        height: 5,
-        background: "#e4efea",
-        borderRadius: 3,
-        marginTop: 3
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: `${Math.min(100, t.prog / t.target * 100)}%`,
-        height: "100%",
-        background: t.done ? "#27ae8f" : "#7fc4ad",
-        borderRadius: 3
-      }
-    }))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        minWidth: 60,
-        textAlign: "right"
-      }
-    }, t.claimed ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 11,
-        color: "#aab"
-      }
-    }, "완료") : t.done ? /*#__PURE__*/React.createElement("button", {
-      onClick: () => claimDaily(t.id),
-      style: rewardBtn
-    }, "🪙", t.reward) : /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 11,
-        color: "#9bb0a8"
-      }
-    }, t.prog, "/", t.target)))))), /*#__PURE__*/React.createElement("div", {
-      style: {
+        position: "absolute",
+        right: "max(10px, env(safe-area-inset-right))",
+        bottom: "max(10px, env(safe-area-inset-bottom))",
         display: "flex",
         gap: 8,
-        width: "100%"
+        zIndex: 21
       }
-    }, /*#__PURE__*/React.createElement(BigBtn, {
-      onClick: () => setScreen("shop"),
-      variant: "ghost"
-    }, "🛒 상점"), /*#__PURE__*/React.createElement(BigBtn, {
-      onClick: () => setScreen("book"),
-      variant: "ghost"
-    }, "📖 도감 ", Object.keys(book).length, "/", Object.keys(FISH).length)), /*#__PURE__*/React.createElement(BigBtn, {
-      onClick: () => setScreen("rank"),
-      variant: "ghost"
-    }, "🏆 랭킹")))), /*#__PURE__*/React.createElement("style", null, `@keyframes pinpulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,159,67,.5),0 3px 6px rgba(0,0,0,.3)} 50%{box-shadow:0 0 0 7px rgba(255,159,67,0),0 3px 6px rgba(0,0,0,.3)} }`));
+    },
+    h("button", { onClick: () => setScreen("shop"), style: fabBtn }, "🛒 상점"),
+    h("button", { onClick: () => setScreen("book"), style: fabBtn }, "📖 ", Object.keys(book).length, "/", Object.keys(FISH).length),
+    h("button", { onClick: () => setScreen("rank"), style: fabBtn }, "🏆")),
+    // ── 선택 정보 패널 ──
+    sel ? h("div", {
+      style: {
+        position: "absolute",
+        left: "50%",
+        transform: "translateX(-50%)",
+        bottom: "calc(max(10px, env(safe-area-inset-bottom)) + 48px)",
+        width: "min(480px, 88vw)",
+        maxHeight: "52dvh",
+        overflowY: "auto",
+        borderRadius: 18,
+        background: `linear-gradient(120deg, ${sel.bg[1]}, ${sel.bg[2]})`,
+        color: "#fff",
+        textAlign: "left",
+        boxShadow: "0 14px 36px rgba(12,59,52,.4)",
+        zIndex: 22,
+        animation: "jslideup .2s ease-out"
+      }
+    }, h("div", { style: { padding: "12px 15px" } },
+      h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } },
+        h("div", { style: { fontFamily: "'Jua',sans-serif", fontSize: 19, textShadow: "0 1px 3px rgba(0,0,0,.4)" } },
+          selUnlocked ? "" : selCanUnlock ? "🔓 " : "🔒 ", sel.name),
+        h("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
+          h("span", { style: { fontSize: 12, opacity: 0.9 } }, "물살 ", "🌊".repeat(Math.round(sel.flow * 1.6))),
+          h("button", {
+            onClick: () => setSelPin(null),
+            style: { background: "rgba(0,0,0,.25)", border: "none", color: "#fff", borderRadius: 999, width: 24, height: 24, cursor: "pointer", fontSize: 13, lineHeight: 1 }
+          }, "✕"))),
+      h("div", { style: { fontSize: 12, opacity: 0.92, margin: "3px 0 6px", textShadow: "0 1px 2px rgba(0,0,0,.4)" } }, sel.sub),
+      h("div", { style: { fontSize: 12.5, marginBottom: 8 } }, sel.fish.map(([n]) => `${FISH[n].emoji}${n}`).join("  ")),
+      selUnlocked && h("div", { style: { marginBottom: 8 } },
+        h("div", { style: { fontSize: 16, letterSpacing: 2, marginBottom: 4 } },
+          [0, 1, 2].map(i => h("span", { key: i, style: { color: i < (stars[sel.id] || 0) ? "#ffce3a" : "rgba(255,255,255,.4)" } }, "★")),
+          bestBySpot[sel.id] != null && h("span", { style: { fontSize: 11, opacity: 0.85, marginLeft: 8 } }, "최고 🪙", bestBySpot[sel.id])),
+        h("div", { style: { fontSize: 10.5, opacity: 0.85, lineHeight: 1.5 } },
+          spotMissions(sel).map((m, i) => h("div", { key: i }, "· ", m.label)))),
+      selUnlocked ? h("button", { onClick: () => startSpot(selPin), style: mapBtn() }, "낚시하러 가기 →")
+      : selCanUnlock ? h("button", { onClick: () => tryUnlock(selPin), style: mapBtn() }, "🔓 해금하기 🪙", sel.unlock.coin)
+      : h("div", { style: { fontSize: 11.5, background: "rgba(0,0,0,.28)", borderRadius: 10, padding: "6px 9px" } },
+        "해금 조건: 🪙", sel.unlock.coin, " ", selOkCoin ? "✓" : "(부족)", " · 장비 진척도 ", sel.unlock.gearSum, " ", selOkGear ? "✓" : `(현재 ${gearSum(gearLvl, ownedBaits)})`)))
+    : h("div", {
+      style: {
+        position: "absolute",
+        left: "50%",
+        transform: "translateX(-50%)",
+        bottom: "calc(max(10px, env(safe-area-inset-bottom)) + 52px)",
+        ...hudPill,
+        fontSize: 13,
+        zIndex: 19,
+        animation: "jbob 1.6s ease-in-out infinite"
+      }
+    }, "낚시터를 눌러보세요 📍"),
+    h("style", null, `@keyframes pinpulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,159,67,.5),0 4px 9px rgba(0,0,0,.28)} 50%{box-shadow:0 0 0 8px rgba(255,159,67,0),0 4px 9px rgba(0,0,0,.28)} } @keyframes jflow { to { stroke-dashoffset: -12; } } @keyframes jslideup { from { opacity:0; transform: translate(-50%,10px);} to { opacity:1; transform: translate(-50%,0);} } @keyframes jfade { from { opacity:0; transform: translateY(10px);} to { opacity:1; transform: translateY(0);} } @keyframes jbob { 0%,100%{ transform: translate(-50%,0);} 50%{ transform: translate(-50%,-5px);} }`));
   }
 
   // ─── 랭킹(리더보드) ───
