@@ -3237,6 +3237,15 @@ function FlyFishingGame() {
       [11.5, "🌲", 20], [12.45, "🎋", 18], [13.5, "🍂", 15], [14.5, "🪨", 17],
       [15.45, "🌾", 18], [16.5, "🌊", 16], [17.5, "🍊", 18], [18.5, "❄️", 16]
     ];
+    // 강물 속을 헤엄치는 배경 물고기 (장식용, 낚시터 노드와 겹치지 않게 y를 물 하단쪽에 배치)
+    const riverFish = Array.from({ length: Math.max(6, Math.round(W / 240)) }, (_, k) => ({
+      x: 70 + (k * 240 + (k % 3) * 65) % (W - 140),
+      y: SH * 0.9 + (k % 4) * (SH * 0.022),
+      dir: k % 2 === 0 ? 1 : -1,
+      size: 12 + (k % 3) * 3,
+      dur: 3.4 + (k % 5) * 0.6,
+      delay: (k % 6) * 0.5
+    }));
     return h("div", {
       style: {
         width: "100%",
@@ -3327,6 +3336,19 @@ function FlyFishingGame() {
         fontSize: fs,
         opacity: 0.9
       }, em)),
+      riverFish.map((rf, k) => h("text", {
+        key: "rf" + k,
+        x: rf.x,
+        y: rf.y,
+        fontSize: rf.size,
+        opacity: 0.4,
+        style: {
+          "--fdir": rf.dir,
+          transformBox: "fill-box",
+          transformOrigin: "center",
+          animation: `mapfishswim ${rf.dur}s ease-in-out ${rf.delay}s infinite`
+        }
+      }, "🐟")),
       h("text", { x: nodeX(N - 1) - 4, y: 46, fontSize: 30 }, "🏔️")
     ),
     // 노드 버튼들
@@ -3493,11 +3515,13 @@ function FlyFishingGame() {
         position: "absolute",
         left: "50%",
         transform: "translateX(-50%)",
-        bottom: "calc(max(10px, env(safe-area-inset-bottom)) + 48px)",
-        width: "min(480px, 88vw)",
-        maxHeight: "52dvh",
+        bottom: "calc(max(8px, env(safe-area-inset-bottom)) + 44px)",
+        width: "min(500px, 90vw)",
+        maxHeight: "68dvh",
         overflowY: "auto",
-        borderRadius: 18,
+        WebkitOverflowScrolling: "touch",
+        overscrollBehavior: "contain",
+        borderRadius: 16,
         background: `linear-gradient(120deg, ${sel.bg[1]}, ${sel.bg[2]})`,
         color: "#fff",
         textAlign: "left",
@@ -3505,27 +3529,27 @@ function FlyFishingGame() {
         zIndex: 22,
         animation: "jslideup .2s ease-out"
       }
-    }, h("div", { style: { padding: "12px 15px" } },
+    }, h("div", { style: { padding: "10px 14px" } },
       h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } },
-        h("div", { style: { fontFamily: "'Jua',sans-serif", fontSize: 19, textShadow: "0 1px 3px rgba(0,0,0,.4)" } },
+        h("div", { style: { fontFamily: "'Jua',sans-serif", fontSize: 17, textShadow: "0 1px 3px rgba(0,0,0,.4)" } },
           selUnlocked ? "" : selCanUnlock ? "🔓 " : "🔒 ", sel.name),
-        h("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
-          h("span", { style: { fontSize: 12, opacity: 0.9 } }, "물살 ", "🌊".repeat(Math.round(sel.flow * 1.6))),
+        h("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
+          h("span", { style: { fontSize: 11, opacity: 0.9 } }, "물살 ", "🌊".repeat(Math.round(sel.flow * 1.6))),
           h("button", {
             onClick: () => setSelPin(null),
-            style: { background: "rgba(0,0,0,.25)", border: "none", color: "#fff", borderRadius: 999, width: 24, height: 24, cursor: "pointer", fontSize: 13, lineHeight: 1 }
+            style: { background: "rgba(0,0,0,.25)", border: "none", color: "#fff", borderRadius: 999, width: 22, height: 22, cursor: "pointer", fontSize: 12, lineHeight: 1 }
           }, "✕"))),
-      h("div", { style: { fontSize: 12, opacity: 0.92, margin: "3px 0 6px", textShadow: "0 1px 2px rgba(0,0,0,.4)" } }, sel.sub),
-      h("div", { style: { fontSize: 12.5, marginBottom: 8 } }, sel.fish.map(([n]) => `${FISH[n].emoji}${n}`).join("  ")),
-      selUnlocked && h("div", { style: { marginBottom: 8 } },
-        h("div", { style: { fontSize: 16, letterSpacing: 2, marginBottom: 4 } },
+      h("div", { style: { fontSize: 11, opacity: 0.92, margin: "2px 0 5px", textShadow: "0 1px 2px rgba(0,0,0,.4)" } }, sel.sub),
+      h("div", { style: { fontSize: 12, marginBottom: 6 } }, sel.fish.map(([n]) => `${FISH[n].emoji}${n}`).join("  ")),
+      selUnlocked && h("div", { style: { marginBottom: 6 } },
+        h("div", { style: { fontSize: 14, letterSpacing: 2, marginBottom: 2 } },
           [0, 1, 2].map(i => h("span", { key: i, style: { color: i < (stars[sel.id] || 0) ? "#ffce3a" : "rgba(255,255,255,.4)" } }, "★")),
-          bestBySpot[sel.id] != null && h("span", { style: { fontSize: 11, opacity: 0.85, marginLeft: 8 } }, "최고 🪙", bestBySpot[sel.id])),
-        h("div", { style: { fontSize: 10.5, opacity: 0.85, lineHeight: 1.5 } },
+          bestBySpot[sel.id] != null && h("span", { style: { fontSize: 10.5, opacity: 0.85, marginLeft: 6 } }, "최고 🪙", bestBySpot[sel.id])),
+        h("div", { style: { fontSize: 10, opacity: 0.85, lineHeight: 1.35 } },
           spotMissions(sel).map((m, i) => h("div", { key: i }, "· ", m.label)))),
-      selUnlocked ? h("button", { onClick: () => startSpot(selPin), style: mapBtn() }, "낚시하러 가기 →")
-      : selCanUnlock ? h("button", { onClick: () => tryUnlock(selPin), style: mapBtn() }, "🔓 해금하기 🪙", sel.unlock.coin)
-      : h("div", { style: { fontSize: 11.5, background: "rgba(0,0,0,.28)", borderRadius: 10, padding: "6px 9px" } },
+      selUnlocked ? h("button", { onClick: () => startSpot(selPin), style: { ...mapBtn(), padding: "6px 15px", fontSize: 13 } }, "낚시하러 가기 →")
+      : selCanUnlock ? h("button", { onClick: () => tryUnlock(selPin), style: { ...mapBtn(), padding: "6px 15px", fontSize: 13 } }, "🔓 해금하기 🪙", sel.unlock.coin)
+      : h("div", { style: { fontSize: 10.5, background: "rgba(0,0,0,.28)", borderRadius: 10, padding: "5px 8px" } },
         "해금 조건: 🪙", sel.unlock.coin, " ", selOkCoin ? "✓" : "(부족)", " · 장비 진척도 ", sel.unlock.gearSum, " ", selOkGear ? "✓" : `(현재 ${gearSum(gearLvl, ownedBaits)})`)))
     : h("div", {
       style: {
@@ -3539,7 +3563,7 @@ function FlyFishingGame() {
         animation: "jbob 1.6s ease-in-out infinite"
       }
     }, "낚시터를 눌러보세요 📍"),
-    h("style", null, `@keyframes pinpulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,159,67,.5),0 4px 9px rgba(0,0,0,.28)} 50%{box-shadow:0 0 0 8px rgba(255,159,67,0),0 4px 9px rgba(0,0,0,.28)} } @keyframes jflow { to { stroke-dashoffset: -12; } } @keyframes jslideup { from { opacity:0; transform: translate(-50%,10px);} to { opacity:1; transform: translate(-50%,0);} } @keyframes jfade { from { opacity:0; transform: translateY(10px);} to { opacity:1; transform: translateY(0);} } @keyframes jbob { 0%,100%{ transform: translate(-50%,0);} 50%{ transform: translate(-50%,-5px);} }`));
+    h("style", null, `@keyframes pinpulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,159,67,.5),0 4px 9px rgba(0,0,0,.28)} 50%{box-shadow:0 0 0 8px rgba(255,159,67,0),0 4px 9px rgba(0,0,0,.28)} } @keyframes jflow { to { stroke-dashoffset: -12; } } @keyframes jslideup { from { opacity:0; transform: translate(-50%,10px);} to { opacity:1; transform: translate(-50%,0);} } @keyframes jfade { from { opacity:0; transform: translateY(10px);} to { opacity:1; transform: translateY(0);} } @keyframes jbob { 0%,100%{ transform: translate(-50%,0);} 50%{ transform: translate(-50%,-5px);} } @keyframes mapfishswim { 0%,100%{ transform: translateX(0) scaleX(var(--fdir,1)); } 50%{ transform: translateX(26px) scaleX(var(--fdir,1)); } }`));
   }
 
   // ─── 설정 ───
@@ -4567,139 +4591,58 @@ function FlyFishingGame() {
 
   // ─── 결과 ───
   if (screen === "result") {
+    const h = React.createElement;
     const nextSpot = SPOTS[spotIdx + 1];
     const nextLocked = nextSpot && !unlocked.includes(nextSpot.id);
-    return /*#__PURE__*/React.createElement(Center, null, /*#__PURE__*/React.createElement(Fonts, null), /*#__PURE__*/React.createElement("div", {
-      style: cardStyle
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontFamily: "'Jua',sans-serif",
-        fontSize: 22,
-        color: "#2c6f86"
-      }
-    }, SPOTS[spotIdx].name), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontFamily: "'Jua',sans-serif",
-        fontSize: 28,
-        color: "#0c3b34"
-      }
-    }, "낚시 종료"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 18,
-        color: "#2c6f86",
-        margin: "8px 0 2px"
-      }
-    }, "이번 판 🪙 +", lastEarned), levelUpInfo && /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: "100%",
-        background: "linear-gradient(135deg,#ffe9a8,#ffd054)",
-        borderRadius: 14,
-        padding: "12px 14px",
-        margin: "6px 0 4px",
-        animation: "cardpop .3s ease-out"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontFamily: "'Jua',sans-serif",
-        fontSize: 18,
-        color: "#5a3a00"
-      }
-    }, "🎉 레벨 업! Lv.", levelUpInfo.to), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 13,
-        color: "#8a5a00",
-        marginTop: 2
-      }
-    }, "칭호 「", levelUpInfo.title, "」 · 보너스 🪙", levelUpInfo.bonus)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 14,
-        color: "#5a7d77",
-        marginBottom: 8
-      }
-    }, "보유 코인 ", coins), lastStarResult && /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: "100%",
-        background: "#f1f8f5",
-        borderRadius: 14,
-        padding: "12px 14px",
-        marginBottom: 10
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 30,
-        letterSpacing: 4,
-        marginBottom: 6
-      }
-    }, [0, 1, 2].map(i => /*#__PURE__*/React.createElement("span", {
-      key: i,
-      style: {
-        color: i < lastStarResult.earnedStars ? "#ffce3a" : "#d4e4de"
-      }
-    }, "★"))), lastStarResult.earnedStars > lastStarResult.prevStars && /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 12,
-        color: "#e0962a",
-        marginBottom: 6
-      }
-    }, "🎉 최고 기록 갱신!"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        gap: 4
-      }
-    }, lastStarResult.results.map(m => /*#__PURE__*/React.createElement("div", {
-      key: m.id,
-      style: {
-        fontSize: 12.5,
-        color: m.done ? "#27ae8f" : "#9bb0a8",
-        textAlign: "left"
-      }
-    }, m.done ? "★" : "☆", " ", m.label, " ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        opacity: 0.7
-      }
-    }, "(", m.cur, "/", m.target, ")"))))), creelList.length > 0 && /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 13,
-        color: "#3a6b62",
-        margin: "8px 0 12px"
-      }
-    }, creelList.map(([n, c]) => `${FISH[n].emoji}${n}×${c}`).join("　")), newCatches.length > 0 && /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 12.5,
-        color: "#1c7a5e",
-        background: "#e3f7ef",
-        padding: "8px 10px",
-        borderRadius: 10,
-        marginBottom: 8
-      }
-    }, "✨ 도감 신규 등록: ", newCatches.join("·")), nextLocked && /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 12,
-        color: "#a06a1f",
-        background: "#fff5e2",
-        padding: "8px 10px",
-        borderRadius: 10,
-        marginBottom: 8
-      }
-    }, "다음 장소 「", nextSpot.name, "」 해금: 🪙", nextSpot.unlock.coin, " · 장비 진척도 ", nextSpot.unlock.gearSum), /*#__PURE__*/React.createElement(BigBtn, {
-      onClick: () => startSpot(spotIdx)
-    }, "한 번 더"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: "flex",
-        gap: 8,
-        width: "100%"
-      }
-    }, /*#__PURE__*/React.createElement(BigBtn, {
-      onClick: () => setScreen("shop"),
-      variant: "ghost"
-    }, "🛒 상점"), /*#__PURE__*/React.createElement(BigBtn, {
-      onClick: () => setScreen("rank"),
-      variant: "ghost"
-    }, "🏆 랭킹")), /*#__PURE__*/React.createElement(BigBtn, {
-      onClick: () => setScreen("map"),
-      variant: "ghost"
-    }, "🗺️ 지도로")), /*#__PURE__*/React.createElement("style", null, `@keyframes cardpop { from{transform:scale(.85);opacity:0} to{transform:scale(1);opacity:1} }`));
+    return h(Center, null, h(Fonts, null), h("div", {
+      style: { ...cardStyle, maxWidth: 420, maxHeight: "96dvh", padding: "14px 18px", gap: 2 }
+    },
+      h("div", { style: { display: "flex", alignItems: "baseline", gap: 6, marginBottom: 2 } },
+        h("span", { style: { fontFamily: "'Jua',sans-serif", fontSize: 19, color: "#0c3b34" } }, "낚시 종료"),
+        h("span", { style: { fontFamily: "'Jua',sans-serif", fontSize: 13, color: "#2c6f86" } }, SPOTS[spotIdx].name)),
+      h("div", { style: { fontSize: 14.5, color: "#2c6f86" } },
+        "이번 판 🪙 +", lastEarned, h("span", { style: { fontSize: 11, color: "#9bb0a8", marginLeft: 8 } }, "보유 ", coins)),
+
+      levelUpInfo && h("div", {
+        style: {
+          width: "100%", background: "linear-gradient(135deg,#ffe9a8,#ffd054)",
+          borderRadius: 12, padding: "7px 12px", margin: "5px 0 2px"
+        }
+      },
+        h("span", { style: { fontFamily: "'Jua',sans-serif", fontSize: 14, color: "#5a3a00" } }, "🎉 레벨업 Lv.", levelUpInfo.to),
+        h("span", { style: { fontSize: 11.5, color: "#8a5a00", marginLeft: 8 } }, "「", levelUpInfo.title, "」 · 🪙", levelUpInfo.bonus)),
+
+      lastStarResult && h("div", {
+        style: { width: "100%", background: "#f1f8f5", borderRadius: 12, padding: "8px 12px", margin: "6px 0" }
+      },
+        h("div", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 3 } },
+          h("span", { style: { fontSize: 19, letterSpacing: 2 } },
+            [0, 1, 2].map(i => h("span", { key: i, style: { color: i < lastStarResult.earnedStars ? "#ffce3a" : "#d4e4de" } }, "★"))),
+          lastStarResult.earnedStars > lastStarResult.prevStars && h("span", { style: { fontSize: 11, color: "#e0962a" } }, "🎉 신기록!")),
+        h("div", { style: { display: "flex", flexDirection: "column", gap: 1.5 } },
+          lastStarResult.results.map(m => h("div", {
+            key: m.id,
+            style: { fontSize: 11, color: m.done ? "#27ae8f" : "#9bb0a8", textAlign: "left" }
+          }, m.done ? "★" : "☆", " ", m.label, " ", h("span", { style: { opacity: 0.7 } }, "(", m.cur, "/", m.target, ")"))))),
+
+      creelList.length > 0 && h("div", {
+        style: { fontSize: 11.5, color: "#3a6b62", width: "100%", textAlign: "left", marginBottom: 4 }
+      }, creelList.map(([n, c]) => `${FISH[n].emoji}${n}×${c}`).join("  ")),
+
+      (newCatches.length > 0 || nextLocked) && h("div", { style: { display: "flex", flexDirection: "column", gap: 4, width: "100%", marginBottom: 4 } },
+        newCatches.length > 0 && h("div", {
+          style: { fontSize: 11, color: "#1c7a5e", background: "#e3f7ef", padding: "5px 9px", borderRadius: 9, textAlign: "left" }
+        }, "✨ 도감 신규: ", newCatches.join("·")),
+        nextLocked && h("div", {
+          style: { fontSize: 11, color: "#a06a1f", background: "#fff5e2", padding: "5px 9px", borderRadius: 9, textAlign: "left" }
+        }, "다음 「", nextSpot.name, "」 해금: 🪙", nextSpot.unlock.coin, " · 장비 ", nextSpot.unlock.gearSum)),
+
+      h(BigBtn, { onClick: () => startSpot(spotIdx), compact: true }, "한 번 더"),
+      h("div", { style: { display: "flex", gap: 6, width: "100%" } },
+        h(BigBtn, { onClick: () => setScreen("shop"), variant: "ghost", compact: true }, "🛒 상점"),
+        h(BigBtn, { onClick: () => setScreen("rank"), variant: "ghost", compact: true }, "🏆 랭킹"),
+        h(BigBtn, { onClick: () => setScreen("map"), variant: "ghost", compact: true }, "🗺️ 지도"))),
+    h("style", null, `@keyframes cardpop { from{transform:scale(.85);opacity:0} to{transform:scale(1);opacity:1} }`));
   }
 
   // ─── 게임 화면 ───
@@ -4764,41 +4707,43 @@ function FlyFishingGame() {
       textAlign: "right",
       fontSize: 13
     }
-  }, /*#__PURE__*/React.createElement("div", null, spot.name, " · ⏱", timeLeft, "s"), /*#__PURE__*/React.createElement("div", null, BAITS[equippedBait].icon, CREELS[equippedCreel].icon, TIMES[weather.time].icon, SKIES[weather.sky].icon, " ", "❌".repeat(missCount) || ""))), /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement("div", null, spot.name, " · ⏱", timeLeft, "s"), /*#__PURE__*/React.createElement("div", null, BAITS[equippedBait].icon, CREELS[equippedCreel].icon, TIMES[weather.time].icon, SKIES[weather.sky].icon, " ", "❌".repeat(missCount) || ""))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      top: 44,
+      right: 12,
+      zIndex: 13,
+      display: "flex",
+      gap: 6,
+      pointerEvents: "auto"
+    }
+  }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       const on = !settingsRef.current.bgm;
       setSettings(v => ({ ...v, bgm: on, sfx: on }));
       if (on) bgm.start();else bgm.stop();
     },
     style: {
-      position: "absolute",
-      top: 44,
-      left: 12,
-      zIndex: 13,
       background: "rgba(0,0,0,.3)",
       border: "none",
       borderRadius: 8,
       color: "#fff",
       fontSize: 14,
-      padding: "2px 8px",
+      padding: "3px 9px",
       cursor: "pointer"
     }
   }, settings.bgm || settings.sfx ? "🔊" : "🔇"), /*#__PURE__*/React.createElement("button", {
     onClick: () => { setPaused(true); play("pull"); },
     style: {
-      position: "absolute",
-      top: 44,
-      left: 54,
-      zIndex: 13,
       background: "rgba(0,0,0,.3)",
       border: "none",
       borderRadius: 8,
       color: "#fff",
       fontSize: 14,
-      padding: "2px 9px",
+      padding: "3px 10px",
       cursor: "pointer"
     }
-  }, "⏸️"), /*#__PURE__*/React.createElement("div", {
+  }, "⏸️")), /*#__PURE__*/React.createElement("div", {
     ref: poolBoxRef,
     onPointerDown: () => {
       if (dragRef.current) yankLine(dragRef.current.line);
@@ -5622,23 +5567,24 @@ const cardStyle = {
 function BigBtn({
   children,
   onClick,
-  variant
+  variant,
+  compact
 }) {
   const ghost = variant === "ghost";
   return /*#__PURE__*/React.createElement("button", {
     onClick: onClick,
     style: {
       fontFamily: "'Jua',sans-serif",
-      fontSize: 17,
+      fontSize: compact ? 13.5 : 17,
       width: "100%",
-      marginTop: 10,
-      padding: "12px",
-      borderRadius: 16,
+      marginTop: compact ? 6 : 10,
+      padding: compact ? "8px" : "12px",
+      borderRadius: compact ? 12 : 16,
       border: "none",
       cursor: "pointer",
       background: ghost ? "#eef5f2" : "linear-gradient(135deg,#ffd86b,#ff9f43)",
       color: ghost ? "#2c6f86" : "#5a3a00",
-      boxShadow: ghost ? "none" : "0 5px 0 #d97f1e"
+      boxShadow: ghost ? "none" : compact ? "0 3px 0 #d97f1e" : "0 5px 0 #d97f1e"
     }
   }, children);
 }
