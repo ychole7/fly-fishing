@@ -1880,7 +1880,7 @@ function FlyFishingGame() {
   }, []);
   // 설정 반영 진동 (전역 vibrate를 감싼다)
   const buzz = useCallback(p => {
-    if (settingsRef.current.haptics) buzz(p);
+    if (settingsRef.current.haptics) vibrate(p);
   }, []);
   const lineCount = () => eff.current.lines || 12;
   const lineX = useCallback(i => {
