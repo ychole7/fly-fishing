@@ -3238,13 +3238,14 @@ function FlyFishingGame() {
       [15.45, "🌾", 18], [16.5, "🌊", 16], [17.5, "🍊", 18], [18.5, "❄️", 16]
     ];
     // 강물 속을 헤엄치는 배경 물고기 (장식용, 낚시터 노드와 겹치지 않게 y를 물 하단쪽에 배치)
-    const riverFish = Array.from({ length: Math.max(6, Math.round(W / 240)) }, (_, k) => ({
-      x: 70 + (k * 240 + (k % 3) * 65) % (W - 140),
-      y: SH * 0.9 + (k % 4) * (SH * 0.022),
+    const riverFish = Array.from({ length: Math.max(10, Math.round(W / 150)) }, (_, k) => ({
+      x: 60 + (k * 150 + (k % 4) * 55) % (W - 120),
+      y: SH * 0.88 + (k % 5) * (SH * 0.02),
       dir: k % 2 === 0 ? 1 : -1,
-      size: 12 + (k % 3) * 3,
-      dur: 3.4 + (k % 5) * 0.6,
-      delay: (k % 6) * 0.5
+      size: 11 + (k % 3) * 3,
+      dur: 3.2 + (k % 5) * 0.6,
+      delay: (k % 7) * 0.6,
+      jump: k % 4 === 0 // 일부는 수면 위로 점프하는 연출
     }));
     return h("div", {
       style: {
@@ -3341,12 +3342,14 @@ function FlyFishingGame() {
         x: rf.x,
         y: rf.y,
         fontSize: rf.size,
-        opacity: 0.4,
+        opacity: rf.jump ? undefined : 0.4,
         style: {
           "--fdir": rf.dir,
           transformBox: "fill-box",
           transformOrigin: "center",
-          animation: `mapfishswim ${rf.dur}s ease-in-out ${rf.delay}s infinite`
+          animation: rf.jump
+            ? `mapfishjump ${rf.dur + 1.6}s ease-in-out ${rf.delay}s infinite`
+            : `mapfishswim ${rf.dur}s ease-in-out ${rf.delay}s infinite`
         }
       }, "🐟")),
       h("text", { x: nodeX(N - 1) - 4, y: 46, fontSize: 30 }, "🏔️")
@@ -3545,6 +3548,7 @@ function FlyFishingGame() {
         h("div", { style: { fontSize: 14, letterSpacing: 2, marginBottom: 2 } },
           [0, 1, 2].map(i => h("span", { key: i, style: { color: i < (stars[sel.id] || 0) ? "#ffce3a" : "rgba(255,255,255,.4)" } }, "★")),
           bestBySpot[sel.id] != null && h("span", { style: { fontSize: 10.5, opacity: 0.85, marginLeft: 6 } }, "최고 🪙", bestBySpot[sel.id])),
+        h("div", { style: { fontSize: 9.5, opacity: 0.75, marginBottom: 2 } }, "⭐ 별 획득 조건 (한 판 기준)"),
         h("div", { style: { fontSize: 10, opacity: 0.85, lineHeight: 1.35 } },
           spotMissions(sel).map((m, i) => h("div", { key: i }, "· ", m.label)))),
       selUnlocked ? h("button", { onClick: () => startSpot(selPin), style: { ...mapBtn(), padding: "6px 15px", fontSize: 13 } }, "낚시하러 가기 →")
@@ -3563,7 +3567,7 @@ function FlyFishingGame() {
         animation: "jbob 1.6s ease-in-out infinite"
       }
     }, "낚시터를 눌러보세요 📍"),
-    h("style", null, `@keyframes pinpulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,159,67,.5),0 4px 9px rgba(0,0,0,.28)} 50%{box-shadow:0 0 0 8px rgba(255,159,67,0),0 4px 9px rgba(0,0,0,.28)} } @keyframes jflow { to { stroke-dashoffset: -12; } } @keyframes jslideup { from { opacity:0; transform: translate(-50%,10px);} to { opacity:1; transform: translate(-50%,0);} } @keyframes jfade { from { opacity:0; transform: translateY(10px);} to { opacity:1; transform: translateY(0);} } @keyframes jbob { 0%,100%{ transform: translate(-50%,0);} 50%{ transform: translate(-50%,-5px);} } @keyframes mapfishswim { 0%,100%{ transform: translateX(0) scaleX(var(--fdir,1)); } 50%{ transform: translateX(26px) scaleX(var(--fdir,1)); } }`));
+    h("style", null, `@keyframes pinpulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,159,67,.5),0 4px 9px rgba(0,0,0,.28)} 50%{box-shadow:0 0 0 8px rgba(255,159,67,0),0 4px 9px rgba(0,0,0,.28)} } @keyframes jflow { to { stroke-dashoffset: -12; } } @keyframes jslideup { from { opacity:0; transform: translate(-50%,10px);} to { opacity:1; transform: translate(-50%,0);} } @keyframes jfade { from { opacity:0; transform: translateY(10px);} to { opacity:1; transform: translateY(0);} } @keyframes jbob { 0%,100%{ transform: translate(-50%,0);} 50%{ transform: translate(-50%,-5px);} } @keyframes mapfishswim { 0%,100%{ transform: translateX(0) scaleX(var(--fdir,1)); } 50%{ transform: translateX(26px) scaleX(var(--fdir,1)); } } @keyframes mapfishjump { 0%,80%,100%{ transform: translateY(0) rotate(0deg) scaleX(var(--fdir,1)); opacity:.35; } 87%{ transform: translateY(-24px) rotate(-14deg) scaleX(var(--fdir,1)); opacity:1; } 92%{ transform: translateY(-28px) rotate(10deg) scaleX(var(--fdir,1)); opacity:1; } 97%{ transform: translateY(-2px) rotate(0deg) scaleX(var(--fdir,1)); opacity:.6; } }`));
   }
 
   // ─── 설정 ───
@@ -4681,6 +4685,12 @@ function FlyFishingGame() {
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
       fontFamily: "'Jua',sans-serif",
       fontSize: 22
     }
@@ -4702,22 +4712,7 @@ function FlyFishingGame() {
       marginLeft: 8,
       color: "#7fe0c0"
     }
-  }, "🐟 러시!")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      textAlign: "right",
-      fontSize: 13
-    }
-  }, /*#__PURE__*/React.createElement("div", null, spot.name, " · ⏱", timeLeft, "s"), /*#__PURE__*/React.createElement("div", null, BAITS[equippedBait].icon, CREELS[equippedCreel].icon, TIMES[weather.time].icon, SKIES[weather.sky].icon, " ", "❌".repeat(missCount) || ""))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: "absolute",
-      top: 44,
-      right: 12,
-      zIndex: 13,
-      display: "flex",
-      gap: 6,
-      pointerEvents: "auto"
-    }
-  }, /*#__PURE__*/React.createElement("button", {
+  }, "🐟 러시!")), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       const on = !settingsRef.current.bgm;
       setSettings(v => ({ ...v, bgm: on, sfx: on }));
@@ -4726,24 +4721,31 @@ function FlyFishingGame() {
     style: {
       background: "rgba(0,0,0,.3)",
       border: "none",
-      borderRadius: 8,
+      borderRadius: 7,
       color: "#fff",
-      fontSize: 14,
-      padding: "3px 9px",
-      cursor: "pointer"
+      fontSize: 12,
+      padding: "3px 8px",
+      cursor: "pointer",
+      pointerEvents: "auto"
     }
   }, settings.bgm || settings.sfx ? "🔊" : "🔇"), /*#__PURE__*/React.createElement("button", {
     onClick: () => { setPaused(true); play("pull"); },
     style: {
       background: "rgba(0,0,0,.3)",
       border: "none",
-      borderRadius: 8,
+      borderRadius: 7,
       color: "#fff",
-      fontSize: 14,
-      padding: "3px 10px",
-      cursor: "pointer"
+      fontSize: 12,
+      padding: "3px 9px",
+      cursor: "pointer",
+      pointerEvents: "auto"
     }
   }, "⏸️")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "right",
+      fontSize: 13
+    }
+  }, /*#__PURE__*/React.createElement("div", null, spot.name, " · ⏱", timeLeft, "s"), /*#__PURE__*/React.createElement("div", null, BAITS[equippedBait].icon, CREELS[equippedCreel].icon, TIMES[weather.time].icon, SKIES[weather.sky].icon, " ", "❌".repeat(missCount) || ""))), /*#__PURE__*/React.createElement("div", {
     ref: poolBoxRef,
     onPointerDown: () => {
       if (dragRef.current) yankLine(dragRef.current.line);
