@@ -3022,7 +3022,7 @@ function FlyFishingGame() {
     return /*#__PURE__*/React.createElement(Center, null, /*#__PURE__*/React.createElement(Fonts, null), /*#__PURE__*/React.createElement("div", {
       style: {
         ...cardStyle,
-        maxWidth: 900,
+        maxWidth: 980,
         height: "calc(100dvh - 16px)",
         maxHeight: "calc(100dvh - 16px)",
         padding: "10px 14px",
@@ -3031,7 +3031,6 @@ function FlyFishingGame() {
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
-        justifyContent: "space-between",
         alignItems: "center",
         gap: 12,
         width: "100%",
@@ -3040,9 +3039,10 @@ function FlyFishingGame() {
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         fontFamily: "'Jua',sans-serif",
-        fontSize: 20,
+        fontSize: 19,
         color: "#0c3b34",
-        whiteSpace: "nowrap"
+        whiteSpace: "nowrap",
+        flex: "0 0 auto"
       }
     }, "🗺️ 낚시 여행", claimed.all && /*#__PURE__*/React.createElement("span", {
       style: {
@@ -3055,6 +3055,7 @@ function FlyFishingGame() {
         fontFamily: "'Jua',sans-serif",
         color: "#c8881f",
         whiteSpace: "nowrap",
+        flex: "0 0 auto",
         order: 3
       }
     }, "🪙 ", coins), (() => {
@@ -3076,7 +3077,7 @@ function FlyFishingGame() {
         }
       }, /*#__PURE__*/React.createElement("div", {
         style: {
-          fontSize: 16
+          fontSize: 15
         }
       }, "🎣"), /*#__PURE__*/React.createElement("div", {
         style: {
@@ -3127,9 +3128,8 @@ function FlyFishingGame() {
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         flex: "0 0 auto",
-        width: "min(46%, calc((100dvh - 110px) * 200 / 280))",
+        height: "100%",
         aspectRatio: "200 / 280",
-        alignSelf: "flex-start",
         minWidth: 0
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -5155,8 +5155,9 @@ function Center({
 }) {
   return /*#__PURE__*/React.createElement("div", {
     style: {
-      minHeight: "100vh",
-      maxHeight: "100vh",
+      height: "100%",
+      minHeight: "100dvh",
+      maxHeight: "100dvh",
       display: "grid",
       placeItems: "center",
       background: "#0c3b34",
