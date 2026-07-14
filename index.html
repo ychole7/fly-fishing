@@ -618,7 +618,7 @@ function buildLeaderboard(myBest, myName) {
 
 // 장소별 미션 목표 (점수는 해금 난이도 비례)
 function spotMissions(spot) {
-  const scoreGoal = Math.max(300, Math.round((400 + spot.unlock.coin * 0.12) / 50) * 50);
+  const scoreGoal = Math.max(300, Math.round((400 + spot.unlock.coin * 0.045) / 50) * 50);
   const catchGoal = 7 + Math.round(spot.unlock.gearSum / 3);
   // 그 장소에서 잡을 수 있는 가장 높은 희귀도를 '대물' 기준으로 (장소마다 달성 가능하도록)
   const maxRarity = Math.max(...spot.fish.map(([n]) => FISH[n] ? FISH[n].rarity : 1));
@@ -783,7 +783,7 @@ const SPOTS = [{
   fish: [["피라미", 40], ["붕어", 26], ["갈겨니", 16], ["돌고기", 10], ["모래무지", 8]],
   unlock: {
     coin: 0,
-    gearSum: 3
+    gearSum: 0
   }
 }, {
   id: "cheonggye",
@@ -799,8 +799,8 @@ const SPOTS = [{
   bg: ["#d6e7ef", "#6fa8c4", "#356f8a"],
   fish: [["피라미", 30], ["붕어", 24], ["참붕어", 18], ["미꾸라지", 12], ["누치", 9], ["잉어", 7]],
   unlock: {
-    coin: 400,
-    gearSum: 4
+    coin: 350,
+    gearSum: 2
   }
 }, {
   id: "seomjin",
@@ -816,8 +816,8 @@ const SPOTS = [{
   bg: ["#cfe6dd", "#5aa5a0", "#2f7570"],
   fish: [["붕어", 22], ["갈겨니", 18], ["각시붕어", 16], ["납자루", 14], ["참마자", 12], ["메기", 10], ["잉어", 8]],
   unlock: {
-    coin: 900,
-    gearSum: 5
+    coin: 700,
+    gearSum: 3
   }
 }, {
   id: "han",
@@ -833,8 +833,8 @@ const SPOTS = [{
   bg: ["#cdd8e6", "#5d7fa8", "#33506f"],
   fish: [["잉어", 22], ["붕어", 18], ["떡붕어", 16], ["동자개", 14], ["메기", 12], ["향어", 10], ["황쏘가리", 8]],
   unlock: {
-    coin: 1600,
-    gearSum: 6
+    coin: 1100,
+    gearSum: 4
   }
 }, {
   id: "soyang",
@@ -850,8 +850,8 @@ const SPOTS = [{
   bg: ["#c9e1e8", "#4f93a8", "#2c6275"],
   fish: [["끄리", 22], ["누치", 18], ["강준치", 16], ["쏘가리", 14], ["잉어", 12], ["가물치", 10], ["돌마자", 8]],
   unlock: {
-    coin: 2600,
-    gearSum: 7
+    coin: 1600,
+    gearSum: 5
   }
 }, {
   id: "donggang",
@@ -867,8 +867,8 @@ const SPOTS = [{
   bg: ["#bfe0e0", "#3f8fa0", "#235a6b"],
   fish: [["쏘가리", 22], ["꺽지", 18], ["누치", 16], ["은어", 14], ["미유기", 12], ["산천어", 10], ["쉬리", 8]],
   unlock: {
-    coin: 4200,
-    gearSum: 8
+    coin: 2200,
+    gearSum: 6
   }
 }, {
   id: "seorak",
@@ -884,8 +884,8 @@ const SPOTS = [{
   bg: ["#cfe9e6", "#3f8c86", "#1f5a55"],
   fish: [["산천어", 22], ["버들치", 18], ["쉬리", 16], ["은어", 14], ["열목어", 12], ["미유기", 10], ["어름치", 8]],
   unlock: {
-    coin: 6500,
-    gearSum: 9
+    coin: 2900,
+    gearSum: 7
   }
 }, {
   id: "imjin",
@@ -901,8 +901,8 @@ const SPOTS = [{
   bg: ["#d2e6ea", "#5fa0b4", "#356f86"],
   fish: [["피라미", 30], ["붕어", 24], ["누치", 18], ["참마자", 14], ["끄리", 8], ["잉어", 6]],
   unlock: {
-    coin: 600,
-    gearSum: 4
+    coin: 3700,
+    gearSum: 8
   }
 }, {
   id: "geum",
@@ -918,8 +918,8 @@ const SPOTS = [{
   bg: ["#d8e4d0", "#6aa888", "#3f7a60"],
   fish: [["붕어", 26], ["피라미", 20], ["납자루", 16], ["동자개", 14], ["메기", 12], ["잉어", 12]],
   unlock: {
-    coin: 1100,
-    gearSum: 5
+    coin: 4600,
+    gearSum: 9
   }
 }, {
   id: "yeongsan",
@@ -935,8 +935,8 @@ const SPOTS = [{
   bg: ["#dde6cf", "#7fae7a", "#4f8050"],
   fish: [["붕어", 28], ["참붕어", 20], ["각시붕어", 16], ["미꾸라지", 14], ["가물치", 12], ["떡붕어", 10]],
   unlock: {
-    coin: 1400,
-    gearSum: 5
+    coin: 5600,
+    gearSum: 9
   }
 }, {
   id: "daecheong",
@@ -952,8 +952,8 @@ const SPOTS = [{
   bg: ["#d2e0e6", "#5f93a8", "#356074"],
   fish: [["붕어", 24], ["떡붕어", 20], ["잉어", 18], ["강준치", 16], ["끄리", 12], ["가물치", 10]],
   unlock: {
-    coin: 1900,
-    gearSum: 6
+    coin: 6700,
+    gearSum: 10
   }
 }, {
   id: "chungju",
@@ -969,8 +969,8 @@ const SPOTS = [{
   bg: ["#cfe0e8", "#5790a8", "#335f78"],
   fish: [["잉어", 22], ["떡붕어", 18], ["강준치", 18], ["쏘가리", 16], ["끄리", 14], ["향어", 12]],
   unlock: {
-    coin: 2300,
-    gearSum: 6
+    coin: 7900,
+    gearSum: 10
   }
 }, {
   id: "namgang",
@@ -986,8 +986,8 @@ const SPOTS = [{
   bg: ["#d4e2dd", "#5fa097", "#357066"],
   fish: [["피라미", 22], ["누치", 20], ["끄리", 18], ["쏘가리", 16], ["메기", 14], ["잉어", 10]],
   unlock: {
-    coin: 3000,
-    gearSum: 7
+    coin: 9200,
+    gearSum: 11
   }
 }, {
   id: "milyang",
@@ -1003,8 +1003,8 @@ const SPOTS = [{
   bg: ["#cfe2e0", "#4f9aa0", "#2c6b70"],
   fish: [["쏘가리", 24], ["꺽지", 20], ["누치", 16], ["은어", 14], ["끄리", 14], ["미유기", 12]],
   unlock: {
-    coin: 3600,
-    gearSum: 7
+    coin: 10600,
+    gearSum: 11
   }
 }, {
   id: "hantan",
@@ -1020,8 +1020,8 @@ const SPOTS = [{
   bg: ["#cfe0e2", "#4f9398", "#2c6468"],
   fish: [["쏘가리", 22], ["꺽지", 20], ["누치", 18], ["메기", 14], ["산천어", 14], ["쉬리", 12]],
   unlock: {
-    coin: 4800,
-    gearSum: 8
+    coin: 12200,
+    gearSum: 12
   }
 }, {
   id: "hyeongsan",
@@ -1037,8 +1037,8 @@ const SPOTS = [{
   bg: ["#cfe4e6", "#509aa4", "#2c6b74"],
   fish: [["은어", 24], ["피라미", 18], ["끄리", 16], ["쏘가리", 16], ["강준치", 14], ["향어", 12]],
   unlock: {
-    coin: 5400,
-    gearSum: 8
+    coin: 14000,
+    gearSum: 12
   }
 }, {
   id: "nakdong",
@@ -1054,8 +1054,8 @@ const SPOTS = [{
   bg: ["#d0dde6", "#5787a8", "#335574"],
   fish: [["잉어", 22], ["향어", 18], ["강준치", 16], ["가물치", 14], ["쏘가리", 14], ["떡붕어", 10], ["황쏘가리", 6]],
   unlock: {
-    coin: 6000,
-    gearSum: 9
+    coin: 16000,
+    gearSum: 13
   }
 }, {
   id: "jeju",
@@ -1072,8 +1072,8 @@ const SPOTS = [{
   bg: ["#cfe9e2", "#3f9a90", "#1f6a60"],
   fish: [["은어", 24], ["산천어", 20], ["쉬리", 18], ["버들치", 14], ["열목어", 14], ["어름치", 10]],
   unlock: {
-    coin: 7000,
-    gearSum: 9
+    coin: 18500,
+    gearSum: 14
   }
 }, {
   id: "halla",
@@ -1090,8 +1090,8 @@ const SPOTS = [{
   bg: ["#e0e8cc", "#8ab870", "#4f8048"],
   fish: [["산천어", 22], ["버들치", 20], ["쉬리", 16], ["은어", 14], ["열목어", 14], ["어름치", 10], ["황금잉어", 4]],
   unlock: {
-    coin: 8000,
-    gearSum: 10
+    coin: 21500,
+    gearSum: 15
   }
 }, {
   id: "baekdu",
@@ -1107,8 +1107,8 @@ const SPOTS = [{
   bg: ["#e8e0c2", "#9ab86a", "#5a8a4a"],
   fish: [["열목어", 22], ["산천어", 18], ["어름치", 16], ["은어", 12], ["향어", 12], ["황쏘가리", 12], ["황금잉어", 8]],
   unlock: {
-    coin: 11000,
-    gearSum: 10
+    coin: 26000,
+    gearSum: 16
   }
 }];
 
@@ -1119,35 +1119,53 @@ const GEAR = {
     name: "막대",
     icon: "🪵",
     desc: "동시 입질 수 · 낚싯줄 개수↑",
-    levelNames: ["나무막대", "강철막대", "카본막대"],
+    levelNames: ["나무막대", "대나무막대", "강철막대", "유리섬유막대", "카본막대", "텅스텐막대"],
     levels: [{
       maxBites: 3,
       lines: 12
     }, {
       maxBites: 4,
+      lines: 13
+    }, {
+      maxBites: 4,
       lines: 14
     }, {
       maxBites: 5,
+      lines: 15
+    }, {
+      maxBites: 5,
       lines: 16
+    }, {
+      maxBites: 6,
+      lines: 18
     }],
-    cost: [0, 800, 2600]
+    cost: [0, 300, 900, 2200, 4500, 8500]
   },
   line: {
     name: "낚싯줄",
     icon: "🧵",
     desc: "입질 유지시간↑ · 대물 끌어올리기↑",
-    levelNames: ["나일론줄", "합사줄", "카본줄"],
+    levelNames: ["나일론줄", "합사줄", "플루오로카본줄", "카본줄", "티타늄줄", "드래곤줄"],
     levels: [{
       holdMul: 1.0,
       dragReduce: 0
     }, {
+      holdMul: 1.12,
+      dragReduce: 1
+    }, {
       holdMul: 1.25,
       dragReduce: 1
     }, {
+      holdMul: 1.4,
+      dragReduce: 2
+    }, {
       holdMul: 1.55,
       dragReduce: 2
+    }, {
+      holdMul: 1.75,
+      dragReduce: 3
     }],
-    cost: [0, 700, 2200]
+    cost: [0, 250, 750, 1800, 3800, 7200]
   }
 };
 
@@ -1172,6 +1190,16 @@ const TIERS = {
     name: "전설",
     color: "#d09020",
     bg: "#fdf6e7"
+  },
+  5: {
+    name: "신화",
+    color: "#1d9e75",
+    bg: "#e7f8f1"
+  },
+  6: {
+    name: "태초",
+    color: "#b8860b",
+    bg: "#fff3d6"
   }
 };
 
@@ -2818,7 +2846,7 @@ function FlyFishingGame() {
   };
   const buyUpgrade = key => {
     const lvl = gearLvl[key];
-    if (lvl >= 3) return;
+    if (lvl >= GEAR[key].levelNames.length) return;
     const cost = GEAR[key].cost[lvl];
     if (coins < cost) {
       play("miss");
@@ -4598,12 +4626,12 @@ function FlyFishingGame() {
     }, Object.keys(GEAR).map(key => {
       const g = GEAR[key],
         lvl = gearLvl[key],
-        maxed = lvl >= 3,
+        maxed = lvl >= g.levelNames.length,
         cost = maxed ? 0 : g.cost[lvl],
         afford = coins >= cost;
       const curName = g.levelNames[lvl - 1],
         nextName = !maxed ? g.levelNames[lvl] : null;
-      const tier = lvl; // 레벨=등급 취급 (1~3)
+      const tier = lvl; // 레벨=등급 취급 (1~6)
       const t = TIERS[tier];
       return /*#__PURE__*/React.createElement("div", {
         key: key,
