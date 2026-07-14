@@ -1378,6 +1378,18 @@ const BAITS = {
   }
 };
 
+// 프로필 테마: 순수 꾸미기(코스메틱). 게임 밸런스엔 영향 없음 — 장비/스팟 다 채운 뒤에도 코인 쓸 곳을 만들기 위함.
+const PROFILE_THEMES = {
+  basic: { name: "기본", icon: "🎣", grad: ["#7fc4ad", "#2c6f86"], cost: 0 },
+  sunset: { name: "노을", icon: "🌇", grad: ["#ff9f6b", "#c94f6d"], cost: 8000 },
+  ocean: { name: "심해", icon: "🌊", grad: ["#2a7f9e", "#0d2b3e"], cost: 18000 },
+  forest: { name: "삼림", icon: "🌲", grad: ["#6fbf8a", "#1d5c3d"], cost: 18000 },
+  gold: { name: "황금", icon: "🏆", grad: ["#ffd86b", "#c8881f"], cost: 35000 },
+  aurora: { name: "오로라", icon: "🌌", grad: ["#7fe0c0", "#8a5fc0"], cost: 60000 },
+  cosmic: { name: "우주", icon: "🪐", grad: ["#3a2a6a", "#a03fd8"], cost: 100000 },
+  phoenix: { name: "불사조", icon: "🔥", grad: ["#ff6b3d", "#8a1f1f"], cost: 150000 }
+};
+
 // 어망(살림망): 등급이 높을수록 잡은 점수에 보너스. 하나를 장착.
 const CREELS = {
   basic: {
@@ -1914,6 +1926,8 @@ function FlyFishingGame() {
   lifetimeRef.current = lifetime;
   const [achieved, setAchieved] = useState({}); // {achId: true}
   const [legendary, setLegendary] = useState({}); // {legendId: {count, bestSize, firstAt}}
+  const [ownedThemes, setOwnedThemes] = useState(["basic"]);
+  const [equippedTheme, setEquippedTheme] = useState("basic");
   const [legendReveal, setLegendReveal] = useState(null); // 전설 포획 순간 연출 {name, title, emoji, cm}
   const [achToast, setAchToast] = useState(null); // 새로 달성한 업적 알림
   const [daily, setDaily] = useState(null); // {date, tasks:[{id,type,target,fish?,prog,done,claimed,reward,label}]}
@@ -2079,7 +2093,9 @@ function FlyFishingGame() {
     lifetime,
     achieved,
     streak,
-    legendary
+    legendary,
+    ownedThemes,
+    equippedTheme
   };
   const saveAll = useCallback((over = {}) => {
     persist({
@@ -2123,6 +2139,9 @@ function FlyFishingGame() {
         setLifetime(lt => ({ ...lt, ...(data.lifetime || {}) }));
         setAchieved(data.achieved || {});
         setLegendary(data.legendary || {});
+        const ot = data.ownedThemes && data.ownedThemes.length ? data.ownedThemes : ["basic"];
+        setOwnedThemes(ot);
+        setEquippedTheme(data.equippedTheme && ot.includes(data.equippedTheme) ? data.equippedTheme : "basic");
         // 연속 접속 스트릭 판정
         const savedStreak = data.streak || { lastDate: "", count: 0 };
         const today = todayKey(), yest = yesterdayKey();
@@ -3058,6 +3077,26 @@ function FlyFishingGame() {
       gearLvl: nextLvls
     });
   };
+  const buyTheme = key => {
+    if (ownedThemes.includes(key)) {
+      setEquippedTheme(key);
+      saveAll({ equippedTheme: key });
+      play("pull");
+      return;
+    }
+    const cost = PROFILE_THEMES[key].cost;
+    if (coins < cost) {
+      play("miss");
+      return;
+    }
+    play("buy");
+    const nextOwned = [...ownedThemes, key];
+    const nextCoins = coins - cost;
+    setOwnedThemes(nextOwned);
+    setEquippedTheme(key);
+    setCoins(nextCoins);
+    saveAll({ coins: nextCoins, ownedThemes: nextOwned, equippedTheme: key });
+  };
   const buyBait = key => {
     if (ownedBaits.includes(key)) {
       equipBait(key);
@@ -3739,11 +3778,11 @@ function FlyFishingGame() {
       h("div", {
         style: {
           width: 26, height: 26, borderRadius: "50%",
-          background: "linear-gradient(135deg,#7fc4ad,#2c6f86)",
+          background: `linear-gradient(135deg, ${(PROFILE_THEMES[equippedTheme] || PROFILE_THEMES.basic).grad[0]}, ${(PROFILE_THEMES[equippedTheme] || PROFILE_THEMES.basic).grad[1]})`,
           display: "grid", placeItems: "center", fontSize: 13, flex: "0 0 auto",
           boxShadow: "inset 0 0 0 2px rgba(255,255,255,.6)"
         }
-      }, "🎣"),
+      }, (PROFILE_THEMES[equippedTheme] || PROFILE_THEMES.basic).icon),
       h("div", { style: { display: "flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1.2 } },
         h("span", { style: { fontSize: 12.5, whiteSpace: "nowrap", maxWidth: 108, overflow: "hidden", textOverflow: "ellipsis" } }, nickname || "이름 없는 낚시꾼"),
         h("span", { style: { fontSize: 9.5, color: "#2c6f86" } }, "Lv.", lv, " ", anglerTitle(lv))),
@@ -3997,7 +4036,7 @@ function FlyFishingGame() {
         alignItems: "center",
         gap: 11,
         padding: "11px 12px",
-        background: "linear-gradient(120deg,#7fc4ad,#2c6f86)",
+        background: `linear-gradient(120deg, ${(PROFILE_THEMES[equippedTheme] || PROFILE_THEMES.basic).grad[0]}, ${(PROFILE_THEMES[equippedTheme] || PROFILE_THEMES.basic).grad[1]})`,
         borderRadius: 13,
         width: "100%",
         boxSizing: "border-box",
@@ -4860,19 +4899,19 @@ function FlyFishingGame() {
         width: "100%",
         marginTop: 10
       }
-    }, [["gear", "🎣 장비"], ["bait", "🪰 미끼"], ["creel", "🧺 어망"], ["charge", "💎 충전소"]].map(([key, label]) => /*#__PURE__*/React.createElement("button", {
+    }, [["gear", "🎣 장비"], ["bait", "🪰 미끼"], ["creel", "🧺 어망"], ["theme", "🎨 꾸미기"], ["charge", "💎 충전소"]].map(([key, label]) => /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setShopTab(key),
       style: {
         flex: 1,
-        padding: "9px 0",
+        padding: "8px 0",
         borderRadius: 12,
         border: "none",
         cursor: "pointer",
         fontFamily: "'Jua',sans-serif",
-        fontSize: key === "charge" ? 12.5 : 14,
-        background: shopTab === key ? (key === "charge" ? "#8a5fc0" : "#27ae8f") : key === "charge" ? "#f2edf9" : "#eef5f2",
-        color: shopTab === key ? "#fff" : key === "charge" ? "#8a5fc0" : "#5a7d77"
+        fontSize: key === "charge" || key === "theme" ? 11 : 12.5,
+        background: shopTab === key ? (key === "charge" ? "#8a5fc0" : key === "theme" ? "#c98a3f" : "#27ae8f") : key === "charge" ? "#f2edf9" : key === "theme" ? "#faf1e4" : "#eef5f2",
+        color: shopTab === key ? "#fff" : key === "charge" ? "#8a5fc0" : key === "theme" ? "#c98a3f" : "#5a7d77"
       }
     }, label))), shopTab === "gear" && /*#__PURE__*/React.createElement("div", {
       style: {
@@ -5005,7 +5044,43 @@ function FlyFishingGame() {
       equipped: equippedCreel === key,
       onBuy: () => buyCreel(key),
       onEquip: () => equipCreel(key)
-    }))), shopTab === "charge" && (() => {
+    }))), shopTab === "theme" && (() => {
+      const h = React.createElement;
+      return h("div", {
+        style: { width: "100%", marginTop: 12, display: "flex", flexDirection: "column", gap: 8, textAlign: "left" }
+      },
+        h("div", { style: { fontSize: 11, color: "#c98a3f", background: "#faf1e4", borderRadius: 10, padding: "7px 10px" } },
+          "🎨 프로필 배경 색상. 게임 능력엔 영향 없어요 — 순수 취향껏 고르세요."),
+        h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
+          Object.entries(PROFILE_THEMES).map(([key, t]) => {
+            const owned = ownedThemes.includes(key);
+            const equipped = equippedTheme === key;
+            const afford = coins >= t.cost;
+            return h("button", {
+              key: key,
+              onClick: () => buyTheme(key),
+              disabled: !owned && !afford,
+              style: {
+                position: "relative",
+                border: equipped ? "2px solid #c98a3f" : "2px solid transparent",
+                borderRadius: 13,
+                padding: "12px 10px",
+                cursor: owned || afford ? "pointer" : "default",
+                background: `linear-gradient(135deg, ${t.grad[0]}, ${t.grad[1]})`,
+                color: "#fff",
+                textAlign: "center",
+                opacity: owned || afford ? 1 : 0.55
+              }
+            },
+              equipped && h("span", {
+                style: { position: "absolute", top: 6, right: 8, fontSize: 11, background: "rgba(0,0,0,.3)", borderRadius: 999, padding: "1px 7px" }
+              }, "장착중"),
+              h("div", { style: { fontSize: 22 } }, t.icon),
+              h("div", { style: { fontFamily: "'Jua',sans-serif", fontSize: 13, marginTop: 3, textShadow: "0 1px 2px rgba(0,0,0,.3)" } }, t.name),
+              h("div", { style: { fontSize: 11, marginTop: 4, opacity: 0.95 } },
+                owned ? (equipped ? "장착됨" : "탭해서 장착") : `🪙${t.cost.toLocaleString()}`));
+          })));
+    })(), shopTab === "charge" && (() => {
       const h = React.createElement;
       const notify = () => {
         setChargeNotice(true);
@@ -5487,7 +5562,7 @@ function FlyFishingGame() {
     viewBox: "0 0 40 20",
     style: {
       display: "block",
-      transform: `scaleX(${b.dir})`
+      transform: `scaleX(${-b.dir})`
     }
   }, /*#__PURE__*/React.createElement("ellipse", {
     cx: "16",
