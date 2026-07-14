@@ -19,6 +19,7 @@
 <style>
   html, body {
     margin: 0; padding: 0; background: #0c3b34;
+    font-family: 'Sunflower', 'Apple SD Gothic Neo', sans-serif;
     overscroll-behavior: none;
     /* 앱처럼: 스크롤·선택·당겨서새로고침 방지 */
     overflow: hidden;
@@ -3301,7 +3302,7 @@ function FlyFishingGame() {
         color: "#2c6f86",
         fontSize: 12.5,
         cursor: "pointer",
-        fontFamily: "'Gowun Dodum',sans-serif",
+        fontFamily: "'Sunflower',sans-serif",
         textDecoration: "underline"
       }
     }, "ⓘ 정보 · 크레딧"))));
@@ -3508,7 +3509,7 @@ function FlyFishingGame() {
         color: "#9bb0a8",
         fontSize: 12.5,
         cursor: last ? "default" : "pointer",
-        fontFamily: "'Gowun Dodum',sans-serif"
+        fontFamily: "'Sunflower',sans-serif"
       }
     }, "건너뛰기"))));
   }
@@ -3587,7 +3588,7 @@ function FlyFishingGame() {
         overflow: "hidden",
         position: "relative",
         background: "linear-gradient(#bfe6f2 0%, #dff3ef 60%, #cfe9dd 100%)",
-        fontFamily: "'Gowun Dodum',sans-serif"
+        fontFamily: "'Sunflower',sans-serif"
       }
     }, h(Fonts), h(RotateHint),
     // ── 스크롤 여정 스트립 ──
@@ -3791,7 +3792,7 @@ function FlyFishingGame() {
       h("span", { style: { fontSize: 13 } }, "✨"),
       h("div", { style: { flex: 1, minWidth: 24, height: 6, background: "#e4efea", borderRadius: 3 } },
         h("div", { style: { width: `${pct}%`, height: "100%", background: "linear-gradient(90deg,#27ae8f,#7fe0c0)", borderRadius: 3, transition: "width .3s" } })),
-      h("span", { style: { fontSize: 10, color: "#7a948c", fontFamily: "'Gowun Dodum',sans-serif" } }, anglerExp - curBase, "/", nextBase - curBase)),
+      h("span", { style: { fontSize: 10, color: "#7a948c", fontFamily: "'Sunflower',sans-serif" } }, anglerExp - curBase, "/", nextBase - curBase)),
     h("div", { style: { ...hudPill, fontSize: 16, color: "#c8881f" } }, "🪙 ", coins),
     LIVES_ENABLED && h("div", {
       style: { ...hudPill, fontSize: 13, color: lives.remaining <= 2 ? "#c0392b" : "#37544d" }
@@ -5223,7 +5224,7 @@ function FlyFishingGame() {
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      fontFamily: "'Gowun Dodum','Apple SD Gothic Neo',sans-serif",
+      fontFamily: "'Sunflower','Apple SD Gothic Neo',sans-serif",
       background: "#0c3b34",
       userSelect: "none",
       padding: 0,
@@ -6153,7 +6154,7 @@ function FlyFishingGame() {
 }
 function Fonts() {
   return /*#__PURE__*/React.createElement("link", {
-    href: "https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Jua&family=Sunflower:wght@300;500;700&display=swap",
     rel: "stylesheet"
   });
 }
@@ -6278,7 +6279,7 @@ function Center({
       display: "grid",
       placeItems: "center",
       background: "#0c3b34",
-      fontFamily: "'Gowun Dodum',sans-serif",
+      fontFamily: "'Sunflower',sans-serif",
       padding: 8,
       boxSizing: "border-box"
     }
@@ -6299,7 +6300,7 @@ function RotateHint() {
       justifyContent: "center",
       textAlign: "center",
       padding: 24,
-      fontFamily: "'Jua','Gowun Dodum',sans-serif"
+      fontFamily: "'Jua','Sunflower',sans-serif"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
