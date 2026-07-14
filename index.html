@@ -1915,6 +1915,7 @@ function FlyFishingGame() {
   const [nickname, setNickname] = useState("");
   const [nickDraft, setNickDraft] = useState("");
   const [prevScreen, setPrevScreen] = useState("map");
+  const prevSoundRef = useRef(null); // 게임화면 음소거 버튼: 끄기 전 bgm/sfx 값 기억
   const [settings, setSettings] = useState({
     sfx: true,
     bgm: true,
@@ -5301,9 +5302,18 @@ function FlyFishingGame() {
     }
   }, "🎣 ", score), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
-      const on = !settingsRef.current.bgm;
-      setSettings(v => ({ ...v, bgm: on, sfx: on }));
-      if (on) bgm.start();else bgm.stop();
+      const anyOn = settingsRef.current.bgm || settingsRef.current.sfx;
+      if (anyOn) {
+        // 지금 하나라도 켜져있다 → 값을 기억해두고 음소거
+        prevSoundRef.current = { bgm: settingsRef.current.bgm, sfx: settingsRef.current.sfx };
+        setSettings(v => ({ ...v, bgm: false, sfx: false }));
+        bgm.stop();
+      } else {
+        // 완전히 꺼진 상태 → 음소거 이전 값으로 복원 (없으면 둘 다 켜기)
+        const restore = prevSoundRef.current || { bgm: true, sfx: true };
+        setSettings(v => ({ ...v, ...restore }));
+        if (restore.bgm) bgm.start();
+      }
     },
     style: {
       background: "rgba(255,255,255,.08)",
