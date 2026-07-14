@@ -3264,6 +3264,11 @@ function FlyFishingGame() {
   // ─── 타이틀 ───
   if (screen === "title") {
     const startGame = () => {
+      // 배경음 설정과 무관하게, 앱의 첫 탭에서 효과음 오디오 엔진도 함께 깨워둔다.
+      // (배경음이 꺼져있으면 이 탭에서 오디오 API를 아예 안 건드리게 되어,
+      //  나중에 효과음이 자동재생 정책에 막혀 계속 잠긴 채 남는 문제 예방)
+      const ctx = getCtx();
+      if (ctx && ctx.state === "suspended") ctx.resume();
       if (settingsRef.current.bgm) bgm.start(); // 자동재생 정책상 첫 탭에서 시동
       if (isNewPlayer) {
         setTutStep(1);
