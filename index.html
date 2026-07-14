@@ -1122,22 +1122,22 @@ const GEAR = {
     levelNames: ["나무막대", "대나무막대", "강철막대", "유리섬유막대", "카본막대", "텅스텐막대"],
     levels: [{
       maxBites: 3,
+      lines: 10
+    }, {
+      maxBites: 4,
+      lines: 11
+    }, {
+      maxBites: 4,
       lines: 12
     }, {
-      maxBites: 4,
+      maxBites: 5,
       lines: 13
     }, {
-      maxBites: 4,
+      maxBites: 5,
       lines: 14
     }, {
-      maxBites: 5,
-      lines: 15
-    }, {
-      maxBites: 5,
-      lines: 16
-    }, {
       maxBites: 6,
-      lines: 18
+      lines: 14
     }],
     cost: [0, 300, 900, 2200, 4500, 8500]
   },
@@ -1982,7 +1982,7 @@ function FlyFishingGame() {
   const buzz = useCallback(p => {
     if (settingsRef.current.haptics) vibrate(p);
   }, []);
-  const lineCount = () => eff.current.lines || 12;
+  const lineCount = () => eff.current.lines || 10;
   const lineX = useCallback(i => {
     const n = lineCount();
     return 60 + (POOL_W - 120) / (n - 1) * i;
