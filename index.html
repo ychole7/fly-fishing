@@ -3211,7 +3211,7 @@ function FlyFishingGame() {
         fontSize: 14,
         color: "#37544d",
         lineHeight: 1.7,
-        minHeight: 76
+        minHeight: 102
       }
     }, s.body), /*#__PURE__*/React.createElement("div", {
       style: {
@@ -3230,9 +3230,10 @@ function FlyFishingGame() {
       }
     }))), /*#__PURE__*/React.createElement(BigBtn, {
       onClick: next
-    }, last ? "🎣 낚으러 가기!" : "다음 →"), !last && /*#__PURE__*/React.createElement("div", {
+    }, last ? "🎣 낚으러 가기!" : "다음 →"), /*#__PURE__*/React.createElement("div", {
       style: {
-        marginTop: 6
+        marginTop: 6,
+        visibility: last ? "hidden" : "visible"
       }
     }, /*#__PURE__*/React.createElement("button", {
       onClick: () => {
@@ -3245,7 +3246,7 @@ function FlyFishingGame() {
         border: "none",
         color: "#9bb0a8",
         fontSize: 12.5,
-        cursor: "pointer",
+        cursor: last ? "default" : "pointer",
         fontFamily: "'Gowun Dodum',sans-serif"
       }
     }, "건너뛰기"))));
