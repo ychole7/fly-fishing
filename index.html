@@ -688,6 +688,7 @@ function todayKey() {
   const d = new Date();
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 }
+const LIVES_ENABLED = false; // 🔧 목숨 시스템 보류 중. 되살리려면 true로 바꾸면 끝.
 const DAILY_LIVES = 10; // 하루 무료 낚시 판수
 // 저장된 lives가 오늘 것이 아니면(날짜가 바뀌었으면) 리셋해서 반환
 function freshLives(saved) {
@@ -2537,6 +2538,7 @@ function FlyFishingGame() {
   }, [screen]);
   // 화면이 바뀔 때마다 날짜 경계를 넘었는지 확인해 목숨을 자동으로 채운다
   useEffect(() => {
+    if (!LIVES_ENABLED) return;
     setLives(l => {
       const fresh = freshLives(l);
       if (fresh.date !== l.date) { saveAll({ lives: fresh }); return fresh; }
@@ -2559,17 +2561,19 @@ function FlyFishingGame() {
     return () => clearInterval(iv);
   }, [screen, endGame]);
   const startSpot = idx => {
-    const cur = freshLives(livesRef.current);
-    if (cur.remaining <= 0) {
-      setLives(cur); // 날짜 넘어갔으면 리셋된 값 반영
-      saveAll({ lives: cur });
-      setShowNoLives(true);
-      play("miss");
-      return;
+    if (LIVES_ENABLED) {
+      const cur = freshLives(livesRef.current);
+      if (cur.remaining <= 0) {
+        setLives(cur); // 날짜 넘어갔으면 리셋된 값 반영
+        saveAll({ lives: cur });
+        setShowNoLives(true);
+        play("miss");
+        return;
+      }
+      const nextLives = { date: cur.date, remaining: cur.remaining - 1 };
+      setLives(nextLives);
+      saveAll({ lives: nextLives });
     }
-    const nextLives = { date: cur.date, remaining: cur.remaining - 1 };
-    setLives(nextLives);
-    saveAll({ lives: nextLives });
     const ctx = getCtx();
     if (ctx && ctx.state === "suspended") ctx.resume(); // 유저 탭 시점에 확실히 깨움
     SOUND_FILES.forEach(loadSound);
@@ -3499,7 +3503,7 @@ function FlyFishingGame() {
         h("div", { style: { width: `${pct}%`, height: "100%", background: "linear-gradient(90deg,#27ae8f,#7fe0c0)", borderRadius: 3, transition: "width .3s" } })),
       h("span", { style: { fontSize: 10, color: "#7a948c", fontFamily: "'Gowun Dodum',sans-serif" } }, anglerExp - curBase, "/", nextBase - curBase)),
     h("div", { style: { ...hudPill, fontSize: 16, color: "#c8881f" } }, "🪙 ", coins),
-    h("div", {
+    LIVES_ENABLED && h("div", {
       style: { ...hudPill, fontSize: 13, color: lives.remaining <= 2 ? "#c0392b" : "#37544d" }
     }, "🎣 ", lives.remaining, "/", DAILY_LIVES)),
     // ── 좌하단: 오늘의 도전 ──
@@ -3615,7 +3619,7 @@ function FlyFishingGame() {
         animation: "jbob 1.6s ease-in-out infinite"
       }
     }, "낚시터를 눌러보세요 📍"),
-    showNoLives && h("div", {
+    LIVES_ENABLED && showNoLives && h("div", {
       onClick: () => setShowNoLives(false),
       style: {
         position: "fixed", inset: 0, background: "rgba(8,30,28,.6)",
