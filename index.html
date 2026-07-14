@@ -618,7 +618,7 @@ function buildLeaderboard(myBest, myName) {
 
 // 장소별 미션 목표 (점수는 해금 난이도 비례)
 function spotMissions(spot) {
-  const scoreGoal = Math.max(300, Math.round((400 + spot.unlock.coin * 0.045) / 50) * 50);
+  const scoreGoal = Math.max(300, Math.round((400 + spot.unlock.coin * 0.005) / 50) * 50);
   const catchGoal = 7 + Math.round(spot.unlock.gearSum / 3);
   // 그 장소에서 잡을 수 있는 가장 높은 희귀도를 '대물' 기준으로 (장소마다 달성 가능하도록)
   const maxRarity = Math.max(...spot.fish.map(([n]) => FISH[n] ? FISH[n].rarity : 1));
@@ -799,7 +799,7 @@ const SPOTS = [{
   bg: ["#d6e7ef", "#6fa8c4", "#356f8a"],
   fish: [["피라미", 30], ["붕어", 24], ["참붕어", 18], ["미꾸라지", 12], ["누치", 9], ["잉어", 7]],
   unlock: {
-    coin: 350,
+    coin: 2500,
     gearSum: 2
   }
 }, {
@@ -816,7 +816,7 @@ const SPOTS = [{
   bg: ["#cfe6dd", "#5aa5a0", "#2f7570"],
   fish: [["붕어", 22], ["갈겨니", 18], ["각시붕어", 16], ["납자루", 14], ["참마자", 12], ["메기", 10], ["잉어", 8]],
   unlock: {
-    coin: 700,
+    coin: 4500,
     gearSum: 3
   }
 }, {
@@ -833,7 +833,7 @@ const SPOTS = [{
   bg: ["#cdd8e6", "#5d7fa8", "#33506f"],
   fish: [["잉어", 22], ["붕어", 18], ["떡붕어", 16], ["동자개", 14], ["메기", 12], ["향어", 10], ["황쏘가리", 8]],
   unlock: {
-    coin: 1100,
+    coin: 7200,
     gearSum: 4
   }
 }, {
@@ -850,7 +850,7 @@ const SPOTS = [{
   bg: ["#c9e1e8", "#4f93a8", "#2c6275"],
   fish: [["끄리", 22], ["누치", 18], ["강준치", 16], ["쏘가리", 14], ["잉어", 12], ["가물치", 10], ["돌마자", 8]],
   unlock: {
-    coin: 1600,
+    coin: 10500,
     gearSum: 5
   }
 }, {
@@ -867,7 +867,7 @@ const SPOTS = [{
   bg: ["#bfe0e0", "#3f8fa0", "#235a6b"],
   fish: [["쏘가리", 22], ["꺽지", 18], ["누치", 16], ["은어", 14], ["미유기", 12], ["산천어", 10], ["쉬리", 8]],
   unlock: {
-    coin: 2200,
+    coin: 14500,
     gearSum: 6
   }
 }, {
@@ -884,7 +884,7 @@ const SPOTS = [{
   bg: ["#cfe9e6", "#3f8c86", "#1f5a55"],
   fish: [["산천어", 22], ["버들치", 18], ["쉬리", 16], ["은어", 14], ["열목어", 12], ["미유기", 10], ["어름치", 8]],
   unlock: {
-    coin: 2900,
+    coin: 19500,
     gearSum: 7
   }
 }, {
@@ -901,7 +901,7 @@ const SPOTS = [{
   bg: ["#d2e6ea", "#5fa0b4", "#356f86"],
   fish: [["피라미", 30], ["붕어", 24], ["누치", 18], ["참마자", 14], ["끄리", 8], ["잉어", 6]],
   unlock: {
-    coin: 3700,
+    coin: 25500,
     gearSum: 8
   }
 }, {
@@ -918,7 +918,7 @@ const SPOTS = [{
   bg: ["#d8e4d0", "#6aa888", "#3f7a60"],
   fish: [["붕어", 26], ["피라미", 20], ["납자루", 16], ["동자개", 14], ["메기", 12], ["잉어", 12]],
   unlock: {
-    coin: 4600,
+    coin: 32500,
     gearSum: 9
   }
 }, {
@@ -935,7 +935,7 @@ const SPOTS = [{
   bg: ["#dde6cf", "#7fae7a", "#4f8050"],
   fish: [["붕어", 28], ["참붕어", 20], ["각시붕어", 16], ["미꾸라지", 14], ["가물치", 12], ["떡붕어", 10]],
   unlock: {
-    coin: 5600,
+    coin: 41000,
     gearSum: 9
   }
 }, {
@@ -952,7 +952,7 @@ const SPOTS = [{
   bg: ["#d2e0e6", "#5f93a8", "#356074"],
   fish: [["붕어", 24], ["떡붕어", 20], ["잉어", 18], ["강준치", 16], ["끄리", 12], ["가물치", 10]],
   unlock: {
-    coin: 6700,
+    coin: 51000,
     gearSum: 10
   }
 }, {
@@ -969,7 +969,7 @@ const SPOTS = [{
   bg: ["#cfe0e8", "#5790a8", "#335f78"],
   fish: [["잉어", 22], ["떡붕어", 18], ["강준치", 18], ["쏘가리", 16], ["끄리", 14], ["향어", 12]],
   unlock: {
-    coin: 7900,
+    coin: 62500,
     gearSum: 10
   }
 }, {
@@ -986,7 +986,7 @@ const SPOTS = [{
   bg: ["#d4e2dd", "#5fa097", "#357066"],
   fish: [["피라미", 22], ["누치", 20], ["끄리", 18], ["쏘가리", 16], ["메기", 14], ["잉어", 10]],
   unlock: {
-    coin: 9200,
+    coin: 76000,
     gearSum: 11
   }
 }, {
@@ -1003,7 +1003,7 @@ const SPOTS = [{
   bg: ["#cfe2e0", "#4f9aa0", "#2c6b70"],
   fish: [["쏘가리", 24], ["꺽지", 20], ["누치", 16], ["은어", 14], ["끄리", 14], ["미유기", 12]],
   unlock: {
-    coin: 10600,
+    coin: 91500,
     gearSum: 11
   }
 }, {
@@ -1020,7 +1020,7 @@ const SPOTS = [{
   bg: ["#cfe0e2", "#4f9398", "#2c6468"],
   fish: [["쏘가리", 22], ["꺽지", 20], ["누치", 18], ["메기", 14], ["산천어", 14], ["쉬리", 12]],
   unlock: {
-    coin: 12200,
+    coin: 109000,
     gearSum: 12
   }
 }, {
@@ -1037,7 +1037,7 @@ const SPOTS = [{
   bg: ["#cfe4e6", "#509aa4", "#2c6b74"],
   fish: [["은어", 24], ["피라미", 18], ["끄리", 16], ["쏘가리", 16], ["강준치", 14], ["향어", 12]],
   unlock: {
-    coin: 14000,
+    coin: 129000,
     gearSum: 12
   }
 }, {
@@ -1054,7 +1054,7 @@ const SPOTS = [{
   bg: ["#d0dde6", "#5787a8", "#335574"],
   fish: [["잉어", 22], ["향어", 18], ["강준치", 16], ["가물치", 14], ["쏘가리", 14], ["떡붕어", 10], ["황쏘가리", 6]],
   unlock: {
-    coin: 16000,
+    coin: 151000,
     gearSum: 13
   }
 }, {
@@ -1072,7 +1072,7 @@ const SPOTS = [{
   bg: ["#cfe9e2", "#3f9a90", "#1f6a60"],
   fish: [["은어", 24], ["산천어", 20], ["쉬리", 18], ["버들치", 14], ["열목어", 14], ["어름치", 10]],
   unlock: {
-    coin: 18500,
+    coin: 176000,
     gearSum: 14
   }
 }, {
@@ -1090,7 +1090,7 @@ const SPOTS = [{
   bg: ["#e0e8cc", "#8ab870", "#4f8048"],
   fish: [["산천어", 22], ["버들치", 20], ["쉬리", 16], ["은어", 14], ["열목어", 14], ["어름치", 10], ["황금잉어", 4]],
   unlock: {
-    coin: 21500,
+    coin: 204000,
     gearSum: 15
   }
 }, {
@@ -1107,7 +1107,7 @@ const SPOTS = [{
   bg: ["#e8e0c2", "#9ab86a", "#5a8a4a"],
   fish: [["열목어", 22], ["산천어", 18], ["어름치", 16], ["은어", 12], ["향어", 12], ["황쏘가리", 12], ["황금잉어", 8]],
   unlock: {
-    coin: 26000,
+    coin: 235000,
     gearSum: 16
   }
 }];
@@ -4711,19 +4711,7 @@ function FlyFishingGame() {
           color: maxed ? "#fff" : afford ? "#5a3a00" : "#999",
           boxShadow: maxed || !afford ? "none" : "0 3px 0 #d97f1e"
         }
-      }, maxed ? "MAX" : `🪙${cost}`), !maxed && !afford && /*#__PURE__*/React.createElement("button", {
-        onClick: () => setShopTab("charge"),
-        style: {
-          fontFamily: "'Jua',sans-serif",
-          fontSize: 10.5,
-          border: "none",
-          borderRadius: 9,
-          padding: "4px 6px",
-          cursor: "pointer",
-          background: "#f2edf9",
-          color: "#8a5fc0"
-        }
-      }, "💎 충전")));
+      }, maxed ? "MAX" : `🪙${cost}`)));
     })), shopTab === "bait" && /*#__PURE__*/React.createElement("div", {
       style: {
         width: "100%",
