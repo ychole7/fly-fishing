@@ -475,6 +475,30 @@ const RARITY_REWARD = {
 const ALL_REWARD = 5000;
 const ALL_TITLE = "🎏 강태공";
 
+// 업적 목록. check(ctx)는 ctx = {lifetime, book, stars, unlocked, gearLvl}를 받아 달성 여부(bool) 반환
+const ACHIEVEMENTS = [
+  { id: "first_catch", icon: "🐟", name: "첫 손맛", desc: "물고기를 처음 낚았어요", check: c => c.lifetime.totalCatch >= 1 },
+  { id: "catch_50", icon: "🎣", name: "초보 탈출", desc: "누적 50마리 낚기", check: c => c.lifetime.totalCatch >= 50 },
+  { id: "catch_200", icon: "🌊", name: "낚시광", desc: "누적 200마리 낚기", check: c => c.lifetime.totalCatch >= 200 },
+  { id: "catch_500", icon: "🏆", name: "강태공", desc: "누적 500마리 낚기", check: c => c.lifetime.totalCatch >= 500 },
+  { id: "catch_1500", icon: "👑", name: "낚시의 전설", desc: "누적 1500마리 낚기", check: c => c.lifetime.totalCatch >= 1500 },
+  { id: "dex_10", icon: "📖", name: "수집가", desc: "도감 10종 채우기", check: c => Object.keys(c.book).length >= 10 },
+  { id: "dex_all", icon: "📚", name: "도감 마스터", desc: "도감 31종 전부 채우기", check: c => Object.keys(c.book).length >= 31 },
+  { id: "combo_10", icon: "🔥", name: "콤보왕", desc: "한 판에 10콤보 달성", check: c => c.lifetime.bestCombo >= 10 },
+  { id: "combo_20", icon: "⚡", name: "콤보 마스터", desc: "한 판에 20콤보 달성", check: c => c.lifetime.bestCombo >= 20 },
+  { id: "gold_1", icon: "🐠", name: "대박!", desc: "황금물고기 첫 포획", check: c => c.lifetime.goldCatches >= 1 },
+  { id: "gold_5", icon: "💰", name: "행운아", desc: "황금물고기 5회 포획", check: c => c.lifetime.goldCatches >= 5 },
+  { id: "big_1", icon: "💪", name: "손맛 좋다", desc: "대물(귀함 이상) 첫 포획", check: c => c.lifetime.bigCatches >= 1 },
+  { id: "big_20", icon: "🦈", name: "대물 사냥꾼", desc: "대물 20회 포획", check: c => c.lifetime.bigCatches >= 20 },
+  { id: "spots_5", icon: "🗺️", name: "여행가", desc: "낚시터 5곳 해금", check: c => c.unlocked.length >= 5 },
+  { id: "spots_all", icon: "🏁", name: "전국 정복", desc: "낚시터 20곳 전부 해금", check: c => c.unlocked.length >= 20 },
+  { id: "star3_1", icon: "⭐", name: "완벽주의자", desc: "한 낚시터에서 별 3개", check: c => Object.values(c.stars).some(s => s >= 3) },
+  { id: "star3_10", icon: "🌟", name: "별 수집가", desc: "별 3개인 낚시터 10곳", check: c => Object.values(c.stars).filter(s => s >= 3).length >= 10 },
+  { id: "gear_max", icon: "🛠️", name: "장비 마스터", desc: "막대·낚싯줄 모두 만렙", check: c => c.gearLvl.rod >= GEAR.rod.levelNames.length && c.gearLvl.line >= GEAR.line.levelNames.length },
+  { id: "coins_100k", icon: "🪙", name: "부자", desc: "누적 코인 10만 획득", check: c => c.lifetime.totalCoinsEarned >= 100000 },
+  { id: "rounds_100", icon: "🎏", name: "단골 강태공", desc: "누적 100판 플레이", check: c => c.lifetime.roundsPlayed >= 100 }
+];
+
 // 시간대: 입질에 영향. 밤·새벽이 잘 물린다.
 const TIMES = {
   day: {
@@ -687,6 +711,15 @@ function rollWeather() {
 function todayKey() {
   const d = new Date();
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
+function yesterdayKey() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
+// 연속 접속일수에 따른 보상 코인
+function streakReward(count) {
+  return 100 + Math.min(count, 14) * 50; // 최대 14일까지 계속 커짐, 이후 고정
 }
 const LIVES_ENABLED = false; // 🔧 목숨 시스템 보류 중. 되살리려면 true로 바꾸면 끝.
 const DAILY_LIVES = 10; // 하루 무료 낚시 판수
@@ -1851,6 +1884,8 @@ function FlyFishingGame() {
   const [anglerExp, setAnglerExp] = useState(0); // 강태공 누적 경험치
   const [levelUpInfo, setLevelUpInfo] = useState(null); // 결과 화면 레벨업 표시
   const [isNewPlayer, setIsNewPlayer] = useState(false); // 첫 플레이 여부
+  const [streak, setStreak] = useState({ lastDate: "", count: 0 });
+  const [streakToast, setStreakToast] = useState(null); // { count, reward }
   const [tutStep, setTutStep] = useState(0); // 튜토리얼 단계 (0이면 안 봄)
   const [unlocked, setUnlocked] = useState(["stream"]);
   const [bestBySpot, setBestBySpot] = useState({});
@@ -1858,6 +1893,15 @@ function FlyFishingGame() {
   const [book, setBook] = useState({}); // 도감: {어종명: 누적 잡은 수}
   const [bestSize, setBestSize] = useState({}); // 어종별 최고 크기(cm)
   const [claimed, setClaimed] = useState({}); // 받은 도감 보상 {r1..r5, all}
+  // 평생 누적 통계 (업적 판정용)
+  const [lifetime, setLifetime] = useState({
+    totalCatch: 0, bestCombo: 0, goldCatches: 0, bigCatches: 0,
+    trashCatches: 0, totalCoinsEarned: 0, roundsPlayed: 0
+  });
+  const lifetimeRef = useRef(lifetime);
+  lifetimeRef.current = lifetime;
+  const [achieved, setAchieved] = useState({}); // {achId: true}
+  const [achToast, setAchToast] = useState(null); // 새로 달성한 업적 알림
   const [daily, setDaily] = useState(null); // {date, tasks:[{id,type,target,fish?,prog,done,claimed,reward,label}]}
   const [lives, setLives] = useState({ date: todayKey(), remaining: DAILY_LIVES }); // 하루 무료 낚시 판수
   const [showNoLives, setShowNoLives] = useState(false);
@@ -2016,7 +2060,10 @@ function FlyFishingGame() {
     equippedCreel,
     nickname,
     settings,
-    lives
+    lives,
+    lifetime,
+    achieved,
+    streak
   };
   const saveAll = useCallback((over = {}) => {
     persist({
@@ -2057,6 +2104,22 @@ function FlyFishingGame() {
         setClaimed(data.claimed || {});
         if (data.daily && data.daily.date === todayKey()) setDaily(data.daily);else setDaily(makeDailyTasks());
         setLives(freshLives(data.lives));
+        setLifetime(lt => ({ ...lt, ...(data.lifetime || {}) }));
+        setAchieved(data.achieved || {});
+        // 연속 접속 스트릭 판정
+        const savedStreak = data.streak || { lastDate: "", count: 0 };
+        const today = todayKey(), yest = yesterdayKey();
+        if (savedStreak.lastDate !== today) {
+          const newCount = savedStreak.lastDate === yest ? savedStreak.count + 1 : 1;
+          const reward = streakReward(newCount);
+          const nextStreak = { lastDate: today, count: newCount };
+          setStreak(nextStreak);
+          setCoins(c => c + reward);
+          setStreakToast({ count: newCount, reward });
+          saveAll({ streak: nextStreak });
+        } else {
+          setStreak(savedStreak);
+        }
         setNickname(data.nickname || "");
         const sv = { sfx: true, bgm: true, haptics: true, bgmVol: 0.35, ...(data.settings || {}) };
         setSettings(sv);
@@ -2250,6 +2313,12 @@ function FlyFishingGame() {
       play("unlock");
     } else setLevelUpInfo(null);
     const totalEarned = earned + levelBonus;
+    const nextLifetime = {
+      ...lifetimeRef.current,
+      roundsPlayed: lifetimeRef.current.roundsPlayed + 1,
+      totalCoinsEarned: lifetimeRef.current.totalCoinsEarned + totalEarned
+    };
+    setLifetime(nextLifetime);
     setCoins(c => {
       const nc = c + totalEarned;
       setBestBySpot(bb => {
@@ -2262,11 +2331,26 @@ function FlyFishingGame() {
             ...st,
             [spot.id]: Math.max(prevStars, earnedStars)
           };
+          // 업적 판정: 이번 판으로 새로 달성한 것이 있는지 확인
+          const nextUnlocked = stateRef.current.unlocked;
+          const ctx = { lifetime: nextLifetime, book: stateRef.current.book, stars: ns, unlocked: nextUnlocked, gearLvl: stateRef.current.gearLvl };
+          const prevAch = stateRef.current.achieved || {};
+          const newlyDone = ACHIEVEMENTS.filter(a => !prevAch[a.id] && a.check(ctx));
+          let nextAchieved = prevAch;
+          if (newlyDone.length > 0) {
+            nextAchieved = { ...prevAch };
+            newlyDone.forEach(a => { nextAchieved[a.id] = true; });
+            setAchieved(nextAchieved);
+            setAchToast(newlyDone[0]);
+            setTimeout(() => setAchToast(null), 3200);
+          }
           saveAll({
             coins: nc,
             bestBySpot: nb,
             stars: ns,
-            anglerExp: newExp
+            anglerExp: newExp,
+            lifetime: nextLifetime,
+            achieved: nextAchieved
           });
           return ns;
         });
@@ -2287,6 +2371,9 @@ function FlyFishingGame() {
   const bumpCombo = () => {
     setCombo(c => {
       const nc = c + 1;
+      if (nc > lifetimeRef.current.bestCombo) {
+        setLifetime(lt => ({ ...lt, bestCombo: nc }));
+      }
       if (nc > 0 && nc % 8 === 0 && !feverRef.current) {
         setFever(true);
         feverUntil.current = performance.now() + 6000;
@@ -2690,6 +2777,7 @@ function FlyFishingGame() {
       const penalty = 50;
       setScore(s => Math.max(0, s - penalty));
       setCombo(0); // 콤보 끊김
+      setLifetime(lt => ({ ...lt, trashCatches: lt.trashCatches + 1 }));
       addPop(lineX(line), lineDepth(line) - 10, `${f.type.emoji} ${f.name}… -${penalty}`, "#c0c0c0");
       play("miss");
       buzz(20);
@@ -2705,8 +2793,8 @@ function FlyFishingGame() {
       const g = Math.round(500 * mult * creelMulRef.current);
       setScore(s => s + g);
       setScorePopKey(k => k + 1);
-    setCatchPunchKey(k => k + 1);
       setCatchPunchKey(k => k + 1);
+      setLifetime(lt => ({ ...lt, totalCatch: lt.totalCatch + 1, goldCatches: lt.goldCatches + 1 }));
       bumpCombo();
       addPop(lineX(line), lineDepth(line) - 10, `🐠 황금물고기! +${g}`, "#ffcf3f");
       showFanfare("🐠 GOLD!");
@@ -2724,6 +2812,12 @@ function FlyFishingGame() {
     const g = Math.round(f.type.points * mult * (1 + c * 0.1) * feverBonus * creelMulRef.current);
     setScore(s => s + g);
     setScorePopKey(k => k + 1);
+    setCatchPunchKey(k => k + 1);
+    setLifetime(lt => ({
+      ...lt,
+      totalCatch: lt.totalCatch + 1,
+      bigCatches: lt.bigCatches + ((f.type.rarity || 1) >= 3 ? 1 : 0)
+    }));
     bumpCombo();
     addPop(lineX(line), lineDepth(line) - 10, `${label} +${g}`, f.name === "황금잉어" ? "#ffcf3f" : "#ffe066");
     setFlash(cf => ({
@@ -3026,7 +3120,13 @@ function FlyFishingGame() {
         padding: "36px 24px",
         background: "linear-gradient(180deg,#bfe6ea,#7fc4ad)"
       }
-    }, /*#__PURE__*/React.createElement("div", {
+    }, streakToast && /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: "100%", boxSizing: "border-box",
+        background: "rgba(255,255,255,.85)", borderRadius: 12,
+        padding: "8px 12px", marginBottom: 10, fontSize: 12.5, color: "#0c3b34"
+      }
+    }, "🔥 ", streakToast.count, "일 연속 접속! ", /*#__PURE__*/React.createElement("span", { style: { color: "#c8881f", fontFamily: "'Jua',sans-serif" } }, "🪙+", streakToast.reward)), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 64,
         marginBottom: 4
@@ -3476,6 +3576,7 @@ function FlyFishingGame() {
       isUnlocked && h("div", {
         style: { fontSize: 12, letterSpacing: 1, marginBottom: 2, textShadow: "0 1px 2px rgba(0,0,0,.25)" }
       }, [0, 1, 2].map(i => h("span", { key: i, style: { color: i < st ? "#ffce3a" : "rgba(255,255,255,.75)" } }, "★"))),
+      h("div", { style: { position: "relative" } },
       h("button", {
         onClick: () => { setSelPin(idx); play("pull"); },
         style: {
@@ -3488,14 +3589,21 @@ function FlyFishingGame() {
           fontSize: selected ? 20 : 17,
           fontFamily: "'Jua',sans-serif",
           cursor: "pointer",
-          boxShadow: selected ? "0 0 0 5px rgba(255,159,67,.3), 0 5px 12px rgba(0,0,0,.3)" : "0 4px 9px rgba(0,0,0,.28)",
+          boxShadow: st >= 3 && !selected ? "0 0 0 3px rgba(255,206,58,.35), 0 4px 9px rgba(0,0,0,.28)" : selected ? "0 0 0 5px rgba(255,159,67,.3), 0 5px 12px rgba(0,0,0,.3)" : "0 4px 9px rgba(0,0,0,.28)",
           display: "grid",
           placeItems: "center",
           padding: 0,
-          animation: canUnlock && !selected ? "pinpulse 1.2s infinite" : "none",
+          animation: canUnlock && !selected ? "pinpulse 1.2s infinite" : st >= 3 && !selected ? "starpulse 1.8s ease-in-out infinite" : "none",
           transition: "width .15s,height .15s"
         }
       }, isUnlocked ? (sp.id === "baekdu" ? "★" : idx + 1) : canUnlock ? "🔓" : "🔒"),
+      st >= 3 && h("div", {
+        style: {
+          position: "absolute", top: -6, right: -4, fontSize: 14,
+          filter: "drop-shadow(0 1px 2px rgba(0,0,0,.4))",
+          pointerEvents: "none"
+        }
+      }, "👑")),
       h("div", {
         style: {
           marginTop: 4,
@@ -3611,6 +3719,7 @@ function FlyFishingGame() {
     },
     h("button", { onClick: () => setScreen("shop"), style: fabBtn }, "🛒 상점"),
     h("button", { onClick: () => setScreen("book"), style: fabBtn }, "📖 ", Object.keys(book).length, "/", Object.keys(FISH).length),
+    h("button", { onClick: () => setScreen("achievements"), style: fabBtn }, "🏅 ", Object.keys(achieved).length, "/", ACHIEVEMENTS.length),
     h("button", { onClick: () => setScreen("rank"), style: fabBtn }, "🏆"),
     h("button", { onClick: () => setScreen("settings"), style: fabBtn }, "⚙️")),
     // ── 선택 정보 패널 ──
@@ -3724,7 +3833,7 @@ function FlyFishingGame() {
         }
       }, "내일 다시 올게요")
     )),
-    h("style", null, `@keyframes pinpulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,159,67,.5),0 4px 9px rgba(0,0,0,.28)} 50%{box-shadow:0 0 0 8px rgba(255,159,67,0),0 4px 9px rgba(0,0,0,.28)} } @keyframes jflow { to { stroke-dashoffset: -12; } } @keyframes jslideup { from { opacity:0; transform: translate(-50%,10px);} to { opacity:1; transform: translate(-50%,0);} } @keyframes jfade { from { opacity:0; transform: translateY(10px);} to { opacity:1; transform: translateY(0);} } @keyframes jbob { 0%,100%{ transform: translate(-50%,0);} 50%{ transform: translate(-50%,-5px);} } @keyframes mapfishswim { 0%,100%{ transform: translateX(0) scaleX(var(--fdir,1)); } 50%{ transform: translateX(26px) scaleX(var(--fdir,1)); } }`));
+    h("style", null, `@keyframes pinpulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,159,67,.5),0 4px 9px rgba(0,0,0,.28)} 50%{box-shadow:0 0 0 8px rgba(255,159,67,0),0 4px 9px rgba(0,0,0,.28)} } @keyframes starpulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,206,58,.45),0 4px 9px rgba(0,0,0,.28)} 50%{box-shadow:0 0 0 6px rgba(255,206,58,0),0 4px 9px rgba(0,0,0,.28)} } @keyframes jflow { to { stroke-dashoffset: -12; } } @keyframes jslideup { from { opacity:0; transform: translate(-50%,10px);} to { opacity:1; transform: translate(-50%,0);} } @keyframes jfade { from { opacity:0; transform: translateY(10px);} to { opacity:1; transform: translateY(0);} } @keyframes jbob { 0%,100%{ transform: translate(-50%,0);} 50%{ transform: translate(-50%,-5px);} } @keyframes mapfishswim { 0%,100%{ transform: translateX(0) scaleX(var(--fdir,1)); } 50%{ transform: translateX(26px) scaleX(var(--fdir,1)); } }`));
   }
 
   // ─── 설정 ───
@@ -4055,6 +4164,40 @@ function FlyFishingGame() {
       onClick: () => setScreen("map"),
       variant: "ghost"
     }, "← 지도로")));
+  }
+
+  // ─── 업적 ───
+  if (screen === "achievements") {
+    const h = React.createElement;
+    const ctx = { lifetime, book, stars, unlocked, gearLvl };
+    const doneCount = ACHIEVEMENTS.filter(a => achieved[a.id]).length;
+    return h(Center, null, h(Fonts, null), h("div", {
+      style: { ...cardStyle, maxWidth: 460, padding: "18px 16px" }
+    },
+      h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", marginBottom: 4 } },
+        h("div", { style: { fontFamily: "'Jua',sans-serif", fontSize: 20, color: "#0c3b34" } }, "🏅 업적"),
+        h("div", { style: { fontSize: 12.5, color: "#5a7d77" } }, doneCount, "/", ACHIEVEMENTS.length)),
+      h("div", { style: { width: "100%", height: 6, background: "#e4efea", borderRadius: 3, marginBottom: 12 } },
+        h("div", { style: { width: `${doneCount / ACHIEVEMENTS.length * 100}%`, height: "100%", background: "linear-gradient(90deg,#27ae8f,#7fe0c0)", borderRadius: 3, transition: "width .3s" } })),
+      h("div", { style: { width: "100%", maxHeight: "62dvh", overflowY: "auto", display: "flex", flexDirection: "column", gap: 7, textAlign: "left" } },
+        ACHIEVEMENTS.map(a => {
+          const done = !!achieved[a.id];
+          return h("div", {
+            key: a.id,
+            style: {
+              display: "flex", alignItems: "center", gap: 10,
+              background: done ? "#e9f7f1" : "#f6f7f6",
+              borderRadius: 12, padding: "9px 12px",
+              opacity: done ? 1 : 0.72
+            }
+          },
+            h("div", { style: { fontSize: 22, filter: done ? "none" : "grayscale(1)" } }, done ? a.icon : "🔒"),
+            h("div", { style: { flex: 1, minWidth: 0 } },
+              h("div", { style: { fontFamily: "'Jua',sans-serif", fontSize: 13, color: done ? "#0c3b34" : "#7a8b86" } }, a.name),
+              h("div", { style: { fontSize: 10.5, color: "#8a9a92", marginTop: 1 } }, a.desc)),
+            done && h("div", { style: { fontSize: 11, color: "#27ae8f" } }, "✓"));
+        })),
+      h(BigBtn, { onClick: () => setScreen("map"), variant: "ghost" }, "← 지도로")));
   }
 
   // ─── 도감 ───
@@ -4835,6 +4978,18 @@ function FlyFishingGame() {
       },
         h("span", { style: { fontFamily: "'Jua',sans-serif", fontSize: 14, color: "#5a3a00" } }, "🎉 레벨업 Lv.", levelUpInfo.to),
         h("span", { style: { fontSize: 11.5, color: "#8a5a00", marginLeft: 8 } }, "「", levelUpInfo.title, "」 · 🪙", levelUpInfo.bonus)),
+
+      achToast && h("div", {
+        style: {
+          width: "100%", background: "linear-gradient(135deg,#2fae8f,#1d8f76)", color: "#fff",
+          borderRadius: 12, padding: "7px 12px", margin: "5px 0 2px",
+          display: "flex", alignItems: "center", gap: 8
+        }
+      },
+        h("span", { style: { fontSize: 20 } }, achToast.icon),
+        h("div", { style: { textAlign: "left" } },
+          h("div", { style: { fontFamily: "'Jua',sans-serif", fontSize: 12.5 } }, "🏅 업적 달성! ", achToast.name),
+          h("div", { style: { fontSize: 10.5, opacity: 0.9 } }, achToast.desc))),
 
       lastStarResult && h("div", {
         style: { width: "100%", background: "#f1f8f5", borderRadius: 12, padding: "8px 12px", margin: "6px 0" }
