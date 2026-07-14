@@ -1610,6 +1610,26 @@ function splashNoise(strength = 1) {
     });
   }
 }
+// 희귀도별 손맛 반짝임: 기존 catch/perfect/big 소리 위에 살짝 덧입히는 레이어.
+// rarity가 높을수록 화음이 풍성해지고 잔향이 길어짐. 1(흔함)은 아무것도 안 붙임.
+function raritySparkle(rarity, enabled) {
+  if (rarity <= 1 || !enabled) return;
+  const chords = {
+    2: [[880, 0.09, 0.07]],
+    3: [[880, 0.09, 0.06], [1175, 0.11, 0.06]],
+    4: [[880, 0.08, 0.05], [1175, 0.1, 0.06], [1568, 0.14, 0.07]],
+    5: [[660, 0.08, 0.05], [880, 0.1, 0.06], [1175, 0.12, 0.07], [1568, 0.16, 0.08]],
+    6: [[523, 0.08, 0.05], [660, 0.09, 0.06], [880, 0.11, 0.07], [1175, 0.14, 0.08], [1568, 0.2, 0.09]]
+  };
+  const notes = chords[Math.min(rarity, 6)] || chords[2];
+  notes.forEach(([freq, dur, vol], i) => tone({
+    freq,
+    dur,
+    type: "sine",
+    vol,
+    delay: 0.05 + i * 0.045
+  }));
+}
 const sfx = {
   // 입질: 미끼를 톡 건드리는 느낌 (물속에서 둔탁하게)
   bite: () => {
@@ -2877,6 +2897,7 @@ function FlyFishingGame() {
       showFanfare("🐠 GOLD!");
       play("big");
       setTimeout(() => play("perfect"), 80);
+      raritySparkle(5, soundOn.current);
       buzz([20, 40, 20, 40]);
       addSplash(lineX(line), lineDepth(line), true);
       triggerShake(9);
@@ -2914,6 +2935,7 @@ function FlyFishingGame() {
       play("big");
       setTimeout(() => play("perfect"), 80);
       setTimeout(() => play("unlock"), 220);
+      raritySparkle(6, soundOn.current);
       buzz([25, 50, 25, 50, 25, 50]);
       addSplash(lineX(line), lineDepth(line), true);
       triggerShake(12);
@@ -2981,6 +3003,7 @@ function FlyFishingGame() {
     f.targetLine = null;
     const big = f.type.fight >= 3 || f.type.rarity >= 4;
     play(big ? "big" : mult >= 3 ? "perfect" : "catch");
+    raritySparkle(f.type.rarity || 1, soundOn.current);
     if (big) setTimeout(() => play("splash"), 60);
     buzz(big ? [20, 40, 30, 40, 20] : mult >= 3 ? [15, 30, 15] : 18);
     requestAnimationFrame(() => flyToCreel(f.name, line)); // DOM 안정 후 호출
