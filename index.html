@@ -688,6 +688,12 @@ function todayKey() {
   const d = new Date();
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 }
+const DAILY_LIVES = 10; // 하루 무료 낚시 판수
+// 저장된 lives가 오늘 것이 아니면(날짜가 바뀌었으면) 리셋해서 반환
+function freshLives(saved) {
+  if (saved && saved.date === todayKey()) return saved;
+  return { date: todayKey(), remaining: DAILY_LIVES };
+}
 // 날짜 시드 기반 의사난수 (같은 날 같은 과제)
 function seeded(seedStr) {
   let h = 2166136261;
@@ -1824,6 +1830,10 @@ function FlyFishingGame() {
   const [bestSize, setBestSize] = useState({}); // 어종별 최고 크기(cm)
   const [claimed, setClaimed] = useState({}); // 받은 도감 보상 {r1..r5, all}
   const [daily, setDaily] = useState(null); // {date, tasks:[{id,type,target,fish?,prog,done,claimed,reward,label}]}
+  const [lives, setLives] = useState({ date: todayKey(), remaining: DAILY_LIVES }); // 하루 무료 낚시 판수
+  const [showNoLives, setShowNoLives] = useState(false);
+  const livesRef = useRef(lives);
+  livesRef.current = lives;
   const [spotIdx, setSpotIdx] = useState(0);
   const [selPin, setSelPin] = useState(null); // 지도에서 선택한 장소 idx
   const [mapZoom, setMapZoom] = useState(1); // 지도 확대 배율
@@ -1959,7 +1969,8 @@ function FlyFishingGame() {
     ownedCreels,
     equippedCreel,
     nickname,
-    settings
+    settings,
+    lives
   };
   const saveAll = useCallback((over = {}) => {
     persist({
@@ -1999,6 +2010,7 @@ function FlyFishingGame() {
         setBestSize(data.bestSize || {});
         setClaimed(data.claimed || {});
         if (data.daily && data.daily.date === todayKey()) setDaily(data.daily);else setDaily(makeDailyTasks());
+        setLives(freshLives(data.lives));
         setNickname(data.nickname || "");
         const sv = { sfx: true, bgm: true, haptics: true, bgmVol: 0.35, ...(data.settings || {}) };
         setSettings(sv);
@@ -2523,6 +2535,14 @@ function FlyFishingGame() {
   useEffect(() => {
     bgm.setDuck(screen === "playing" ? 0.55 : 1);
   }, [screen]);
+  // 화면이 바뀔 때마다 날짜 경계를 넘었는지 확인해 목숨을 자동으로 채운다
+  useEffect(() => {
+    setLives(l => {
+      const fresh = freshLives(l);
+      if (fresh.date !== l.date) { saveAll({ lives: fresh }); return fresh; }
+      return l;
+    });
+  }, [screen, saveAll]);
   useEffect(() => {
     if (screen !== "playing") return;
     const iv = setInterval(() => {
@@ -2539,6 +2559,17 @@ function FlyFishingGame() {
     return () => clearInterval(iv);
   }, [screen, endGame]);
   const startSpot = idx => {
+    const cur = freshLives(livesRef.current);
+    if (cur.remaining <= 0) {
+      setLives(cur); // 날짜 넘어갔으면 리셋된 값 반영
+      saveAll({ lives: cur });
+      setShowNoLives(true);
+      play("miss");
+      return;
+    }
+    const nextLives = { date: cur.date, remaining: cur.remaining - 1 };
+    setLives(nextLives);
+    saveAll({ lives: nextLives });
     const ctx = getCtx();
     if (ctx && ctx.state === "suspended") ctx.resume(); // 유저 탭 시점에 확실히 깨움
     SOUND_FILES.forEach(loadSound);
@@ -3467,7 +3498,10 @@ function FlyFishingGame() {
       h("div", { style: { flex: 1, minWidth: 24, height: 6, background: "#e4efea", borderRadius: 3 } },
         h("div", { style: { width: `${pct}%`, height: "100%", background: "linear-gradient(90deg,#27ae8f,#7fe0c0)", borderRadius: 3, transition: "width .3s" } })),
       h("span", { style: { fontSize: 10, color: "#7a948c", fontFamily: "'Gowun Dodum',sans-serif" } }, anglerExp - curBase, "/", nextBase - curBase)),
-    h("div", { style: { ...hudPill, fontSize: 16, color: "#c8881f" } }, "🪙 ", coins)),
+    h("div", { style: { ...hudPill, fontSize: 16, color: "#c8881f" } }, "🪙 ", coins),
+    h("div", {
+      style: { ...hudPill, fontSize: 13, color: lives.remaining <= 2 ? "#c0392b" : "#37544d" }
+    }, "🎣 ", lives.remaining, "/", DAILY_LIVES)),
     // ── 좌하단: 오늘의 도전 ──
     daily && h("button", {
       onClick: () => setShowDaily(v => !v),
@@ -3581,6 +3615,62 @@ function FlyFishingGame() {
         animation: "jbob 1.6s ease-in-out infinite"
       }
     }, "낚시터를 눌러보세요 📍"),
+    showNoLives && h("div", {
+      onClick: () => setShowNoLives(false),
+      style: {
+        position: "fixed", inset: 0, background: "rgba(8,30,28,.6)",
+        display: "grid", placeItems: "center", zIndex: 40, padding: 20,
+        backdropFilter: "blur(3px)"
+      }
+    }, h("div", {
+      onClick: e => e.stopPropagation(),
+      style: {
+        background: "#fff", borderRadius: 20, width: "100%", maxWidth: 320,
+        padding: "22px 20px", textAlign: "center", boxShadow: "0 20px 50px rgba(0,0,0,.4)"
+      }
+    },
+      h("div", { style: { fontSize: 36 } }, "🎣"),
+      h("div", { style: { fontFamily: "'Jua',sans-serif", fontSize: 18, color: "#0c3b34", margin: "6px 0 3px" } }, "오늘의 낚시가 끝났어요"),
+      h("div", { style: { fontSize: 12.5, color: "#5a7d77", marginBottom: 16 } }, "매일 자정에 ", DAILY_LIVES, "판이 다시 채워져요"),
+      h("button", {
+        onClick: () => {
+          play("miss");
+          const t = setTimeout(() => {}, 0); clearTimeout(t);
+          window.__adNotice = true;
+          setShowNoLives(false);
+          setTimeout(() => alert("🚧 광고 시청 기능은 준비 중이에요"), 50);
+        },
+        style: {
+          width: "100%", background: "linear-gradient(135deg,#8a5fc0,#5f3f96)", color: "#fff",
+          border: "none", borderRadius: 13, padding: "11px", fontFamily: "'Jua',sans-serif",
+          fontSize: 13.5, cursor: "pointer", marginBottom: 8
+        }
+      }, "📺 광고 보고 1판 더 받기"),
+      h("button", {
+        onClick: () => {
+          if (coins < 30) { play("miss"); return; }
+          setCoins(c => c - 30);
+          const nl = { date: todayKey(), remaining: 1 };
+          setLives(nl);
+          saveAll({ coins: coins - 30, lives: nl });
+          setShowNoLives(false);
+          play("coin");
+        },
+        disabled: coins < 30,
+        style: {
+          width: "100%", background: coins < 30 ? "#e0e0e0" : "linear-gradient(135deg,#ffd86b,#ff9f43)",
+          color: coins < 30 ? "#999" : "#5a3a00", border: "none", borderRadius: 13, padding: "11px",
+          fontFamily: "'Jua',sans-serif", fontSize: 13.5, cursor: coins < 30 ? "default" : "pointer", marginBottom: 8
+        }
+      }, "🪙 30코인으로 1판 더"),
+      h("button", {
+        onClick: () => setShowNoLives(false),
+        style: {
+          width: "100%", background: "#f1f8f5", color: "#5a7d77", border: "none",
+          borderRadius: 13, padding: "10px", fontFamily: "'Jua',sans-serif", fontSize: 13, cursor: "pointer"
+        }
+      }, "내일 다시 올게요")
+    )),
     h("style", null, `@keyframes pinpulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,159,67,.5),0 4px 9px rgba(0,0,0,.28)} 50%{box-shadow:0 0 0 8px rgba(255,159,67,0),0 4px 9px rgba(0,0,0,.28)} } @keyframes jflow { to { stroke-dashoffset: -12; } } @keyframes jslideup { from { opacity:0; transform: translate(-50%,10px);} to { opacity:1; transform: translate(-50%,0);} } @keyframes jfade { from { opacity:0; transform: translateY(10px);} to { opacity:1; transform: translateY(0);} } @keyframes jbob { 0%,100%{ transform: translate(-50%,0);} 50%{ transform: translate(-50%,-5px);} } @keyframes mapfishswim { 0%,100%{ transform: translateX(0) scaleX(var(--fdir,1)); } 50%{ transform: translateX(26px) scaleX(var(--fdir,1)); } }`));
   }
 
