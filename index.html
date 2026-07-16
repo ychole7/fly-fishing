@@ -1981,18 +1981,42 @@ function FlyFishingGame() {
   // 게임 화면을 화면 크기에 맞춰 꽉 채우되 비율은 유지(letterbox) — 좌표 로직은 그대로 두고 시각적으로만 확대
   const [gameScale, setGameScale] = useState(1);
   useEffect(() => {
+    let raf1 = 0, raf2 = 0, t1 = 0, t2 = 0;
     const calc = () => {
       const vw = window.innerWidth, vh = window.innerHeight;
+      if (vw < 50 || vh < 50) return; // 과도기적인(레이아웃 미확정) 값은 무시
       setGameScale(Math.min(vw / POOL_W, vh / POOL_H));
     };
-    calc();
-    window.addEventListener("resize", calc);
-    window.addEventListener("orientationchange", calc);
+    // 레이아웃이 완전히 자리잡을 시간을 주고 몇 차례 재측정 (모바일 주소창/회전 애니메이션 대비)
+    const settleCalc = () => {
+      calc();
+      raf1 = requestAnimationFrame(() => {
+        calc();
+        t1 = setTimeout(calc, 150);
+        t2 = setTimeout(calc, 400);
+      });
+    };
+    settleCalc();
+    const onVisible = () => { if (!document.hidden) settleCalc(); };
+    window.addEventListener("resize", settleCalc);
+    window.addEventListener("orientationchange", settleCalc);
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
-      window.removeEventListener("resize", calc);
-      window.removeEventListener("orientationchange", calc);
+      window.removeEventListener("resize", settleCalc);
+      window.removeEventListener("orientationchange", settleCalc);
+      document.removeEventListener("visibilitychange", onVisible);
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      clearTimeout(t1);
+      clearTimeout(t2);
     };
   }, []);
+  // 게임 화면에 진입할 때마다(지도→플레이 전환 포함) 한 번 더 재확인
+  useEffect(() => {
+    if (screen !== "playing") return;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    if (vw >= 50 && vh >= 50) setGameScale(Math.min(vw / POOL_W, vh / POOL_H));
+  }, [screen]);
   const [paused, setPaused] = useState(false);
   const pausedRef = useRef(false);
   pausedRef.current = paused;
@@ -5434,15 +5458,8 @@ function FlyFishingGame() {
       left: 0,
       width: POOL_W,
       height: POOL_H,
-      transform: "scale(var(--s))",
+      transform: "scale(1)",
       transformOrigin: "top left"
-    },
-    ref: el => {
-      if (el && el.parentElement) {
-        const w = el.parentElement.clientWidth;
-        el.parentElement.style.setProperty("--s", w / POOL_W);
-        el.style.setProperty("--s", w / POOL_W);
-      }
     }
   }, BG_ART[spot.type] && /*#__PURE__*/React.createElement("svg", {
     width: POOL_W,
