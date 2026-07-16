@@ -2043,6 +2043,8 @@ function FlyFishingGame() {
   const [splashes, setSplashes] = useState([]); // 물보라 파티클
   const [fanfare, setFanfare] = useState(null); // 대물/완벽 플래시
   const [creelFlies, setCreelFlies] = useState([]); // 어망으로 날아가는 물고기
+  const [coinFlies, setCoinFlies] = useState([]); // HUD 코인 카운터로 날아가는 동전
+  const [coinHudPunch, setCoinHudPunch] = useState(0); // 동전 도착 시 HUD 펀치 효과
   const [creelBounce, setCreelBounce] = useState(0); // 어망 출렁임 트리거
   const [weather, setWeather] = useState({
     time: "day",
@@ -2101,6 +2103,7 @@ function FlyFishingGame() {
   const rushOnRef = useRef(false);
   const poolBoxRef = useRef(null); // 게임 낚시터 컨테이너
   const creelBoxRef = useRef(null); // 하단 어망
+  const coinHudRef = useRef(null); // 좌상단 코인 표시
   const eff = useRef({}),
     spotRef = useRef(SPOTS[0]);
   const computeEff = useCallback((lvls, baitKey) => {
@@ -2321,6 +2324,39 @@ function FlyFishingGame() {
   };
 
   // 잡은 물고기가 어망으로 날아가는 연출 (화면 전체 fixed 좌표)
+  // 잡은 물고기 코인이 HUD 코인 카운터로 튀는 연출
+  const flyCoinsToHud = (lineIdx, count = 2) => {
+    const pool = poolBoxRef.current,
+      hud = coinHudRef.current;
+    if (!pool || !hud) return;
+    const pr = pool.getBoundingClientRect(),
+      hr = hud.getBoundingClientRect();
+    const sx = pr.left + lineX(lineIdx) / POOL_W * pr.width;
+    const sy = pr.top + lineDepth(lineIdx) / POOL_H * pr.height;
+    const ex = hr.left + hr.width / 2,
+      ey = hr.top + hr.height / 2;
+    const n = Math.max(1, Math.min(4, count));
+    const ids = [];
+    for (let i = 0; i < n; i++) {
+      const id = popIdRef.current++;
+      ids.push(id);
+      const jitter = (Math.random() - 0.5) * 16;
+      setCoinFlies(arr => [...arr, {
+        id,
+        sx: sx + jitter,
+        sy: sy + jitter * 0.5,
+        ex,
+        ey,
+        delay: i * 0.07
+      }]);
+      setTimeout(() => {
+        setCoinFlies(arr => arr.filter(a => a.id !== id));
+        if (i === n - 1) {
+          setCoinHudPunch(p => p + 1);
+        }
+      }, 520 + i * 70);
+    }
+  };
   const flyToCreel = (name, lineIdx) => {
     const pool = poolBoxRef.current,
       creel = creelBoxRef.current;
@@ -2956,6 +2992,7 @@ function FlyFishingGame() {
       addSplash(lineX(line), lineDepth(line), true);
       triggerShake(9);
       flyToCreel(f.name, line);
+      flyCoinsToHud(line, 3);
       runStats.current.exp += 120;
       return;
     }
@@ -2994,6 +3031,7 @@ function FlyFishingGame() {
       addSplash(lineX(line), lineDepth(line), true);
       triggerShake(12);
       flyToCreel(f.type.emoji, line);
+      flyCoinsToHud(line, 4);
       runStats.current.exp += 300;
       return;
     }
@@ -3061,6 +3099,7 @@ function FlyFishingGame() {
     if (big) setTimeout(() => play("splash"), 60);
     buzz(big ? [20, 40, 30, 40, 20] : mult >= 3 ? [15, 30, 15] : 18);
     requestAnimationFrame(() => flyToCreel(f.name, line)); // DOM 안정 후 호출
+    flyCoinsToHud(line, big ? 3 : mult >= 3 ? 2 : 1);
     addSplash(lineX(line), lineDepth(line), big);
     triggerShake(big ? 8 : mult >= 3 ? 6 : 3.5);
     if (f.type.rarity >= 5) showFanfare(`🎉 ${f.name}!`);else if (big) showFanfare(`✨ ${f.name}`);else if (mult >= 3) showFanfare("PERFECT!");
@@ -5366,7 +5405,8 @@ function FlyFishingGame() {
       overflow: "hidden"
     }
   }, /*#__PURE__*/React.createElement("div", {
-    key: scorePopKey,
+    ref: coinHudRef,
+    key: scorePopKey + "-" + coinHudPunch,
     style: {
       fontFamily: "'Jua',sans-serif",
       fontSize: 18,
@@ -6206,8 +6246,24 @@ function FlyFishingGame() {
   }, /*#__PURE__*/React.createElement(FishArt, {
     name: fl.name,
     size: 42
-  }))), /*#__PURE__*/React.createElement("style", null, `
+  }))), coinFlies.map(cf => /*#__PURE__*/React.createElement("div", {
+    key: cf.id,
+    style: {
+      position: "fixed",
+      left: 0,
+      top: 0,
+      zIndex: 51,
+      pointerEvents: "none",
+      ["--sx"]: `${cf.sx}px`,
+      ["--sy"]: `${cf.sy}px`,
+      ["--ex"]: `${cf.ex}px`,
+      ["--ey"]: `${cf.ey}px`,
+      animation: "flycoin .5s cubic-bezier(.3,.6,.4,1) forwards",
+      animationDelay: `${cf.delay}s`
+    }
+  }, /*#__PURE__*/React.createElement(CoinIcon, { size: 18 }))), /*#__PURE__*/React.createElement("style", null, `
         @keyframes floatUp { from{opacity:1;transform:translateX(-50%) translateY(0)} to{opacity:0;transform:translateX(-50%) translateY(-26px)} }
+        @keyframes flycoin { 0%{transform:translate(var(--sx),var(--sy)) scale(1) rotate(0deg);opacity:1} 60%{opacity:1} 100%{transform:translate(var(--ex),var(--ey)) scale(.4) rotate(480deg);opacity:.3} }
         @keyframes missPop { 0%{opacity:0;transform:translateX(-50%) translateY(6px) scale(.9)} 15%{opacity:1;transform:translateX(-50%) translateY(-4px) scale(1.08)} 25%{transform:translateX(-50%) translateY(0) scale(1)} 75%{opacity:1;transform:translateX(-50%) translateY(-2px) scale(1)} 100%{opacity:0;transform:translateX(-50%) translateY(-24px) scale(1)} }
         @keyframes weatherFade { from{opacity:0;transform:translateX(-50%) translateY(-6px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
         @keyframes missFlash { 0%{transform:scale(1.6);color:#fff} 100%{transform:scale(1);color:#ff8a7a} }
