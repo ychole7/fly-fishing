@@ -3342,7 +3342,7 @@ function FlyFishingGame() {
         background: "rgba(255,255,255,.85)", borderRadius: 12,
         padding: "8px 12px", marginBottom: 10, fontSize: 12.5, color: "#0c3b34"
       }
-    }, "🔥 ", streakToast.count, "일 연속 접속! ", /*#__PURE__*/React.createElement("span", { style: { color: "#c8881f", fontFamily: "'Jua',sans-serif" } }, "🪙+", streakToast.reward)), /*#__PURE__*/React.createElement("div", {
+    }, "🔥 ", streakToast.count, "일 연속 접속! ", /*#__PURE__*/React.createElement("span", { style: { color: "#c8881f", fontFamily: "'Jua',sans-serif" } }, React.createElement(CoinIcon, { size: 12 }), "+", streakToast.reward)), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 64,
         marginBottom: 4
@@ -3875,7 +3875,7 @@ function FlyFishingGame() {
       h("div", { style: { flex: 1, minWidth: 24, height: 6, background: "#e4efea", borderRadius: 3 } },
         h("div", { style: { width: `${pct}%`, height: "100%", background: "linear-gradient(90deg,#27ae8f,#7fe0c0)", borderRadius: 3, transition: "width .3s" } })),
       h("span", { style: { fontSize: 10, color: "#7a948c", fontFamily: "'Sunflower',sans-serif" } }, anglerExp - curBase, "/", nextBase - curBase)),
-    h("div", { style: { ...hudPill, fontSize: 16, color: "#c8881f" } }, "🪙 ", coins),
+    h("div", { style: { ...hudPill, fontSize: 16, color: "#c8881f" } }, h(CoinIcon, { size: 17 }), " ", coins),
     LIVES_ENABLED && h("div", {
       style: { ...hudPill, fontSize: 13, color: lives.remaining <= 2 ? "#c0392b" : "#37544d" }
     }, "🎣 ", lives.remaining, "/", DAILY_LIVES)),
@@ -3920,7 +3920,7 @@ function FlyFishingGame() {
             h("div", { style: { width: `${Math.min(100, t.prog / t.target * 100)}%`, height: "100%", background: t.done ? "#27ae8f" : "#7fc4ad", borderRadius: 3 } }))),
         h("div", { style: { minWidth: 56, textAlign: "right" } },
           t.claimed ? h("span", { style: { fontSize: 11, color: "#aab" } }, "완료")
-          : t.done ? h("button", { onClick: () => claimDaily(t.id), style: rewardBtn }, "🪙", t.reward)
+          : t.done ? h("button", { onClick: () => claimDaily(t.id), style: rewardBtn }, h(CoinIcon, { size: 13 }), t.reward)
           : h("span", { style: { fontSize: 11, color: "#9bb0a8" } }, t.prog, "/", t.target)))))),
     // ── 우하단: 상점/도감/랭킹 ──
     h("div", {
@@ -3973,14 +3973,14 @@ function FlyFishingGame() {
       selUnlocked && h("div", { style: { marginBottom: 6 } },
         h("div", { style: { fontSize: 14, letterSpacing: 2, marginBottom: 2 } },
           [0, 1, 2].map(i => h("span", { key: i, style: { color: i < (stars[sel.id] || 0) ? "#ffce3a" : "rgba(255,255,255,.4)" } }, "★")),
-          bestBySpot[sel.id] != null && h("span", { style: { fontSize: 10.5, opacity: 0.85, marginLeft: 6 } }, "최고 🪙", bestBySpot[sel.id])),
+          bestBySpot[sel.id] != null && h("span", { style: { fontSize: 10.5, opacity: 0.85, marginLeft: 6 } }, "최고 ", h(CoinIcon, { size: 11 }), bestBySpot[sel.id])),
         h("div", { style: { fontSize: 9.5, opacity: 0.75, marginBottom: 2 } }, "⭐ 별 획득 조건 (한 판 기준)"),
         h("div", { style: { fontSize: 10, opacity: 0.85, lineHeight: 1.35 } },
           spotMissions(sel).map((m, i) => h("div", { key: i }, "· ", m.label)))),
       selUnlocked ? h("button", { onClick: () => startSpot(selPin), style: { ...mapBtn(), padding: "6px 15px", fontSize: 13 } }, "낚시하러 가기 →")
-      : selCanUnlock ? h("button", { onClick: () => tryUnlock(selPin), style: { ...mapBtn(), padding: "6px 15px", fontSize: 13 } }, "🔓 해금하기 🪙", sel.unlock.coin)
+      : selCanUnlock ? h("button", { onClick: () => tryUnlock(selPin), style: { ...mapBtn(), padding: "6px 15px", fontSize: 13 } }, "🔓 해금하기 ", h(CoinIcon, { size: 13 }), sel.unlock.coin)
       : h("div", { style: { fontSize: 10.5, background: "rgba(0,0,0,.28)", borderRadius: 10, padding: "5px 8px" } },
-        "해금 조건: 🪙", sel.unlock.coin, " ", selOkCoin ? "✓" : "(부족)", " · 장비 진척도 ", sel.unlock.gearSum, " ", selOkGear ? "✓" : `(현재 ${gearSum(gearLvl, ownedBaits)})`)))
+        "해금 조건: ", h(CoinIcon, { size: 12 }), sel.unlock.coin, " ", selOkCoin ? "✓" : "(부족)", " · 장비 진척도 ", sel.unlock.gearSum, " ", selOkGear ? "✓" : `(현재 ${gearSum(gearLvl, ownedBaits)})`)))
     : h("div", {
       style: {
         position: "absolute",
@@ -4040,7 +4040,7 @@ function FlyFishingGame() {
           color: coins < 30 ? "#999" : "#5a3a00", border: "none", borderRadius: 13, padding: "11px",
           fontFamily: "'Jua',sans-serif", fontSize: 13.5, cursor: coins < 30 ? "default" : "pointer", marginBottom: 8
         }
-      }, "🪙 30코인으로 1판 더"),
+      }, h(CoinIcon, { size: 13 }), " 30코인으로 1판 더"),
       h("button", {
         onClick: () => setShowNoLives(false),
         style: {
@@ -4299,6 +4299,7 @@ function FlyFishingGame() {
 
   // ─── 랭킹(리더보드) ───
   if (screen === "rank") {
+    const h = React.createElement;
     const myBest = Math.max(0, ...Object.values(bestBySpot), 0);
     const board = buildLeaderboard(myBest, nickname);
     const myRank = board.findIndex(x => x.me) + 1;
@@ -4320,7 +4321,7 @@ function FlyFishingGame() {
         color: "#5a7d77",
         margin: "4px 0 12px"
       }
-    }, "한 판 최고 점수 기준 · 나의 최고 🪙", myBest), /*#__PURE__*/React.createElement("div", {
+    }, "한 판 최고 점수 기준 · 나의 최고 ", h(CoinIcon, { size: 12 }), myBest), /*#__PURE__*/React.createElement("div", {
       style: {
         width: "100%",
         display: "flex",
@@ -4370,7 +4371,7 @@ function FlyFishingGame() {
         fontSize: 15,
         color: "#2c6f86"
       }
-    }, "🪙", p.score)))), /*#__PURE__*/React.createElement("div", {
+    }, h(CoinIcon, { size: 12 }), p.score)))), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 12.5,
         color: "#5a7d77",
@@ -4418,6 +4419,7 @@ function FlyFishingGame() {
 
   // ─── 도감 ───
   if (screen === "book") {
+    const h = React.createElement;
     const names = Object.keys(FISH);
     const caught = names.filter(n => book[n]).length;
     // 희귀도별 그룹
@@ -4493,7 +4495,7 @@ function FlyFishingGame() {
         fontSize: 11.5,
         color: claimed.all ? "#7a948c" : "#8a5a00"
       }
-    }, claimed.all ? `칭호 획득: ${ALL_TITLE}` : `칭호 ${ALL_TITLE} + 🪙${ALL_REWARD}`)), !claimed.all && /*#__PURE__*/React.createElement("button", {
+    }, claimed.all ? `칭호 획득: ${ALL_TITLE}` : [`칭호 ${ALL_TITLE} + `, h(CoinIcon, { key: "ci", size: 12 }), ALL_REWARD])), !claimed.all && /*#__PURE__*/React.createElement("button", {
       onClick: () => claimReward("all", ALL_REWARD),
       style: rewardBtn
     }, "받기")), /*#__PURE__*/React.createElement("div", {
@@ -4540,7 +4542,7 @@ function FlyFishingGame() {
       }, "✓ 보상 완료") : /*#__PURE__*/React.createElement("button", {
         onClick: () => claimReward(rk, RARITY_REWARD[r]),
         style: rewardBtn
-      }, "🪙", RARITY_REWARD[r], " 받기"))), /*#__PURE__*/React.createElement("div", {
+      }, h(CoinIcon, { size: 12 }), RARITY_REWARD[r], " 받기"))), /*#__PURE__*/React.createElement("div", {
         style: {
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",
@@ -4764,6 +4766,7 @@ function FlyFishingGame() {
 
   // ─── 상점 ───
   if (screen === "shop") {
+    const h = React.createElement;
     const Stars = ({
       n
     }) => /*#__PURE__*/React.createElement("span", {
@@ -4892,7 +4895,7 @@ function FlyFishingGame() {
           color: afford ? "#5a3a00" : "#999",
           boxShadow: afford ? "0 3px 0 #d97f1e" : "none"
         }
-      }, "🪙", item.cost));
+      }, h(CoinIcon, { size: 12 }), item.cost));
     };
     return /*#__PURE__*/React.createElement(Center, null, /*#__PURE__*/React.createElement(Fonts, null), /*#__PURE__*/React.createElement("div", {
       style: {
@@ -4917,7 +4920,7 @@ function FlyFishingGame() {
         fontFamily: "'Jua',sans-serif",
         color: "#c8881f"
       }
-    }, "🪙 ", coins)), /*#__PURE__*/React.createElement("div", {
+    }, h(CoinIcon, { size: 15 }), " ", coins)), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         gap: 8,
@@ -5092,7 +5095,7 @@ function FlyFishingGame() {
           color: maxed ? "#fff" : afford ? "#5a3a00" : "#999",
           boxShadow: maxed || !afford ? "none" : "0 3px 0 #d97f1e"
         }
-      }, maxed ? "MAX" : `🪙${cost}`)));
+      }, maxed ? "MAX" : [h(CoinIcon, { key: "ci", size: 12 }), cost])));
     })), shopTab === "bait" && /*#__PURE__*/React.createElement("div", {
       style: {
         width: "100%",
@@ -5161,7 +5164,7 @@ function FlyFishingGame() {
               h("div", { style: { fontSize: 22 } }, t.icon),
               h("div", { style: { fontFamily: "'Jua',sans-serif", fontSize: 13, marginTop: 3, textShadow: "0 1px 2px rgba(0,0,0,.3)" } }, t.name),
               h("div", { style: { fontSize: 11, marginTop: 4, opacity: 0.95 } },
-                owned ? (equipped ? "장착됨" : "탭해서 장착") : `🪙${t.cost.toLocaleString()}`));
+                owned ? (equipped ? "장착됨" : "탭해서 장착") : [h(CoinIcon, { key: "ci", size: 11 }), t.cost.toLocaleString()]));
           })));
     })(), shopTab === "charge" && (() => {
       const h = React.createElement;
@@ -5199,7 +5202,7 @@ function FlyFishingGame() {
               padding: "7px 11px", cursor: "pointer", background: "rgba(255,255,255,.92)", color: "#5f3f96"
             }
           }, "₩3,900")),
-        h("div", { style: { fontSize: 11, color: "#7a948c", marginTop: 2 } }, "🪙 코인 충전"),
+        h("div", { style: { fontSize: 11, color: "#7a948c", marginTop: 2, display: "flex", alignItems: "center", gap: 4 } }, h(CoinIcon, { size: 12 }), "코인 충전"),
         h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
           packs.map((p, i) => h("button", {
             key: i,
@@ -5219,7 +5222,7 @@ function FlyFishingGame() {
               }
             }, "인기"),
             h("div", { style: { fontFamily: "'Jua',sans-serif", fontSize: 14, color: "#0c3b34", marginTop: p.popular ? 4 : 0 } },
-              "🪙", p.coin.toLocaleString(), p.bonus > 0 && h("span", { style: { color: "#27ae8f", fontSize: 11 } }, " +", p.bonus)),
+              h(CoinIcon, { size: 13 }), p.coin.toLocaleString(), p.bonus > 0 && h("span", { style: { color: "#27ae8f", fontSize: 11 } }, " +", p.bonus)),
             h("div", { style: { fontSize: 11.5, color: "#5a7d77", marginTop: 4 } }, p.price)))),
         chargeNotice && h("div", {
           style: { fontSize: 11, color: "#8a5a00", background: "#fff5e2", borderRadius: 10, padding: "8px 10px", textAlign: "center" }
@@ -5242,7 +5245,7 @@ function FlyFishingGame() {
         h("span", { style: { fontFamily: "'Jua',sans-serif", fontSize: 19, color: "#0c3b34" } }, "낚시 종료"),
         h("span", { style: { fontFamily: "'Jua',sans-serif", fontSize: 13, color: "#2c6f86" } }, SPOTS[spotIdx].name)),
       h("div", { style: { fontSize: 14.5, color: "#2c6f86" } },
-        "이번 판 🪙 +", lastEarned, h("span", { style: { fontSize: 11, color: "#9bb0a8", marginLeft: 8 } }, "보유 ", coins)),
+        "이번 판 ", h(CoinIcon, { size: 13 }), " +", lastEarned, h("span", { style: { fontSize: 11, color: "#9bb0a8", marginLeft: 8 } }, "보유 ", coins)),
 
       levelUpInfo && h("div", {
         style: {
@@ -5251,7 +5254,7 @@ function FlyFishingGame() {
         }
       },
         h("span", { style: { fontFamily: "'Jua',sans-serif", fontSize: 14, color: "#5a3a00" } }, "🎉 레벨업 Lv.", levelUpInfo.to),
-        h("span", { style: { fontSize: 11.5, color: "#8a5a00", marginLeft: 8 } }, "「", levelUpInfo.title, "」 · 🪙", levelUpInfo.bonus)),
+        h("span", { style: { fontSize: 11.5, color: "#8a5a00", marginLeft: 8 } }, "「", levelUpInfo.title, "」 · ", h(CoinIcon, { size: 11 }), levelUpInfo.bonus)),
 
       firstClearInfo && h("div", {
         style: {
@@ -5263,7 +5266,7 @@ function FlyFishingGame() {
         h("span", { style: { fontSize: 18 } }, "🎊"),
         h("div", { style: { textAlign: "left" } },
           h("div", { style: { fontFamily: "'Jua',sans-serif", fontSize: 12.5 } }, firstClearInfo.name, " 첫 방문 보너스!"),
-          h("div", { style: { fontSize: 10.5, opacity: 0.9 } }, "🪙+", firstClearInfo.bonus))),
+          h("div", { style: { fontSize: 10.5, opacity: 0.9, display: "flex", alignItems: "center", gap: 3 } }, h(CoinIcon, { size: 11 }), "+", firstClearInfo.bonus))),
 
       achToast && h("div", {
         style: {
@@ -5300,7 +5303,7 @@ function FlyFishingGame() {
         }, "✨ 도감 신규: ", newCatches.join("·")),
         nextLocked && h("div", {
           style: { fontSize: 11, color: "#a06a1f", background: "#fff5e2", padding: "5px 9px", borderRadius: 9, textAlign: "left" }
-        }, "다음 「", nextSpot.name, "」 해금: 🪙", nextSpot.unlock.coin, " · 장비 ", nextSpot.unlock.gearSum)),
+        }, "다음 「", nextSpot.name, "」 해금: ", h(CoinIcon, { size: 11 }), nextSpot.unlock.coin, " · 장비 ", nextSpot.unlock.gearSum)),
 
       h(BigBtn, { onClick: () => startSpot(spotIdx), compact: true }, "한 번 더"),
       h("div", { style: { display: "flex", gap: 6, width: "100%" } },
@@ -5370,7 +5373,7 @@ function FlyFishingGame() {
       padding: "5px 12px",
       animation: "scorepop .28s ease-out"
     }
-  }, "🪙 ", coins + score), /*#__PURE__*/React.createElement("button", {
+  }, React.createElement(CoinIcon, { size: 17 }), " ", coins + score), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       const anyOn = settingsRef.current.bgm || settingsRef.current.sfx;
       if (anyOn) {
@@ -6144,7 +6147,7 @@ function FlyFishingGame() {
     }, legendReveal.title),
     /*#__PURE__*/React.createElement("div", {
       style: { fontSize: 13, color: "#ffe066", marginTop: 6, fontFamily: "'Jua',sans-serif" }
-    }, legendReveal.cm, "cm · 🪙+", legendReveal.coin))))), /*#__PURE__*/React.createElement("div", {
+    }, legendReveal.cm, "cm · ", React.createElement(CoinIcon, { size: 13 }), "+", legendReveal.coin))))), /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
       left: 10,
@@ -6286,6 +6289,17 @@ function FlyFishingGame() {
       cursor: "pointer"
     }
   }, "🚪 그만두기 (지도로 나가기)"))));
+}
+// 🪙 이모지가 iOS/Android에서 다르게 보이는 문제(떡밥처럼 보임) 방지용 — 직접 그린 코인 아이콘
+function CoinIcon({ size = 16, style = {} }) {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: size,
+    height: size,
+    viewBox: "0 0 20 20",
+    style: { display: "inline-block", verticalAlign: "-2px", flex: "0 0 auto", ...style }
+  }, /*#__PURE__*/React.createElement("circle", { cx: 10, cy: 10, r: 9, fill: "#f0b93a", stroke: "#c8881f", strokeWidth: 1.3 }),
+     /*#__PURE__*/React.createElement("circle", { cx: 10, cy: 10, r: 6.3, fill: "none", stroke: "#c8881f", strokeWidth: 1 }),
+     /*#__PURE__*/React.createElement("ellipse", { cx: 7.2, cy: 6.8, rx: 2.6, ry: 1.5, fill: "rgba(255,255,255,.55)" }));
 }
 function Fonts() {
   return /*#__PURE__*/React.createElement("link", {
