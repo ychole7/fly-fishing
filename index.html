@@ -2439,26 +2439,12 @@ function FlyFishingGame() {
             ...st,
             [spot.id]: Math.max(prevStars, earnedStars)
           };
-          // 업적 판정: 이번 판으로 새로 달성한 것이 있는지 확인
-          const nextUnlocked = stateRef.current.unlocked;
-          const ctx = { lifetime: nextLifetime, book: stateRef.current.book, stars: ns, unlocked: nextUnlocked, gearLvl: stateRef.current.gearLvl, legendary: stateRef.current.legendary };
-          const prevAch = stateRef.current.achieved || {};
-          const newlyDone = ACHIEVEMENTS.filter(a => !prevAch[a.id] && a.check(ctx));
-          let nextAchieved = prevAch;
-          if (newlyDone.length > 0) {
-            nextAchieved = { ...prevAch };
-            newlyDone.forEach(a => { nextAchieved[a.id] = true; });
-            setAchieved(nextAchieved);
-            setAchToast(newlyDone[0]);
-            setTimeout(() => setAchToast(null), 3200);
-          }
           saveAll({
             coins: nc,
             bestBySpot: nb,
             stars: ns,
             anglerExp: newExp,
-            lifetime: nextLifetime,
-            achieved: nextAchieved
+            lifetime: nextLifetime
           });
           return ns;
         });
@@ -2825,6 +2811,19 @@ function FlyFishingGame() {
       return l;
     });
   }, [screen, saveAll]);
+  // 업적 실시간 감지: 관련 상태가 바뀔 때마다(플레이 중 포함) 바로 체크해서 즉시 알려준다
+  useEffect(() => {
+    const ctx = { lifetime, book, stars, unlocked, gearLvl, legendary };
+    const prevAch = achieved;
+    const newlyDone = ACHIEVEMENTS.filter(a => !prevAch[a.id] && a.check(ctx));
+    if (newlyDone.length === 0) return;
+    const nextAchieved = { ...prevAch };
+    newlyDone.forEach(a => { nextAchieved[a.id] = true; });
+    setAchieved(nextAchieved);
+    setAchToast(newlyDone[0]);
+    setTimeout(() => setAchToast(null), 3200);
+    saveAll({ achieved: nextAchieved });
+  }, [lifetime, book, stars, unlocked, gearLvl, legendary]);
   useEffect(() => {
     if (screen !== "playing") return;
     const iv = setInterval(() => {
@@ -5510,7 +5509,28 @@ function FlyFishingGame() {
       pointerEvents: "none",
       animation: "weatherFade .3s ease-out"
     }
-  }, weatherHint), /*#__PURE__*/React.createElement("div", {
+  }, weatherHint), achToast && /*#__PURE__*/React.createElement("div", {
+    key: "achtoast-" + achToast.id,
+    style: {
+      position: "absolute",
+      top: 76,
+      left: "50%",
+      transform: "translateX(-50%)",
+      background: "linear-gradient(135deg,#2fae8f,#1d8f76)",
+      color: "#fff",
+      fontSize: 12,
+      padding: "7px 14px",
+      borderRadius: 999,
+      whiteSpace: "nowrap",
+      zIndex: 14,
+      pointerEvents: "none",
+      boxShadow: "0 4px 12px rgba(0,0,0,.3)",
+      animation: "weatherFade .3s ease-out",
+      display: "flex",
+      alignItems: "center",
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("span", { style: { fontSize: 16 } }, achToast.icon), "🏅 업적 달성! ", achToast.name), /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
       top: 0,
