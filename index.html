@@ -720,6 +720,25 @@ function rollWeather() {
   };
 }
 
+// 날씨-미끼 궁합 힌트. 실제 게임 수치(nightMul, fakeMul)에 근거한 정직한 힌트만 준다.
+function weatherBaitHint(weather, equippedBait, ownedBaits) {
+  const cur = BAITS[equippedBait] || BAITS.basic;
+  if (weather.time === "night") {
+    const bestNight = ownedBaits.map(k => BAITS[k]).filter(Boolean).sort((a, b) => (b.eff.nightMul || 1) - (a.eff.nightMul || 1))[0];
+    if (bestNight && (bestNight.eff.nightMul || 1) > 1 && bestNight !== cur) {
+      return `🌙 밤이에요 — ${bestNight.icon} ${bestNight.name}을 쓰면 입질이 더 잦아져요`;
+    }
+    if (cur.eff.nightMul > 1) return `🌙 ${cur.icon} ${cur.name} 장착 중 — 밤에 딱이에요!`;
+  }
+  if (weather.sky === "rain") {
+    return "🌧️ 비가 와서 헛입질이 줄어요 — 입질 잦은 미끼도 써볼 만해요";
+  }
+  if (weather.sky === "cloudy") {
+    return "☁️ 흐린 날은 입질이 살짝 더 와요";
+  }
+  return null;
+}
+
 // 오늘 날짜 키 (YYYY-MM-DD)
 function todayKey() {
   const d = new Date();
@@ -1955,6 +1974,7 @@ function FlyFishingGame() {
   const [daily, setDaily] = useState(null); // {date, tasks:[{id,type,target,fish?,prog,done,claimed,reward,label}]}
   const [lives, setLives] = useState({ date: todayKey(), remaining: DAILY_LIVES }); // 하루 무료 낚시 판수
   const [showNoLives, setShowNoLives] = useState(false);
+  const [weatherHint, setWeatherHint] = useState(null);
   const livesRef = useRef(lives);
   livesRef.current = lives;
   const [spotIdx, setSpotIdx] = useState(0);
@@ -2040,6 +2060,7 @@ function FlyFishingGame() {
   const [drag, setDrag] = useState(null);
   const [lastEarned, setLastEarned] = useState(0);
   const [lastStarResult, setLastStarResult] = useState(null); // {earned, prev, missions:[{...,done}]}
+  const [firstClearInfo, setFirstClearInfo] = useState(null); // {name, bonus} 첫 클리어 보너스
 
   const raf = useRef(0),
     lastTs = useRef(0),
@@ -2376,6 +2397,11 @@ function FlyFishingGame() {
       results
     });
 
+    // 첫 클리어 보너스: 이 낚시터에서 처음으로 한 마리 이상 낚았을 때만 지급
+    const isFirstClear = earned > 0 && stateRef.current.bestBySpot[spot.id] == null;
+    const firstClearBonus = isFirstClear ? Math.round(spot.unlock.coin * 0.1) + 200 : 0;
+    setFirstClearInfo(isFirstClear ? { name: spot.name, bonus: firstClearBonus } : null);
+
     // 강태공 경험치·레벨업 처리
     const gainedExp = runStats.current.exp || 0;
     const prevExp = stateRef.current.anglerExp,
@@ -2394,7 +2420,7 @@ function FlyFishingGame() {
       });
       play("unlock");
     } else setLevelUpInfo(null);
-    const totalEarned = earned + levelBonus;
+    const totalEarned = earned + levelBonus + firstClearBonus;
     const nextLifetime = {
       ...lifetimeRef.current,
       roundsPlayed: lifetimeRef.current.roundsPlayed + 1,
@@ -2851,6 +2877,9 @@ function FlyFishingGame() {
       approachMul: TIMES[w.time].approachMul * SKIES[w.sky].approachMul,
       fakeMul: SKIES[w.sky].fakeMul
     };
+    const hint = weatherBaitHint(w, equippedBait, ownedBaits);
+    setWeatherHint(hint);
+    if (hint) setTimeout(() => setWeatherHint(null), 4200);
     setScore(0);
     setPaused(false);
     setCombo(0);
@@ -2876,6 +2905,7 @@ function FlyFishingGame() {
     const maxR = Math.max(...sp.fish.map(([n]) => FISH[n] ? FISH[n].rarity : 1));
     runStats.current.bigTier = Math.min(maxR, 3);
     setLevelUpInfo(null);
+    setFirstClearInfo(null);
     setCreelFlies([]);
     setCreelBounce(0);
     fishesRef.current = [];
@@ -5224,6 +5254,18 @@ function FlyFishingGame() {
         h("span", { style: { fontFamily: "'Jua',sans-serif", fontSize: 14, color: "#5a3a00" } }, "🎉 레벨업 Lv.", levelUpInfo.to),
         h("span", { style: { fontSize: 11.5, color: "#8a5a00", marginLeft: 8 } }, "「", levelUpInfo.title, "」 · 🪙", levelUpInfo.bonus)),
 
+      firstClearInfo && h("div", {
+        style: {
+          width: "100%", background: "linear-gradient(135deg,#7fd8c0,#2c9c86)", color: "#fff",
+          borderRadius: 12, padding: "7px 12px", margin: "5px 0 2px",
+          display: "flex", alignItems: "center", gap: 8
+        }
+      },
+        h("span", { style: { fontSize: 18 } }, "🎊"),
+        h("div", { style: { textAlign: "left" } },
+          h("div", { style: { fontFamily: "'Jua',sans-serif", fontSize: 12.5 } }, firstClearInfo.name, " 첫 방문 보너스!"),
+          h("div", { style: { fontSize: 10.5, opacity: 0.9 } }, "🪙+", firstClearInfo.bonus))),
+
       achToast && h("div", {
         style: {
           width: "100%", background: "linear-gradient(135deg,#2fae8f,#1d8f76)", color: "#fff",
@@ -5451,7 +5493,24 @@ function FlyFishingGame() {
       animation: shake ? "screenshake .28s ease-out" : "none",
       ["--shk"]: `${shake}px`
     }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, weatherHint && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      top: 40,
+      left: "50%",
+      transform: "translateX(-50%)",
+      background: "rgba(0,0,0,.5)",
+      backdropFilter: "blur(3px)",
+      color: "#fff",
+      fontSize: 11.5,
+      padding: "6px 13px",
+      borderRadius: 999,
+      whiteSpace: "nowrap",
+      zIndex: 13,
+      pointerEvents: "none",
+      animation: "weatherFade .3s ease-out"
+    }
+  }, weatherHint), /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
       top: 0,
@@ -6127,6 +6186,7 @@ function FlyFishingGame() {
   }))), /*#__PURE__*/React.createElement("style", null, `
         @keyframes floatUp { from{opacity:1;transform:translateX(-50%) translateY(0)} to{opacity:0;transform:translateX(-50%) translateY(-26px)} }
         @keyframes missPop { 0%{opacity:0;transform:translateX(-50%) translateY(6px) scale(.9)} 15%{opacity:1;transform:translateX(-50%) translateY(-4px) scale(1.08)} 25%{transform:translateX(-50%) translateY(0) scale(1)} 75%{opacity:1;transform:translateX(-50%) translateY(-2px) scale(1)} 100%{opacity:0;transform:translateX(-50%) translateY(-24px) scale(1)} }
+        @keyframes weatherFade { from{opacity:0;transform:translateX(-50%) translateY(-6px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
         @keyframes missFlash { 0%{transform:scale(1.6);color:#fff} 100%{transform:scale(1);color:#ff8a7a} }
         @keyframes impactRing { 0%{transform:scale(.3);opacity:.9} 100%{transform:scale(9);opacity:0} }
         @keyframes speedSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
