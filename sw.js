@@ -1,7 +1,7 @@
 // 파리낚시 서비스워커 — 오프라인 지원
-// v2: index.html은 "네트워크 우선"으로 바꿔서, 배포할 때마다 sw.js를 안 건드려도
+// v3: index.html은 "네트워크 우선"으로 바꿔서, 배포할 때마다 sw.js를 안 건드려도
 //     인터넷이 연결돼 있으면 항상 최신 버전을 받아오도록 수정.
-const CACHE = "flyfishing-v2";
+const CACHE = "flyfishing-v3";
 
 // 자주 안 바뀌는 정적 자원 — 캐시 우선(오프라인/속도 최적화)
 const STATIC_ASSETS = [
