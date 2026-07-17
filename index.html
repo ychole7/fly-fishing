@@ -3566,10 +3566,15 @@ function FlyFishingGame() {
     const next = () => {
       if (last) {
         setTutStep(0);
-        setIsNewPlayer(false);
-        setNickDraft(randomNick());
-        setPrevScreen("tutorial");
-        setScreen("nickname");
+        if (nickname) {
+          // 이미 닉네임이 있는 유저("조작법 다시 보기"로 재진입) — 바로 지도로
+          setScreen("map");
+        } else {
+          setIsNewPlayer(false);
+          setNickDraft(randomNick());
+          setPrevScreen("tutorial");
+          setScreen("nickname");
+        }
       } else setTutStep(t => t + 1);
     };
     return /*#__PURE__*/React.createElement(Center, null, /*#__PURE__*/React.createElement(Fonts, null), /*#__PURE__*/React.createElement("div", {
