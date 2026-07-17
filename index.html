@@ -2838,6 +2838,13 @@ function FlyFishingGame() {
   useEffect(() => {
     bgm.setDuck(screen === "playing" ? 0.55 : 1);
   }, [screen]);
+  // 지도 화면에서 스트릭 배너를 몇 초 보여주고 자동으로 닫는다
+  useEffect(() => {
+    if (screen === "map" && streakToast) {
+      const t = setTimeout(() => setStreakToast(null), 4000);
+      return () => clearTimeout(t);
+    }
+  }, [screen, streakToast]);
   // 화면이 바뀔 때마다 날짜 경계를 넘었는지 확인해 목숨을 자동으로 채운다
   useEffect(() => {
     if (!LIVES_ENABLED) return;
