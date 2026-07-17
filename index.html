@@ -2941,6 +2941,7 @@ function FlyFishingGame() {
     runStats.current.bigTier = Math.min(maxR, 3);
     setLevelUpInfo(null);
     setFirstClearInfo(null);
+    setStreakToast(null);
     setCreelFlies([]);
     setCreelBounce(0);
     fishesRef.current = [];
@@ -3375,13 +3376,7 @@ function FlyFishingGame() {
         padding: "36px 24px",
         background: "linear-gradient(180deg,#bfe6ea,#7fc4ad)"
       }
-    }, streakToast && /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: "100%", boxSizing: "border-box",
-        background: "rgba(255,255,255,.85)", borderRadius: 12,
-        padding: "8px 12px", marginBottom: 10, fontSize: 12.5, color: "#0c3b34"
-      }
-    }, "🔥 ", streakToast.count, "일 연속 접속! ", /*#__PURE__*/React.createElement("span", { style: { color: "#c8881f", fontFamily: "'Jua',sans-serif" } }, React.createElement(CoinIcon, { size: 12 }), "+", streakToast.reward)), /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 64,
         marginBottom: 4
@@ -4032,6 +4027,27 @@ function FlyFishingGame() {
         animation: "jbob 1.6s ease-in-out infinite"
       }
     }, "낚시터를 눌러보세요 📍"),
+    streakToast && h("div", {
+      onClick: () => setStreakToast(null),
+      style: {
+        position: "absolute",
+        left: "50%",
+        top: "calc(max(8px, env(safe-area-inset-top)) + 58px)",
+        transform: "translateX(-50%)",
+        background: "linear-gradient(135deg,#ff9f43,#e2574a)",
+        color: "#fff",
+        borderRadius: 999,
+        padding: "7px 15px",
+        fontSize: 12.5,
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        boxShadow: "0 4px 12px rgba(0,0,0,.3)",
+        zIndex: 22,
+        cursor: "pointer",
+        animation: "jfade .25s ease-out"
+      }
+    }, "🔥 ", streakToast.count, "일 연속 접속! ", h(CoinIcon, { size: 12 }), "+", streakToast.reward),
     LIVES_ENABLED && showNoLives && h("div", {
       onClick: () => setShowNoLives(false),
       style: {
