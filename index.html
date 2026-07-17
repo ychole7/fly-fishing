@@ -3383,12 +3383,7 @@ function FlyFishingGame() {
         padding: "36px 24px",
         background: "linear-gradient(180deg,#bfe6ea,#7fc4ad)"
       }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 64,
-        marginBottom: 4
-      }
-    }, "🎣"), /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("div", { style: { marginBottom: 6 } }, /*#__PURE__*/React.createElement(FlyRodHero, { size: 64 })), /*#__PURE__*/React.createElement("div", {
       style: {
         fontFamily: "'Jua',sans-serif",
         fontSize: 38,
@@ -6375,6 +6370,67 @@ function FlyFishingGame() {
   }, "🚪 그만두기 (지도로 나가기)"))));
 }
 // 🪙 이모지가 iOS/Android에서 다르게 보이는 문제(떡밥처럼 보임) 방지용 — 직접 그린 코인 아이콘
+// 타이틀 히어로 아이콘 — 🎣 이모지(스피닝 릴)가 "파리낚시" 컨셉과 안 맞아서 직접 그린 플라이낚시 SVG
+// 대나무 로드 + 우아하게 늘어지는 캐스팅 라인 + 깃털 파리 미끼로 구성
+function FlyRodHero({ size = 64 }) {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: size * 1.35,
+    height: size,
+    viewBox: "0 0 176 130",
+    style: { display: "block", overflow: "visible" }
+  },
+    /*#__PURE__*/React.createElement("defs", null,
+      /*#__PURE__*/React.createElement("linearGradient", { id: "rodWood", x1: "0", y1: "0", x2: "1", y2: "1" },
+        /*#__PURE__*/React.createElement("stop", { offset: "0%", stopColor: "#8a6a45" }),
+        /*#__PURE__*/React.createElement("stop", { offset: "100%", stopColor: "#5c4326" })),
+      /*#__PURE__*/React.createElement("linearGradient", { id: "corkGrip", x1: "0", y1: "0", x2: "0", y2: "1" },
+        /*#__PURE__*/React.createElement("stop", { offset: "0%", stopColor: "#d9b98a" }),
+        /*#__PURE__*/React.createElement("stop", { offset: "100%", stopColor: "#b6905f" })),
+      /*#__PURE__*/React.createElement("radialGradient", { id: "reelBody", cx: "0.35", cy: "0.3", r: "0.8" },
+        /*#__PURE__*/React.createElement("stop", { offset: "0%", stopColor: "#5c5c5c" }),
+        /*#__PURE__*/React.createElement("stop", { offset: "100%", stopColor: "#2b2b2b" }))),
+
+    // 손잡이(코르크 그립)
+    /*#__PURE__*/React.createElement("rect", { x: 8, y: 92, width: 15, height: 34, rx: 6, fill: "url(#corkGrip)", transform: "rotate(-18 15 109)" }),
+    // 작은 플라이 릴 (심플한 원형, 스피닝릴 특유의 큰 베일/손잡이 없음)
+    /*#__PURE__*/React.createElement("circle", { cx: 22, cy: 100, r: 11, fill: "url(#reelBody)", stroke: "#1a1a1a", strokeWidth: 1.4 }),
+    /*#__PURE__*/React.createElement("circle", { cx: 22, cy: 100, r: 5.5, fill: "none", stroke: "#8a8a8a", strokeWidth: 1.2 }),
+    /*#__PURE__*/React.createElement("circle", { cx: 22, cy: 100, r: 1.6, fill: "#c9a24a" }),
+
+    // 대나무 로드 (가늘고 길게, 끝으로 갈수록 살짝 휘어짐)
+    /*#__PURE__*/React.createElement("path", {
+      d: "M20,96 C55,78 95,46 118,17",
+      fill: "none", stroke: "url(#rodWood)", strokeWidth: 5, strokeLinecap: "round"
+    }),
+    // 대나무 마디 디테일
+    /*#__PURE__*/React.createElement("g", { stroke: "#4a361c", strokeWidth: 1.3, opacity: 0.55 },
+      /*#__PURE__*/React.createElement("line", { x1: 42, y1: 87, x2: 46, y2: 82 }),
+      /*#__PURE__*/React.createElement("line", { x1: 66, y1: 68, x2: 70, y2: 63 }),
+      /*#__PURE__*/React.createElement("line", { x1: 90, y1: 46, x2: 94, y2: 41 })),
+    // 로드 가이드(줄 고리) 3개
+    /*#__PURE__*/React.createElement("g", { fill: "none", stroke: "#3a3a3a", strokeWidth: 1.3 },
+      /*#__PURE__*/React.createElement("ellipse", { cx: 60, cy: 74, rx: 2.6, ry: 3.4, transform: "rotate(35 60 74)" }),
+      /*#__PURE__*/React.createElement("ellipse", { cx: 88, cy: 50, rx: 2.3, ry: 3, transform: "rotate(35 88 50)" }),
+      /*#__PURE__*/React.createElement("ellipse", { cx: 112, cy: 24, rx: 1.9, ry: 2.5, transform: "rotate(35 112 24)" })),
+
+    // 캐스팅 라인 — 플라이낚시 특유의 우아한 S자 루프
+    /*#__PURE__*/React.createElement("path", {
+      d: "M118,17 C138,28 132,50 108,55 C88,59 96,78 118,80 C134,81.5 138,96 126,106",
+      fill: "none", stroke: "#f2ede0", strokeWidth: 1.6, strokeLinecap: "round", opacity: 0.92
+    }),
+
+    // 파리 미끼(fly): 깃털 몸통 + 갈고리
+    /*#__PURE__*/React.createElement("g", { transform: "translate(126,106)" },
+      /*#__PURE__*/React.createElement("ellipse", { cx: 0, cy: 0, rx: 8.5, ry: 4, fill: "#c0392b", transform: "rotate(18)" }),
+      /*#__PURE__*/React.createElement("ellipse", { cx: -1, cy: -1.5, rx: 6, ry: 2.2, fill: "#e8a72c", transform: "rotate(18)" }),
+      /*#__PURE__*/React.createElement("path", { d: "M6,2 Q11,8 8,13 Q6,16 3,14", fill: "none", stroke: "#8a8a8a", strokeWidth: 1.3 }),
+      /*#__PURE__*/React.createElement("circle", { cx: -6, cy: -3, r: 1.3, fill: "#fff" })),
+
+    // 작은 물방울 스플래시 포인트(장식)
+    /*#__PURE__*/React.createElement("circle", { cx: 150, cy: 118, r: 2, fill: "#7fd8e8", opacity: 0.6 }),
+    /*#__PURE__*/React.createElement("circle", { cx: 158, cy: 112, r: 1.3, fill: "#7fd8e8", opacity: 0.5 })
+  );
+}
 function CoinIcon({ size = 16, style = {} }) {
   return /*#__PURE__*/React.createElement("svg", {
     width: size,
