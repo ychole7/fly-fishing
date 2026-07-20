@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="파리낚시" />
 <meta name="theme-color" content="#0c3b34" />
-<meta name="description" content="전국 방방곡곡, 한 마리 낚으러 가자. 20개 하천에서 31종의 토종 민물고기를 낚는 캐주얼 낚시 게임." />
+<meta name="description" content="전국 방방곡곡, 한 마리 낚으러 가자. 20개 하천에서 50종의 토종 민물고기를 낚는 캐주얼 낚시 게임." />
 <title>파리낚시</title>
 
 <!-- PWA -->
@@ -377,6 +377,216 @@ const FISH = {
     rarity: 4,
     desc: "냉수성 연어과. 산란기엔 온몸이 붉게 물든다."
   },
+  // ===== 확장 어종 (19종) =====
+  송사리: {
+    color: "#cfd8a3",
+    points: 8,
+    holdMs: 1200,
+    size: 0.7,
+    fight: 0,
+    emoji: "🐟",
+    cm: 4,
+    rarity: 1,
+    desc: "논도랑과 웅덩이의 초미니 물고기. 눈이 크고 귀엽다."
+  },
+  빙어: {
+    color: "#cfe8f2",
+    points: 10,
+    holdMs: 1180,
+    size: 0.75,
+    fight: 0,
+    emoji: "🐟",
+    cm: 10,
+    rarity: 1,
+    desc: "차가운 물을 좋아하는 투명한 은빛 물고기. 겨울 낚시의 주인공."
+  },
+  밀어: {
+    color: "#b8ab8a",
+    points: 9,
+    holdMs: 1170,
+    size: 0.75,
+    fight: 0,
+    emoji: "🐟",
+    cm: 8,
+    rarity: 1,
+    desc: "바닥에 붙어 사는 망둑어류. 돌 틈을 잽싸게 오간다."
+  },
+  왜몰개: {
+    color: "#c2cf9d",
+    points: 9,
+    holdMs: 1160,
+    size: 0.75,
+    fight: 0,
+    emoji: "🐟",
+    cm: 5,
+    rarity: 1,
+    desc: "수초가 많은 웅덩이에 사는 작은 물고기. 떼 지어 다닌다."
+  },
+  몰개: {
+    color: "#c8bd93",
+    points: 20,
+    holdMs: 1000,
+    size: 0.9,
+    fight: 0,
+    emoji: "🐟",
+    cm: 12,
+    rarity: 2,
+    desc: "모랫바닥 하천에 흔한 은빛 물고기. 수염이 한 쌍 있다."
+  },
+  중고기: {
+    color: "#a9b394",
+    points: 22,
+    holdMs: 980,
+    size: 1.0,
+    fight: 1,
+    emoji: "🐟",
+    cm: 14,
+    rarity: 2,
+    desc: "조개에 알을 낳는 독특한 습성의 물고기."
+  },
+  치리: {
+    color: "#c3d3dc",
+    points: 22,
+    holdMs: 970,
+    size: 0.95,
+    fight: 1,
+    emoji: "🐟",
+    cm: 16,
+    rarity: 2,
+    desc: "수면 가까이서 반짝이는 은백색 물고기. 몸이 납작하다."
+  },
+  살치: {
+    color: "#bcd0da",
+    points: 24,
+    holdMs: 950,
+    size: 1.0,
+    fight: 1,
+    emoji: "🐟",
+    cm: 18,
+    rarity: 2,
+    desc: "강 하류의 은빛 유영자. 배 쪽이 칼날처럼 얇다."
+  },
+  동사리: {
+    color: "#7d7358",
+    points: 26,
+    holdMs: 930,
+    size: 1.05,
+    fight: 1,
+    emoji: "🐟",
+    cm: 13,
+    rarity: 2,
+    desc: "바위 밑에 숨어 사는 매복형 사냥꾼. 입이 크다."
+  },
+  참종개: {
+    color: "#a08d62",
+    points: 42,
+    holdMs: 830,
+    size: 0.95,
+    fight: 1,
+    emoji: "🐠",
+    cm: 12,
+    rarity: 3,
+    desc: "모랫바닥을 파고드는 줄무늬 미꾸리류. 한국 고유종."
+  },
+  눈동자개: {
+    color: "#8d7a52",
+    points: 46,
+    holdMs: 810,
+    size: 1.15,
+    fight: 2,
+    emoji: "🐠",
+    cm: 20,
+    rarity: 3,
+    desc: "맑은 강 중류의 동자개류. 눈이 유난히 크다. 한국 고유종."
+  },
+  자가사리: {
+    color: "#96603c",
+    points: 48,
+    holdMs: 800,
+    size: 1.0,
+    fight: 2,
+    emoji: "🐠",
+    cm: 12,
+    rarity: 3,
+    desc: "여울 돌 틈의 작은 메기류. 가슴지느러미 가시를 조심. 한국 고유종."
+  },
+  대농갱이: {
+    color: "#7a6a80",
+    points: 50,
+    holdMs: 790,
+    size: 1.3,
+    fight: 2,
+    emoji: "🐠",
+    cm: 30,
+    rarity: 3,
+    desc: "큰 강에 사는 대형 동자개류. 밤에 활발히 움직인다."
+  },
+  눈불개: {
+    color: "#b06a5a",
+    points: 52,
+    holdMs: 780,
+    size: 1.25,
+    fight: 2,
+    emoji: "🐠",
+    cm: 35,
+    rarity: 3,
+    desc: "눈 주위가 붉은 대형 잉어과 물고기. 힘이 좋다."
+  },
+  퉁가리: {
+    color: "#a4713d",
+    points: 85,
+    holdMs: 680,
+    size: 1.0,
+    fight: 3,
+    emoji: "🐡",
+    cm: 10,
+    rarity: 4,
+    desc: "동해로 흐르는 하천에만 사는 메기류. 한국 고유종."
+  },
+  묵납자루: {
+    color: "#5a6f8e",
+    points: 90,
+    holdMs: 670,
+    size: 0.95,
+    fight: 3,
+    emoji: "🐡",
+    cm: 8,
+    rarity: 4,
+    desc: "검푸른 빛의 납자루. 멸종위기종으로 매우 귀하다. 한국 고유종."
+  },
+  감돌고기: {
+    color: "#5c544a",
+    points: 95,
+    holdMs: 660,
+    size: 0.95,
+    fight: 3,
+    emoji: "🐡",
+    cm: 9,
+    rarity: 4,
+    desc: "입술이 까만 돌고기. 멸종위기 1급의 한국 고유종."
+  },
+  꾸구리: {
+    color: "#8a7d63",
+    points: 100,
+    holdMs: 650,
+    size: 0.9,
+    fight: 3,
+    emoji: "🐡",
+    cm: 10,
+    rarity: 4,
+    desc: "고양이처럼 세로 눈동자를 가진 희귀종. 여울 자갈 바닥에 산다."
+  },
+  무태장어: {
+    color: "#4e5a4a",
+    points: 200,
+    holdMs: 570,
+    size: 2.0,
+    fight: 4,
+    emoji: "🥇",
+    cm: 100,
+    rarity: 5,
+    desc: "제주와 남부에만 드물게 나타나는 거대 장어. 천연기념물."
+  },
   // 전설 (rarity 5)
   황쏘가리: {
     color: "#f0c84a",
@@ -431,6 +641,25 @@ const FISH_ART = {
   "떡붕어": `<defs><linearGradient id="fg27" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#938563"/><stop offset="45%" stopColor="#cdb98a"/><stop offset="100%" stopColor="#fae1a8"/></linearGradient></defs><path d="M82,24 Q94,14 98,10 Q95,19 94,26 Q95,33 98,42 Q94,38 82,29 Z" fill="#a89771"/><path d="M10,26 Q16,10 42,9 Q72,9 84,26 Q72,43 42,43 Q16,42 10,26 Z" fill="url(#fg27)"/><path d="M38,11 Q50.0,2 62,12 Q50.0,9 38,11 Z" fill="#9f906b"/><path d="M42,41 Q50.0,49 58,41 Q50.0,42 42,41 Z" fill="#9f906b"/><path d="M30,33 Q37.0,42 44,36 Q37.0,35 30,33 Z" fill="#9f906b" opacity="0.9"/><g stroke="#938563" strokeWidth="1.4" opacity="0.4" fill="none"><path d="M32,16 Q29.5,26 32,36"/><path d="M42,16 Q39.5,26 42,36"/><path d="M52,16 Q49.5,26 52,36"/><path d="M62,16 Q59.5,26 62,36"/></g><path d="M22,17 Q19,26 22,35" stroke="#8f8160" strokeWidth="1.5" fill="none" opacity="0.75"/><circle cx="16" cy="23" r="3.3" fill="#fff"/><circle cx="15.2" cy="23" r="1.815" fill="#12232b"/><circle cx="14.5" cy="22.1" r="0.66" fill="#fff"/>`,
   "어름치": `<defs><linearGradient id="fg28" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#848d92"/><stop offset="45%" stopColor="#b8c4cc"/><stop offset="100%" stopColor="#e0eff8"/></linearGradient></defs><path d="M82,24 Q94,14 98,10 Q95,19 94,26 Q95,33 98,42 Q94,38 82,29 Z" fill="#96a0a7"/><path d="M10,26 Q18,14 42,13 Q70,13 82,25 Q70,39 42,39 Q18,38 10,26 Z" fill="url(#fg28)"/><path d="M40,14 Q49.0,5 58,15 Q49.0,12 40,14 Z" fill="#8f989f"/><path d="M40,37 Q48.0,45 56,37 Q48.0,38 40,37 Z" fill="#8f989f"/><path d="M30,30 Q37.0,39 44,33 Q37.0,32 30,30 Z" fill="#8f989f" opacity="0.9"/><g stroke="#848d92" strokeWidth="1.4" opacity="0.4" fill="none"><path d="M32,16 Q29.5,26 32,36"/><path d="M42,16 Q39.5,26 42,36"/><path d="M52,16 Q49.5,26 52,36"/><path d="M62,16 Q59.5,26 62,36"/></g><path d="M22,17 Q19,26 22,35" stroke="#80898e" strokeWidth="1.5" fill="none" opacity="0.75"/><g fill="#656b70" opacity="0.6"><circle cx="30" cy="20" r="1.8"/><circle cx="38" cy="26" r="1.8"/><circle cx="46" cy="20" r="1.8"/><circle cx="54" cy="26" r="1.8"/><circle cx="62" cy="20" r="1.8"/><circle cx="70" cy="26" r="1.8"/><circle cx="34" cy="32" r="1.8"/><circle cx="50" cy="32" r="1.8"/><circle cx="66" cy="32" r="1.8"/></g><path d="M10,27 Q4,25 1,21" stroke="#939ca3" strokeWidth="1.2" fill="none" strokeLinecap="round"/><path d="M10,29 Q4,31 1,35" stroke="#939ca3" strokeWidth="1.2" fill="none" strokeLinecap="round"/><circle cx="16" cy="23" r="3.3" fill="#fff"/><circle cx="15.2" cy="23" r="1.815" fill="#12232b"/><circle cx="14.5" cy="22.1" r="0.66" fill="#fff"/>`,
   "열목어": `<defs><linearGradient id="fg29" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#9c6471"/><stop offset="45%" stopColor="#d98b9e"/><stop offset="100%" stopColor="#ffa9c0"/></linearGradient></defs><path d="M82,24 Q94,14 98,10 Q95,19 94,26 Q95,33 98,42 Q94,38 82,29 Z" fill="#b17181"/><path d="M10,26 Q18,14 42,13 Q70,13 82,25 Q70,39 42,39 Q18,38 10,26 Z" fill="url(#fg29)"/><path d="M40,14 Q49.0,5 58,15 Q49.0,12 40,14 Z" fill="#a96c7b"/><path d="M40,37 Q48.0,45 56,37 Q48.0,38 40,37 Z" fill="#a96c7b"/><path d="M30,30 Q37.0,39 44,33 Q37.0,32 30,30 Z" fill="#a96c7b" opacity="0.9"/><g stroke="#9c6471" strokeWidth="1.4" opacity="0.4" fill="none"><path d="M32,16 Q29.5,26 32,36"/><path d="M42,16 Q39.5,26 42,36"/><path d="M52,16 Q49.5,26 52,36"/><path d="M62,16 Q59.5,26 62,36"/></g><path d="M22,17 Q19,26 22,35" stroke="#97616e" strokeWidth="1.5" fill="none" opacity="0.75"/><g fill="#6c454f" opacity="0.55"><circle cx="30" cy="20" r="2.2"/><circle cx="40" cy="27" r="2.2"/><circle cx="50" cy="19" r="2.2"/><circle cx="60" cy="27" r="2"/><circle cx="68" cy="21" r="2"/></g><path d="M64,15 Q70,14 72,17 Q68,17 64,15 Z" fill="#9c6471"/><circle cx="16" cy="23" r="3.3" fill="#fff"/><circle cx="15.2" cy="23" r="1.815" fill="#12232b"/><circle cx="14.5" cy="22.1" r="0.66" fill="#fff"/>`,
+  "송사리": `<defs><linearGradient id="fg32" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#959b75"/><stop offset="45%" stopColor="#cfd8a3"/><stop offset="100%" stopColor="#ffffd0"/></linearGradient></defs><path d="M70,24 Q82,15 86,12 Q83,20 82,26 Q83,32 86,40 Q82,36 70,29 Z" fill="#afb78a"/><path d="M14,26 Q22,17 42,16 Q60,16 68,25 Q60,36 42,36 Q22,35 14,26 Z" fill="url(#fg32)"/><path d="M38,16 Q46,9 54,17 Q46,14 38,16 Z" fill="#a5ac82"/><path d="M38,35 Q45,42 52,35 Q45,36 38,35 Z" fill="#a5ac82"/><g fill="#717659" opacity="0.6"><circle cx="32" cy="23" r="1.5"/><circle cx="44" cy="27" r="1.5"/><circle cx="56" cy="23" r="1.5"/><circle cx="66" cy="27" r="1.5"/></g><circle cx="21" cy="23" r="3.6" fill="#fff"/><circle cx="20.2" cy="23" r="2.0" fill="#12232b"/><circle cx="19.5" cy="22.1" r="0.7" fill="#fff"/>`,
+  "빙어": `<defs><linearGradient id="fg33" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#95a7ae"/><stop offset="45%" stopColor="#cfe8f2"/><stop offset="100%" stopColor="#ffffff"/></linearGradient></defs><path d="M82,24 Q94,14 98,10 Q95,19 94,26 Q95,33 98,42 Q94,38 82,29 Z" fill="#afc5cd"/><path d="M8,26 Q16,18 40,17 Q70,17 84,25 Q70,35 40,35 Q16,34 8,26 Z" fill="url(#fg33)"/><path d="M40,16 Q49,8 58,17 Q49,14 40,16 Z" fill="#a5b9c1"/><path d="M40,35 Q48,42 56,35 Q48,36 40,35 Z" fill="#a5b9c1"/><path d="M22,19 Q19,26 22,33" stroke="#afc5cd" strokeWidth="1.5" fill="none" opacity="0.75"/><path d="M22,26 Q49,24.5 76,26" stroke="#717f85" strokeWidth="2.4" fill="none" opacity="0.5"/><circle cx="16" cy="23" r="3.3" fill="#fff"/><circle cx="15.2" cy="23" r="1.815" fill="#12232b"/><circle cx="14.5" cy="22.1" r="0.66" fill="#fff"/>`,
+  "밀어": `<defs><linearGradient id="fg34" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#847b63"/><stop offset="45%" stopColor="#b8ab8a"/><stop offset="100%" stopColor="#ebdab0"/></linearGradient></defs><path d="M78,24 Q92,16 96,13 Q93,21 92,27 Q93,33 96,40 Q92,36 78,29 Z" fill="#9c9175"/><path d="M8,28 Q16,18 40,18 Q66,18 78,27 Q66,35 40,35 Q16,35 8,28 Z" fill="url(#fg34)"/><path d="M36,18 Q44,10 52,19 Q44,16 36,18 Z" fill="#93886e"/><path d="M26,33 Q33,40 40,34 Q33,34 26,33 Z" fill="#93886e"/><path d="M46,34 Q53,40 60,34 Q53,35 46,34 Z" fill="#93886e"/><g fill="#655e4b" opacity="0.6"><circle cx="32" cy="23" r="1.5"/><circle cx="44" cy="27" r="1.5"/><circle cx="56" cy="23" r="1.5"/><circle cx="66" cy="27" r="1.5"/></g><circle cx="17" cy="22" r="3" fill="#fff"/><circle cx="16.2" cy="22" r="1.65" fill="#12232b"/><circle cx="15.5" cy="21.1" r="0.6" fill="#fff"/>`,
+  "왜몰개": `<defs><linearGradient id="fg35" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8b9571"/><stop offset="45%" stopColor="#c2cf9d"/><stop offset="100%" stopColor="#f8ffc8"/></linearGradient></defs><path d="M70,24 Q82,15 86,12 Q83,20 82,26 Q83,32 86,40 Q82,36 70,29 Z" fill="#a4af85"/><path d="M14,26 Q22,17 42,16 Q60,16 68,25 Q60,36 42,36 Q22,35 14,26 Z" fill="url(#fg35)"/><path d="M38,16 Q46,9 54,17 Q46,14 38,16 Z" fill="#9ba57d"/><path d="M38,35 Q45,42 52,35 Q45,36 38,35 Z" fill="#9ba57d"/><path d="M22,26 Q49,24.5 76,26" stroke="#6a7156" strokeWidth="2.4" fill="none" opacity="0.5"/><circle cx="21" cy="23" r="3.6" fill="#fff"/><circle cx="20.2" cy="23" r="2.0" fill="#12232b"/><circle cx="19.5" cy="22.1" r="0.7" fill="#fff"/>`,
+  "몰개": `<defs><linearGradient id="fg36" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#908869"/><stop offset="45%" stopColor="#c8bd93"/><stop offset="100%" stopColor="#fff1bc"/></linearGradient></defs><path d="M82,24 Q94,14 98,10 Q95,19 94,26 Q95,33 98,42 Q94,38 82,29 Z" fill="#aaa07c"/><path d="M10,26 Q18,15 42,14 Q68,14 80,25 Q68,38 42,38 Q18,37 10,26 Z" fill="url(#fg36)"/><path d="M40,14 Q49,5 58,15 Q49,12 40,14 Z" fill="#a09775"/><path d="M40,37 Q48,45 56,37 Q48,38 40,37 Z" fill="#a09775"/><path d="M30,30 Q37,39 44,33 Q37,32 30,30 Z" fill="#a09775" opacity="0.9"/><path d="M22,17 Q19,26 22,35" stroke="#aaa07c" strokeWidth="1.5" fill="none" opacity="0.75"/><path d="M22,26 Q49,24.5 76,26" stroke="#6e6750" strokeWidth="2.4" fill="none" opacity="0.5"/><circle cx="16" cy="23" r="3.3" fill="#fff"/><circle cx="15.2" cy="23" r="1.815" fill="#12232b"/><circle cx="14.5" cy="22.1" r="0.66" fill="#fff"/>`,
+  "중고기": `<defs><linearGradient id="fg37" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#79806a"/><stop offset="45%" stopColor="#a9b394"/><stop offset="100%" stopColor="#d8e5bd"/></linearGradient></defs><path d="M82,24 Q94,14 98,10 Q95,19 94,26 Q95,33 98,42 Q94,38 82,29 Z" fill="#8f987d"/><path d="M10,26 Q18,15 42,14 Q68,14 80,25 Q68,38 42,38 Q18,37 10,26 Z" fill="url(#fg37)"/><path d="M40,14 Q49,5 58,15 Q49,12 40,14 Z" fill="#878f76"/><path d="M40,37 Q48,45 56,37 Q48,38 40,37 Z" fill="#878f76"/><path d="M30,30 Q37,39 44,33 Q37,32 30,30 Z" fill="#878f76" opacity="0.9"/><path d="M22,17 Q19,26 22,35" stroke="#8f987d" strokeWidth="1.5" fill="none" opacity="0.75"/><g fill="#5c6251" opacity="0.6"><circle cx="32" cy="23" r="1.5"/><circle cx="44" cy="27" r="1.5"/><circle cx="56" cy="23" r="1.5"/><circle cx="66" cy="27" r="1.5"/></g><circle cx="16" cy="23" r="3.3" fill="#fff"/><circle cx="15.2" cy="23" r="1.815" fill="#12232b"/><circle cx="14.5" cy="22.1" r="0.66" fill="#fff"/>`,
+  "치리": `<defs><linearGradient id="fg38" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8c979e"/><stop offset="45%" stopColor="#c3d3dc"/><stop offset="100%" stopColor="#f9ffff"/></linearGradient></defs><path d="M82,24 Q94,14 98,10 Q95,19 94,26 Q95,33 98,42 Q94,38 82,29 Z" fill="#a5b3bb"/><path d="M8,26 Q16,18 40,17 Q70,17 84,25 Q70,35 40,35 Q16,34 8,26 Z" fill="url(#fg38)"/><path d="M40,16 Q49,8 58,17 Q49,14 40,16 Z" fill="#9ca8b0"/><path d="M40,35 Q48,42 56,35 Q48,36 40,35 Z" fill="#9ca8b0"/><path d="M22,19 Q19,26 22,33" stroke="#a5b3bb" strokeWidth="1.5" fill="none" opacity="0.75"/><path d="M22,26 Q49,24.5 76,26" stroke="#6b7479" strokeWidth="2.4" fill="none" opacity="0.5"/><circle cx="16" cy="23" r="3.3" fill="#fff"/><circle cx="15.2" cy="23" r="1.815" fill="#12232b"/><circle cx="14.5" cy="22.1" r="0.66" fill="#fff"/>`,
+  "살치": `<defs><linearGradient id="fg39" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#87959c"/><stop offset="45%" stopColor="#bcd0da"/><stop offset="100%" stopColor="#f0ffff"/></linearGradient></defs><path d="M82,24 Q94,14 98,10 Q95,19 94,26 Q95,33 98,42 Q94,38 82,29 Z" fill="#9fb0b9"/><path d="M8,26 Q16,18 40,17 Q70,17 84,25 Q70,35 40,35 Q16,34 8,26 Z" fill="url(#fg39)"/><path d="M40,16 Q49,8 58,17 Q49,14 40,16 Z" fill="#96a6ae"/><path d="M40,35 Q48,42 56,35 Q48,36 40,35 Z" fill="#96a6ae"/><path d="M22,19 Q19,26 22,33" stroke="#9fb0b9" strokeWidth="1.5" fill="none" opacity="0.75"/><path d="M22,26 Q49,24.5 76,26" stroke="#677277" strokeWidth="2.4" fill="none" opacity="0.5"/><circle cx="16" cy="23" r="3.3" fill="#fff"/><circle cx="15.2" cy="23" r="1.815" fill="#12232b"/><circle cx="14.5" cy="22.1" r="0.66" fill="#fff"/>`,
+  "동사리": `<defs><linearGradient id="fg40" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#5a523f"/><stop offset="45%" stopColor="#7d7358"/><stop offset="100%" stopColor="#a09370"/></linearGradient></defs><path d="M78,24 Q92,16 96,13 Q93,21 92,27 Q93,33 96,40 Q92,36 78,29 Z" fill="#6a614a"/><path d="M8,28 Q16,18 40,18 Q66,18 78,27 Q66,35 40,35 Q16,35 8,28 Z" fill="url(#fg40)"/><path d="M36,18 Q44,10 52,19 Q44,16 36,18 Z" fill="#645c46"/><path d="M26,33 Q33,40 40,34 Q33,34 26,33 Z" fill="#645c46"/><path d="M46,34 Q53,40 60,34 Q53,35 46,34 Z" fill="#645c46"/><g fill="#443f30" opacity="0.45"><ellipse cx="34" cy="24" rx="4.5" ry="3"/><ellipse cx="50" cy="28" rx="5" ry="3.2"/><ellipse cx="64" cy="24" rx="4" ry="2.8"/></g><circle cx="17" cy="22" r="3" fill="#fff"/><circle cx="16.2" cy="22" r="1.65" fill="#12232b"/><circle cx="15.5" cy="21.1" r="0.6" fill="#fff"/>`,
+  "참종개": `<defs><linearGradient id="fg41" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#736546"/><stop offset="45%" stopColor="#a08d62"/><stop offset="100%" stopColor="#ccb47d"/></linearGradient></defs><path d="M82,20 Q98,22 99,26 Q98,30 82,32 Z" fill="#887753"/><path d="M6,26 Q30,17 56,22 Q76,25 90,27 Q76,31 56,32 Q30,36 6,26 Z" fill="url(#fg41)"/><path d="M44,21 Q51,12 58,21 Q51,19 44,21 Z" fill="#80704e"/><path d="M46,31 Q52,39 58,31 Q52,32 46,31 Z" fill="#80704e"/><g fill="#584d35" opacity="0.6"><circle cx="32" cy="23" r="1.5"/><circle cx="44" cy="27" r="1.5"/><circle cx="56" cy="23" r="1.5"/><circle cx="66" cy="27" r="1.5"/></g><circle cx="13" cy="24" r="2.5" fill="#fff"/><circle cx="12.2" cy="24" r="1.37" fill="#12232b"/><circle cx="11.5" cy="23.1" r="0.5" fill="#fff"/>`,
+  "눈동자개": `<defs><linearGradient id="fg42" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#65573b"/><stop offset="45%" stopColor="#8d7a52"/><stop offset="100%" stopColor="#b49c68"/></linearGradient></defs><path d="M82,20 Q98,22 99,26 Q98,30 82,32 Z" fill="#776745"/><path d="M6,26 Q14,16 38,17 Q68,18 84,26 Q68,36 38,36 Q14,36 6,26 Z" fill="url(#fg42)"/><path d="M38,16 Q46,7 54,17 Q46,14 38,16 Z" fill="#706141"/><path d="M44,34 Q51,42 58,34 Q51,35 44,34 Z" fill="#706141"/><path d="M10,27 Q4,25 1,21" stroke="#776745" strokeWidth="1.2" fill="none" strokeLinecap="round"/><path d="M10,29 Q4,31 1,35" stroke="#776745" strokeWidth="1.2" fill="none" strokeLinecap="round"/><g fill="#4d432d" opacity="0.45"><ellipse cx="34" cy="24" rx="4.5" ry="3"/><ellipse cx="50" cy="28" rx="5" ry="3.2"/><ellipse cx="64" cy="24" rx="4" ry="2.8"/></g><circle cx="14" cy="23" r="2.8" fill="#fff"/><circle cx="13.2" cy="23" r="1.54" fill="#12232b"/><circle cx="12.5" cy="22.1" r="0.56" fill="#fff"/>`,
+  "자가사리": `<defs><linearGradient id="fg43" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6c452b"/><stop offset="45%" stopColor="#96603c"/><stop offset="100%" stopColor="#c07a4c"/></linearGradient></defs><path d="M82,20 Q98,22 99,26 Q98,30 82,32 Z" fill="#7f5133"/><path d="M6,26 Q14,16 38,17 Q68,18 84,26 Q68,36 38,36 Q14,36 6,26 Z" fill="url(#fg43)"/><path d="M38,16 Q46,7 54,17 Q46,14 38,16 Z" fill="#784c30"/><path d="M44,34 Q51,42 58,34 Q51,35 44,34 Z" fill="#784c30"/><path d="M10,27 Q4,25 1,21" stroke="#7f5133" strokeWidth="1.2" fill="none" strokeLinecap="round"/><path d="M10,29 Q4,31 1,35" stroke="#7f5133" strokeWidth="1.2" fill="none" strokeLinecap="round"/><path d="M22,26 Q49,24.5 76,26" stroke="#523421" strokeWidth="2.4" fill="none" opacity="0.5"/><circle cx="14" cy="23" r="2.8" fill="#fff"/><circle cx="13.2" cy="23" r="1.54" fill="#12232b"/><circle cx="12.5" cy="22.1" r="0.56" fill="#fff"/>`,
+  "대농갱이": `<defs><linearGradient id="fg44" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#574c5c"/><stop offset="45%" stopColor="#7a6a80"/><stop offset="100%" stopColor="#9c87a3"/></linearGradient></defs><path d="M82,20 Q98,22 99,26 Q98,30 82,32 Z" fill="#675a6c"/><path d="M6,26 Q14,16 38,17 Q68,18 84,26 Q68,36 38,36 Q14,36 6,26 Z" fill="url(#fg44)"/><path d="M38,16 Q46,7 54,17 Q46,14 38,16 Z" fill="#615466"/><path d="M44,34 Q51,42 58,34 Q51,35 44,34 Z" fill="#615466"/><path d="M10,27 Q4,25 1,21" stroke="#675a6c" strokeWidth="1.2" fill="none" strokeLinecap="round"/><path d="M10,29 Q4,31 1,35" stroke="#675a6c" strokeWidth="1.2" fill="none" strokeLinecap="round"/><g fill="#433a46" opacity="0.45"><ellipse cx="34" cy="24" rx="4.5" ry="3"/><ellipse cx="50" cy="28" rx="5" ry="3.2"/><ellipse cx="64" cy="24" rx="4" ry="2.8"/></g><circle cx="14" cy="23" r="2.8" fill="#fff"/><circle cx="13.2" cy="23" r="1.54" fill="#12232b"/><circle cx="12.5" cy="22.1" r="0.56" fill="#fff"/>`,
+  "눈불개": `<defs><linearGradient id="fg45" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#7e4c40"/><stop offset="45%" stopColor="#b06a5a"/><stop offset="100%" stopColor="#e18773"/></linearGradient></defs><path d="M82,24 Q94,14 98,10 Q95,19 94,26 Q95,33 98,42 Q94,38 82,29 Z" fill="#955a4c"/><path d="M10,26 Q18,15 42,14 Q68,14 80,25 Q68,38 42,38 Q18,37 10,26 Z" fill="url(#fg45)"/><path d="M40,14 Q49,5 58,15 Q49,12 40,14 Z" fill="#8c5448"/><path d="M40,37 Q48,45 56,37 Q48,38 40,37 Z" fill="#8c5448"/><path d="M30,30 Q37,39 44,33 Q37,32 30,30 Z" fill="#8c5448" opacity="0.9"/><path d="M22,17 Q19,26 22,35" stroke="#955a4c" strokeWidth="1.5" fill="none" opacity="0.75"/><path d="M22,26 Q49,24.5 76,26" stroke="#603a31" strokeWidth="2.4" fill="none" opacity="0.5"/><circle cx="16" cy="23" r="3.3" fill="#fff"/><circle cx="15.2" cy="23" r="1.815" fill="#12232b"/><circle cx="14.5" cy="22.1" r="0.66" fill="#fff"/>`,
+  "퉁가리": `<defs><linearGradient id="fg46" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#76512b"/><stop offset="45%" stopColor="#a4713d"/><stop offset="100%" stopColor="#d1904e"/></linearGradient></defs><path d="M82,20 Q98,22 99,26 Q98,30 82,32 Z" fill="#8b6033"/><path d="M6,26 Q14,16 38,17 Q68,18 84,26 Q68,36 38,36 Q14,36 6,26 Z" fill="url(#fg46)"/><path d="M38,16 Q46,7 54,17 Q46,14 38,16 Z" fill="#835a30"/><path d="M44,34 Q51,42 58,34 Q51,35 44,34 Z" fill="#835a30"/><path d="M10,27 Q4,25 1,21" stroke="#8b6033" strokeWidth="1.2" fill="none" strokeLinecap="round"/><path d="M10,29 Q4,31 1,35" stroke="#8b6033" strokeWidth="1.2" fill="none" strokeLinecap="round"/><path d="M22,26 Q49,24.5 76,26" stroke="#5a3e21" strokeWidth="2.4" fill="none" opacity="0.5"/><circle cx="14" cy="23" r="2.8" fill="#fff"/><circle cx="13.2" cy="23" r="1.54" fill="#12232b"/><circle cx="12.5" cy="22.1" r="0.56" fill="#fff"/>`,
+  "묵납자루": `<defs><linearGradient id="fg47" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#404f66"/><stop offset="45%" stopColor="#5a6f8e"/><stop offset="100%" stopColor="#738eb5"/></linearGradient></defs><path d="M82,24 Q94,14 98,10 Q95,19 94,26 Q95,33 98,42 Q94,38 82,29 Z" fill="#4c5e78"/><path d="M12,26 Q16,8 42,7 Q70,7 84,26 Q70,45 42,45 Q16,44 12,26 Z" fill="url(#fg47)"/><path d="M40,10 Q50,1 60,11 Q50,8 40,10 Z" fill="#485871"/><path d="M42,42 Q50,50 58,42 Q50,43 42,42 Z" fill="#485871"/><path d="M22,17 Q19,26 22,35" stroke="#4c5e78" strokeWidth="1.5" fill="none" opacity="0.75"/><path d="M14,26 Q46,23.5 80,26" stroke="#313d4e" strokeWidth="3.2" fill="none" opacity="0.6"/><circle cx="16" cy="23" r="3.3" fill="#fff"/><circle cx="15.2" cy="23" r="1.815" fill="#12232b"/><circle cx="14.5" cy="22.1" r="0.66" fill="#fff"/>`,
+  "감돌고기": `<defs><linearGradient id="fg48" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#423c35"/><stop offset="45%" stopColor="#5c544a"/><stop offset="100%" stopColor="#756b5e"/></linearGradient></defs><path d="M82,24 Q94,14 98,10 Q95,19 94,26 Q95,33 98,42 Q94,38 82,29 Z" fill="#4e473e"/><path d="M10,26 Q18,15 42,14 Q68,14 80,25 Q68,38 42,38 Q18,37 10,26 Z" fill="url(#fg48)"/><path d="M40,14 Q49,5 58,15 Q49,12 40,14 Z" fill="#49433b"/><path d="M40,37 Q48,45 56,37 Q48,38 40,37 Z" fill="#49433b"/><path d="M30,30 Q37,39 44,33 Q37,32 30,30 Z" fill="#49433b" opacity="0.9"/><path d="M22,17 Q19,26 22,35" stroke="#4e473e" strokeWidth="1.5" fill="none" opacity="0.75"/><path d="M14,26 Q46,23.5 80,26" stroke="#322e28" strokeWidth="3.2" fill="none" opacity="0.6"/><circle cx="16" cy="23" r="3.3" fill="#fff"/><circle cx="15.2" cy="23" r="1.815" fill="#12232b"/><circle cx="14.5" cy="22.1" r="0.66" fill="#fff"/>`,
+  "꾸구리": `<defs><linearGradient id="fg49" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#635a47"/><stop offset="45%" stopColor="#8a7d63"/><stop offset="100%" stopColor="#b0a07e"/></linearGradient></defs><path d="M78,24 Q92,16 96,13 Q93,21 92,27 Q93,33 96,40 Q92,36 78,29 Z" fill="#756a54"/><path d="M8,28 Q16,18 40,18 Q66,18 78,27 Q66,35 40,35 Q16,35 8,28 Z" fill="url(#fg49)"/><path d="M36,18 Q44,10 52,19 Q44,16 36,18 Z" fill="#6e644f"/><path d="M26,33 Q33,40 40,34 Q33,34 26,33 Z" fill="#6e644f"/><path d="M46,34 Q53,40 60,34 Q53,35 46,34 Z" fill="#6e644f"/><g fill="#4b4436" opacity="0.6"><circle cx="32" cy="23" r="1.5"/><circle cx="44" cy="27" r="1.5"/><circle cx="56" cy="23" r="1.5"/><circle cx="66" cy="27" r="1.5"/></g><circle cx="17" cy="22" r="3" fill="#fff"/><circle cx="16.2" cy="22" r="1.65" fill="#12232b"/><circle cx="15.5" cy="21.1" r="0.6" fill="#fff"/>`,
+  "무태장어": `<defs><linearGradient id="fg50" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#384035"/><stop offset="45%" stopColor="#4e5a4a"/><stop offset="100%" stopColor="#63735e"/></linearGradient></defs><path d="M82,20 Q98,22 99,26 Q98,30 82,32 Z" fill="#424c3e"/><path d="M6,26 Q30,17 56,22 Q76,25 90,27 Q76,31 56,32 Q30,36 6,26 Z" fill="url(#fg50)"/><path d="M44,21 Q51,12 58,21 Q51,19 44,21 Z" fill="#3e483b"/><path d="M46,31 Q52,39 58,31 Q52,32 46,31 Z" fill="#3e483b"/><g fill="#2a3128" opacity="0.45"><ellipse cx="34" cy="24" rx="4.5" ry="3"/><ellipse cx="50" cy="28" rx="5" ry="3.2"/><ellipse cx="64" cy="24" rx="4" ry="2.8"/></g><circle cx="13" cy="24" r="2.5" fill="#fff"/><circle cx="12.2" cy="24" r="1.37" fill="#12232b"/><circle cx="11.5" cy="23.1" r="0.5" fill="#fff"/>`,
   "황쏘가리": `<defs><linearGradient id="fg30" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#ac9035"/><stop offset="45%" stopColor="#f0c84a"/><stop offset="100%" stopColor="#fff45a"/></linearGradient></defs><path d="M82,22 Q96,12 99,13 Q96,26 99,39 Q96,40 82,30 Z" fill="#c4a43c"/><path d="M10,26 Q18,14 42,13 Q70,13 82,25 Q70,39 42,39 Q18,38 10,26 Z" fill="url(#fg30)"/><path d="M36,13 Q49.0,4 62,15 Q49.0,11 36,13 Z" fill="#bb9c39"/><path d="M44,38 Q52.0,46 60,38 Q52.0,39 44,38 Z" fill="#bb9c39"/><path d="M30,32 Q37.0,41 44,35 Q37.0,34 30,32 Z" fill="#bb9c39" opacity="0.9"/><g stroke="#ac9035" strokeWidth="1.4" opacity="0.4" fill="none"><path d="M32,16 Q29.5,26 32,36"/><path d="M42,16 Q39.5,26 42,36"/><path d="M52,16 Q49.5,26 52,36"/><path d="M62,16 Q59.5,26 62,36"/></g><path d="M22,17 Q19,26 22,35" stroke="#a88c33" strokeWidth="1.5" fill="none" opacity="0.75"/><g fill="#947c2d" opacity="0.6"><ellipse cx="30" cy="21" rx="4" ry="3"/><ellipse cx="44" cy="30" rx="5" ry="3.5"/><ellipse cx="58" cy="20" rx="4.5" ry="3"/><ellipse cx="68" cy="30" rx="3.5" ry="2.5"/></g><circle cx="16" cy="23" r="3.3" fill="#fff"/><circle cx="15.2" cy="23" r="1.815" fill="#12232b"/><circle cx="14.5" cy="22.1" r="0.66" fill="#fff"/>`,
   "황금잉어": `<defs><linearGradient id="ggold" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#c99a10"/><stop offset="40%" stopColor="#ffcf3f"/><stop offset="75%" stopColor="#ffe98a"/><stop offset="100%" stopColor="#fff6c8"/></linearGradient></defs><path d="M82,24 Q94,14 98,10 Q95,19 94,26 Q95,33 98,42 Q94,38 82,29 Z" fill="#d1a933"/><path d="M10,26 Q16,10 42,9 Q72,9 84,26 Q72,43 42,43 Q16,42 10,26 Z" fill="url(#ggold)"/><path d="M38,12 Q51.0,3 64,13 Q51.0,10 38,12 Z" fill="#c6a131"/><path d="M44,40 Q52.0,48 60,40 Q52.0,41 44,40 Z" fill="#c6a131"/><path d="M30,33 Q38.0,42 46,36 Q38.0,35 30,33 Z" fill="#c6a131" opacity="0.9"/><g stroke="#b7952d" strokeWidth="1.4" opacity="0.4" fill="none"><path d="M32,16 Q29.5,26 32,36"/><path d="M42,16 Q39.5,26 42,36"/><path d="M52,16 Q49.5,26 52,36"/><path d="M62,16 Q59.5,26 62,36"/></g><path d="M22,17 Q19,26 22,35" stroke="#b2902c" strokeWidth="1.5" fill="none" opacity="0.75"/><path d="M10,27 Q4,25 1,21" stroke="#cca532" strokeWidth="1.2" fill="none" strokeLinecap="round"/><path d="M10,29 Q4,31 1,35" stroke="#cca532" strokeWidth="1.2" fill="none" strokeLinecap="round"/><g fill="#fffbe0" opacity="0.9"><circle cx="36" cy="18" r="1.6"/><circle cx="58" cy="16" r="1.2"/><circle cx="70" cy="24" r="1"/></g><circle cx="16" cy="23" r="3.3" fill="#fff"/><circle cx="15.2" cy="23" r="1.815" fill="#12232b"/><circle cx="14.5" cy="22.1" r="0.66" fill="#fff"/>`
 };
@@ -494,7 +723,7 @@ const ACHIEVEMENTS = [
   { id: "catch_500", icon: "🏆", name: "강태공", desc: "누적 500마리 낚기", check: c => c.lifetime.totalCatch >= 500 },
   { id: "catch_1500", icon: "👑", name: "낚시의 전설", desc: "누적 1500마리 낚기", check: c => c.lifetime.totalCatch >= 1500 },
   { id: "dex_10", icon: "📖", name: "수집가", desc: "도감 10종 채우기", check: c => Object.keys(c.book).length >= 10 },
-  { id: "dex_all", icon: "📚", name: "도감 마스터", desc: "도감 31종 전부 채우기", check: c => Object.keys(c.book).length >= 31 },
+  { id: "dex_all", icon: "📚", name: "도감 마스터", desc: "도감 50종 전부 채우기", check: c => Object.keys(c.book).length >= 50 },
   { id: "combo_10", icon: "🔥", name: "콤보왕", desc: "한 판에 10콤보 달성", check: c => c.lifetime.bestCombo >= 10 },
   { id: "combo_20", icon: "⚡", name: "콤보 마스터", desc: "한 판에 20콤보 달성", check: c => c.lifetime.bestCombo >= 20 },
   { id: "gold_1", icon: "🐠", name: "대박!", desc: "황금물고기 첫 포획", check: c => c.lifetime.goldCatches >= 1 },
@@ -845,7 +1074,7 @@ const SPOTS = [{
     lon: 126.95
   },
   bg: ["#cfeccb", "#7fc4ad", "#3f8f7a"],
-  fish: [["피라미", 40], ["붕어", 26], ["갈겨니", 16], ["돌고기", 10], ["모래무지", 8]],
+  fish: [["피라미", 36], ["붕어", 24], ["갈겨니", 14], ["돌고기", 9], ["모래무지", 7], ["송사리", 6], ["왜몰개", 4]],
   unlock: {
     coin: 0,
     gearSum: 0
@@ -862,7 +1091,7 @@ const SPOTS = [{
     lon: 127.00
   },
   bg: ["#d6e7ef", "#6fa8c4", "#356f8a"],
-  fish: [["피라미", 30], ["붕어", 24], ["참붕어", 18], ["미꾸라지", 12], ["누치", 9], ["잉어", 7]],
+  fish: [["피라미", 27], ["붕어", 22], ["참붕어", 16], ["미꾸라지", 11], ["송사리", 8], ["누치", 9], ["잉어", 7]],
   unlock: {
     coin: 2500,
     gearSum: 2
@@ -879,7 +1108,7 @@ const SPOTS = [{
     lon: 127.46
   },
   bg: ["#cfe6dd", "#5aa5a0", "#2f7570"],
-  fish: [["붕어", 22], ["갈겨니", 18], ["각시붕어", 16], ["납자루", 14], ["참마자", 12], ["메기", 10], ["잉어", 8]],
+  fish: [["붕어", 20], ["갈겨니", 16], ["각시붕어", 14], ["납자루", 13], ["몰개", 10], ["참마자", 11], ["메기", 9], ["잉어", 7]],
   unlock: {
     coin: 4500,
     gearSum: 3
@@ -896,7 +1125,7 @@ const SPOTS = [{
     lon: 126.80
   },
   bg: ["#cdd8e6", "#5d7fa8", "#33506f"],
-  fish: [["잉어", 22], ["붕어", 18], ["떡붕어", 16], ["동자개", 14], ["메기", 12], ["향어", 10], ["황쏘가리", 8]],
+  fish: [["잉어", 20], ["붕어", 17], ["떡붕어", 15], ["동자개", 13], ["살치", 10], ["메기", 11], ["향어", 8], ["황쏘가리", 6]],
   unlock: {
     coin: 7200,
     gearSum: 4
@@ -913,7 +1142,7 @@ const SPOTS = [{
     lon: 127.73
   },
   bg: ["#c9e1e8", "#4f93a8", "#2c6275"],
-  fish: [["끄리", 22], ["누치", 18], ["강준치", 16], ["쏘가리", 14], ["잉어", 12], ["가물치", 10], ["돌마자", 8]],
+  fish: [["끄리", 20], ["누치", 16], ["강준치", 15], ["쏘가리", 13], ["치리", 10], ["잉어", 10], ["가물치", 9], ["돌마자", 7]],
   unlock: {
     coin: 10500,
     gearSum: 5
@@ -930,7 +1159,7 @@ const SPOTS = [{
     lon: 128.47
   },
   bg: ["#bfe0e0", "#3f8fa0", "#235a6b"],
-  fish: [["쏘가리", 22], ["꺽지", 18], ["누치", 16], ["은어", 14], ["미유기", 12], ["산천어", 10], ["쉬리", 8]],
+  fish: [["쏘가리", 20], ["꺽지", 16], ["누치", 14], ["은어", 13], ["동사리", 10], ["미유기", 11], ["산천어", 9], ["쉬리", 7]],
   unlock: {
     coin: 14500,
     gearSum: 6
@@ -947,7 +1176,7 @@ const SPOTS = [{
     lon: 128.47
   },
   bg: ["#cfe9e6", "#3f8c86", "#1f5a55"],
-  fish: [["산천어", 22], ["버들치", 18], ["쉬리", 16], ["은어", 14], ["열목어", 12], ["미유기", 10], ["어름치", 8]],
+  fish: [["산천어", 20], ["버들치", 16], ["쉬리", 14], ["은어", 12], ["자가사리", 10], ["열목어", 11], ["미유기", 9], ["퉁가리", 4], ["어름치", 7]],
   unlock: {
     coin: 19500,
     gearSum: 7
@@ -964,7 +1193,7 @@ const SPOTS = [{
     lon: 126.77
   },
   bg: ["#d2e6ea", "#5fa0b4", "#356f86"],
-  fish: [["피라미", 30], ["붕어", 24], ["누치", 18], ["참마자", 14], ["끄리", 8], ["잉어", 6]],
+  fish: [["피라미", 27], ["붕어", 21], ["누치", 16], ["몰개", 12], ["참마자", 12], ["끄리", 7], ["잉어", 5]],
   unlock: {
     coin: 25500,
     gearSum: 8
@@ -981,7 +1210,7 @@ const SPOTS = [{
     lon: 127.12
   },
   bg: ["#d8e4d0", "#6aa888", "#3f7a60"],
-  fish: [["붕어", 26], ["피라미", 20], ["납자루", 16], ["동자개", 14], ["메기", 12], ["잉어", 12]],
+  fish: [["붕어", 24], ["피라미", 18], ["납자루", 14], ["동자개", 13], ["중고기", 11], ["메기", 10], ["잉어", 10]],
   unlock: {
     coin: 32500,
     gearSum: 9
@@ -998,7 +1227,7 @@ const SPOTS = [{
     lon: 126.72
   },
   bg: ["#dde6cf", "#7fae7a", "#4f8050"],
-  fish: [["붕어", 28], ["참붕어", 20], ["각시붕어", 16], ["미꾸라지", 14], ["가물치", 12], ["떡붕어", 10]],
+  fish: [["붕어", 25], ["참붕어", 18], ["각시붕어", 14], ["미꾸라지", 12], ["왜몰개", 10], ["가물치", 11], ["떡붕어", 10]],
   unlock: {
     coin: 41000,
     gearSum: 9
@@ -1015,7 +1244,7 @@ const SPOTS = [{
     lon: 127.48
   },
   bg: ["#d2e0e6", "#5f93a8", "#356074"],
-  fish: [["붕어", 24], ["떡붕어", 20], ["잉어", 18], ["강준치", 16], ["끄리", 12], ["가물치", 10]],
+  fish: [["붕어", 22], ["떡붕어", 18], ["잉어", 16], ["강준치", 14], ["치리", 11], ["끄리", 10], ["가물치", 9]],
   unlock: {
     coin: 51000,
     gearSum: 10
@@ -1032,7 +1261,7 @@ const SPOTS = [{
     lon: 128.00
   },
   bg: ["#cfe0e8", "#5790a8", "#335f78"],
-  fish: [["잉어", 22], ["떡붕어", 18], ["강준치", 18], ["쏘가리", 16], ["끄리", 14], ["향어", 12]],
+  fish: [["잉어", 20], ["떡붕어", 16], ["강준치", 16], ["쏘가리", 14], ["살치", 12], ["끄리", 12], ["향어", 10]],
   unlock: {
     coin: 62500,
     gearSum: 10
@@ -1049,7 +1278,7 @@ const SPOTS = [{
     lon: 128.08
   },
   bg: ["#d4e2dd", "#5fa097", "#357066"],
-  fish: [["피라미", 22], ["누치", 20], ["끄리", 18], ["쏘가리", 16], ["메기", 14], ["잉어", 10]],
+  fish: [["피라미", 20], ["누치", 18], ["끄리", 16], ["쏘가리", 14], ["눈불개", 12], ["메기", 12], ["잉어", 8]],
   unlock: {
     coin: 76000,
     gearSum: 11
@@ -1066,7 +1295,7 @@ const SPOTS = [{
     lon: 128.75
   },
   bg: ["#cfe2e0", "#4f9aa0", "#2c6b70"],
-  fish: [["쏘가리", 24], ["꺽지", 20], ["누치", 16], ["은어", 14], ["끄리", 14], ["미유기", 12]],
+  fish: [["쏘가리", 22], ["꺽지", 18], ["누치", 14], ["은어", 12], ["눈동자개", 12], ["끄리", 12], ["미유기", 10]],
   unlock: {
     coin: 91500,
     gearSum: 11
@@ -1083,7 +1312,7 @@ const SPOTS = [{
     lon: 127.07
   },
   bg: ["#cfe0e2", "#4f9398", "#2c6468"],
-  fish: [["쏘가리", 22], ["꺽지", 20], ["누치", 18], ["메기", 14], ["산천어", 14], ["쉬리", 12]],
+  fish: [["쏘가리", 20], ["꺽지", 18], ["누치", 16], ["동사리", 12], ["메기", 12], ["산천어", 12], ["감돌고기", 4], ["쉬리", 10]],
   unlock: {
     coin: 109000,
     gearSum: 12
@@ -1100,7 +1329,7 @@ const SPOTS = [{
     lon: 129.36
   },
   bg: ["#cfe4e6", "#509aa4", "#2c6b74"],
-  fish: [["은어", 24], ["피라미", 18], ["끄리", 16], ["쏘가리", 16], ["강준치", 14], ["향어", 12]],
+  fish: [["은어", 22], ["피라미", 16], ["끄리", 14], ["쏘가리", 14], ["빙어", 12], ["강준치", 12], ["향어", 10]],
   unlock: {
     coin: 129000,
     gearSum: 12
@@ -1117,7 +1346,7 @@ const SPOTS = [{
     lon: 128.97
   },
   bg: ["#d0dde6", "#5787a8", "#335574"],
-  fish: [["잉어", 22], ["향어", 18], ["강준치", 16], ["가물치", 14], ["쏘가리", 14], ["떡붕어", 10], ["황쏘가리", 6]],
+  fish: [["잉어", 20], ["향어", 16], ["강준치", 14], ["대농갱이", 12], ["가물치", 12], ["쏘가리", 12], ["떡붕어", 9], ["무태장어", 2], ["황쏘가리", 5]],
   unlock: {
     coin: 151000,
     gearSum: 13
@@ -1135,7 +1364,7 @@ const SPOTS = [{
   },
   island: true,
   bg: ["#cfe9e2", "#3f9a90", "#1f6a60"],
-  fish: [["은어", 24], ["산천어", 20], ["쉬리", 18], ["버들치", 14], ["열목어", 14], ["어름치", 10]],
+  fish: [["은어", 22], ["산천어", 18], ["쉬리", 16], ["버들치", 12], ["밀어", 12], ["열목어", 12], ["어름치", 8]],
   unlock: {
     coin: 176000,
     gearSum: 14
@@ -1153,7 +1382,7 @@ const SPOTS = [{
   },
   island: true,
   bg: ["#e0e8cc", "#8ab870", "#4f8048"],
-  fish: [["산천어", 22], ["버들치", 20], ["쉬리", 16], ["은어", 14], ["열목어", 14], ["어름치", 10], ["황금잉어", 4]],
+  fish: [["산천어", 20], ["버들치", 18], ["쉬리", 14], ["은어", 12], ["빙어", 10], ["참종개", 8], ["열목어", 12], ["꾸구리", 3], ["어름치", 8], ["황금잉어", 3]],
   unlock: {
     coin: 204000,
     gearSum: 15
@@ -1170,7 +1399,7 @@ const SPOTS = [{
     lon: 128.30
   },
   bg: ["#e8e0c2", "#9ab86a", "#5a8a4a"],
-  fish: [["열목어", 22], ["산천어", 18], ["어름치", 16], ["은어", 12], ["향어", 12], ["황쏘가리", 12], ["황금잉어", 8]],
+  fish: [["열목어", 20], ["산천어", 16], ["어름치", 14], ["은어", 11], ["퉁가리", 8], ["묵납자루", 6], ["향어", 10], ["황쏘가리", 10], ["꾸구리", 4], ["무태장어", 3], ["황금잉어", 7]],
   unlock: {
     coin: 235000,
     gearSum: 16
@@ -3475,7 +3704,7 @@ function FlyFishingGame() {
       style: {
         marginBottom: 14
       }
-    }, "전국 20개 하천·계곡을 돌며 31종의 토종 민물고기를 낚는 캐주얼 낚시 게임."), /*#__PURE__*/React.createElement("div", {
+    }, "전국 20개 하천·계곡을 돌며 50종의 토종 민물고기를 낚는 캐주얼 낚시 게임."), /*#__PURE__*/React.createElement("div", {
       style: {
         fontFamily: "'Jua',sans-serif",
         color: "#0c3b34",
