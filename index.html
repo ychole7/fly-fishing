@@ -983,6 +983,7 @@ function streakReward(count) {
   return 100 + Math.min(count, 14) * 50; // 최대 14일까지 계속 커짐, 이후 고정
 }
 const LIVES_ENABLED = false; // 🔧 목숨 시스템 보류 중. 되살리려면 true로 바꾸면 끝.
+const SHOP_CHARGE_ENABLED = false; // 🔧 충전소(인앱결제) 보류 중. Capacitor+빌링 붙이면 true로.
 const DAILY_LIVES = 10; // 하루 무료 낚시 판수
 // 저장된 lives가 오늘 것이 아니면(날짜가 바뀌었으면) 리셋해서 반환
 function freshLives(saved) {
@@ -5280,7 +5281,7 @@ function FlyFishingGame() {
         width: "100%",
         marginTop: 10
       }
-    }, [["gear", "🎣 장비"], ["bait", "🪰 미끼"], ["creel", "🧺 어망"], ["theme", "🎨 꾸미기"], ["charge", "💎 충전소"]].map(([key, label]) => /*#__PURE__*/React.createElement("button", {
+    }, [["gear", "🎣 장비"], ["bait", "🪰 미끼"], ["creel", "🧺 어망"], ["theme", "🎨 꾸미기"], ...(SHOP_CHARGE_ENABLED ? [["charge", "💎 충전소"]] : [])].map(([key, label]) => /*#__PURE__*/React.createElement("button", {
       key: key,
       onClick: () => setShopTab(key),
       style: {
@@ -5461,7 +5462,7 @@ function FlyFishingGame() {
               h("div", { style: { fontSize: 11, marginTop: 4, opacity: 0.95 } },
                 owned ? (equipped ? "장착됨" : "탭해서 장착") : [h(CoinIcon, { key: "ci", size: 11 }), t.cost.toLocaleString()]));
           })));
-    })(), shopTab === "charge" && (() => {
+    })(), SHOP_CHARGE_ENABLED && shopTab === "charge" && (() => {
       const h = React.createElement;
       const notify = () => {
         setChargeNotice(true);
