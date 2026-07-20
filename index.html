@@ -5766,10 +5766,23 @@ function FlyFishingGame() {
       marginTop: 2,
       whiteSpace: "nowrap"
     }
-  }, BAITS[equippedBait].icon, " ", CREELS[equippedCreel].icon, " ", TIMES[weather.time].icon, " ", SKIES[weather.sky].icon, missCount > 0 && /*#__PURE__*/React.createElement("span", {
-    key: missFlashKey,
-    style: { marginLeft: 6, color: "#ff8a7a", display: "inline-block", animation: "missFlash .5s ease-out" }
-  }, "❌".repeat(missCount))))), /*#__PURE__*/React.createElement("div", {
+  }, BAITS[equippedBait].icon, " ", CREELS[equippedCreel].icon, " ", TIMES[weather.time].icon, " ", SKIES[weather.sky].icon, /*#__PURE__*/React.createElement("span", {
+    style: { marginLeft: 6, display: "inline-flex", gap: 1, verticalAlign: "middle" }
+  }, Array.from({ length: 5 }, (_, i) => {
+    const lost = i < missCount;
+    return /*#__PURE__*/React.createElement("span", {
+      key: i + (lost && i === missCount - 1 ? "_" + missFlashKey : ""),
+      style: {
+        display: "inline-block",
+        fontSize: 12,
+        opacity: lost ? 0.2 : 1,
+        filter: lost ? "grayscale(1)" : "none",
+        transform: lost ? "scale(.7)" : "scale(1)",
+        transition: "opacity .4s ease, transform .4s ease",
+        animation: lost && i === missCount - 1 ? "missFlash .5s ease-out" : "none"
+      }
+    }, "🐟");
+  }))))), /*#__PURE__*/React.createElement("div", {
     ref: poolBoxRef,
     onPointerDown: () => {
       if (dragRef.current) yankLine(dragRef.current.line);
