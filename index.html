@@ -1075,7 +1075,7 @@ const SPOTS = [{
     lon: 126.95
   },
   bg: ["#cfeccb", "#7fc4ad", "#3f8f7a"],
-  fish: [["피라미", 36], ["붕어", 24], ["갈겨니", 14], ["돌고기", 9], ["모래무지", 7], ["송사리", 6], ["왜몰개", 4]],
+  fish: [["피라미", 34], ["붕어", 23], ["갈겨니", 13], ["돌고기", 9], ["모래무지", 7], ["송사리", 6], ["왜몰개", 4], ["몰개", 4]],
   unlock: {
     coin: 0,
     gearSum: 0
@@ -4143,13 +4143,13 @@ function FlyFishingGame() {
       }, (PROFILE_THEMES[equippedTheme] || PROFILE_THEMES.basic).icon),
       h("div", { style: { display: "flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1.2 } },
         h("span", { style: { fontSize: 12.5, whiteSpace: "nowrap", maxWidth: 108, overflow: "hidden", textOverflow: "ellipsis" } }, nickname || "이름 없는 낚시꾼"),
-        h("span", { style: { fontSize: 9.5, color: "#2c6f86" } }, "Lv.", lv, " ", anglerTitle(lv))),
+        h("span", { style: { fontSize: 10.5, color: "#2c6f86" } }, "Lv.", lv, " ", anglerTitle(lv))),
       claimed.all && h("span", { style: { fontSize: 13 } }, "👑")),
     h("div", { style: { ...hudPill, flex: 1, minWidth: 0, gap: 8 } },
       h("span", { style: { fontSize: 13 } }, "✨"),
       h("div", { style: { flex: 1, minWidth: 24, height: 6, background: "#e4efea", borderRadius: 3 } },
         h("div", { style: { width: `${pct}%`, height: "100%", background: "linear-gradient(90deg,#27ae8f,#7fe0c0)", borderRadius: 3, transition: "width .3s" } })),
-      h("span", { style: { fontSize: 10, color: "#7a948c", fontFamily: "'Sunflower',sans-serif" } }, anglerExp - curBase, "/", nextBase - curBase)),
+      h("span", { style: { fontSize: 11, color: "#7a948c", fontFamily: "'Sunflower',sans-serif" } }, anglerExp - curBase, "/", nextBase - curBase)),
     h("div", { style: { ...hudPill, fontSize: 16, color: "#c8881f" } }, h(CoinIcon, { size: 17 }), " ", coins),
     LIVES_ENABLED && h("div", {
       style: { ...hudPill, fontSize: 13, color: lives.remaining <= 2 ? "#c0392b" : "#37544d" }
@@ -4249,8 +4249,8 @@ function FlyFishingGame() {
         h("div", { style: { fontSize: 14, letterSpacing: 2, marginBottom: 2 } },
           [0, 1, 2].map(i => h("span", { key: i, style: { color: i < (stars[sel.id] || 0) ? "#ffce3a" : "rgba(255,255,255,.4)" } }, "★")),
           bestBySpot[sel.id] != null && h("span", { style: { fontSize: 10.5, opacity: 0.85, marginLeft: 6 } }, "최고 ", h(CoinIcon, { size: 11 }), bestBySpot[sel.id])),
-        h("div", { style: { fontSize: 9.5, opacity: 0.75, marginBottom: 2 } }, "⭐ 별 획득 조건 (한 판 기준)"),
-        h("div", { style: { fontSize: 10, opacity: 0.85, lineHeight: 1.35 } },
+        h("div", { style: { fontSize: 10.5, opacity: 0.75, marginBottom: 2 } }, "⭐ 별 획득 조건 (한 판 기준)"),
+        h("div", { style: { fontSize: 11, opacity: 0.85, lineHeight: 1.35 } },
           spotMissions(sel).map((m, i) => h("div", { key: i }, "· ", m.label)))),
       selUnlocked ? h("button", { onClick: () => startSpot(selPin), style: { ...mapBtn(), padding: "6px 15px", fontSize: 13 } }, "낚시하러 가기 →")
       : selCanUnlock ? h("button", { onClick: () => tryUnlock(selPin), style: { ...mapBtn(), padding: "6px 15px", fontSize: 13 } }, "🔓 해금하기 ", h(CoinIcon, { size: 13 }), sel.unlock.coin)
@@ -4886,7 +4886,7 @@ function FlyFishingGame() {
           }
         }, got ? n : "???"), got && /*#__PURE__*/React.createElement("div", {
           style: {
-            fontSize: 9.5,
+            fontSize: 10.5,
             color: "#7a948c"
           }
         }, "×", book[n], bestSize[n] ? ` · ${bestSize[n]}cm` : ""));
@@ -4912,7 +4912,7 @@ function FlyFishingGame() {
           },
             /*#__PURE__*/React.createElement("div", { style: { fontSize: 22, filter: rec ? "none" : "grayscale(1)" } }, rec ? l.emoji : "❔"),
             /*#__PURE__*/React.createElement("div", { style: { fontSize: 10.5, fontWeight: rec ? 700 : 400, color: rec ? "#5a3a00" : "#999", marginTop: 2 } }, rec ? l.name : "???"),
-            rec && /*#__PURE__*/React.createElement("div", { style: { fontSize: 9, color: "#8a5a00" } }, "×", rec.count, " · ", rec.bestSize, "cm"));
+            rec && /*#__PURE__*/React.createElement("div", { style: { fontSize: 11, color: "#8a5a00" } }, "×", rec.count, " · ", rec.bestSize, "cm"));
         }))), /*#__PURE__*/React.createElement(BigBtn, {
       onClick: () => {
         setBookSel(null);
@@ -5073,7 +5073,7 @@ function FlyFishingGame() {
       key: i,
       style: {
         color: i <= n ? "#f0b429" : "#d8e2dd",
-        fontSize: 10
+        fontSize: 11
       }
     }, "★")));
     const fxOn = k => buyFx && buyFx.key === k && Date.now() - buyFx.t < 900;
@@ -5126,7 +5126,7 @@ function FlyFishingGame() {
         }
       }, item.name), /*#__PURE__*/React.createElement("span", {
         style: {
-          fontSize: 9.5,
+          fontSize: 10.5,
           fontFamily: "'Jua',sans-serif",
           color: "#fff",
           background: t.color,
@@ -5154,7 +5154,7 @@ function FlyFishingGame() {
       }, Object.entries(item.stats).map(([sn, sv]) => /*#__PURE__*/React.createElement("span", {
         key: sn,
         style: {
-          fontSize: 10,
+          fontSize: 11,
           color: "#7a948c"
         }
       }, sn, " ", /*#__PURE__*/React.createElement(Stars, {
@@ -5255,7 +5255,7 @@ function FlyFishingGame() {
       }
     }, s.icon), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontSize: 9.5,
+        fontSize: 10.5,
         fontFamily: "'Jua',sans-serif",
         color: "#0c3b34",
         marginTop: 2,
@@ -5265,7 +5265,7 @@ function FlyFishingGame() {
       }
     }, s.label), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontSize: 8.5,
+        fontSize: 10.5,
         color: "#7a948c"
       }
     }, s.sub)))), /*#__PURE__*/React.createElement("div", {
@@ -5348,7 +5348,7 @@ function FlyFishingGame() {
         }
       }, curName), /*#__PURE__*/React.createElement("span", {
         style: {
-          fontSize: 9.5,
+          fontSize: 10.5,
           fontFamily: "'Jua',sans-serif",
           color: "#fff",
           background: t.color,
@@ -5513,7 +5513,7 @@ function FlyFishingGame() {
             p.popular && h("span", {
               style: {
                 position: "absolute", top: -9, left: "50%", transform: "translateX(-50%)",
-                background: "#27ae8f", color: "#fff", fontSize: 9.5, padding: "2px 8px",
+                background: "#27ae8f", color: "#fff", fontSize: 10.5, padding: "2px 8px",
                 borderRadius: 999, fontFamily: "'Jua',sans-serif"
               }
             }, "인기"),
