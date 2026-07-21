@@ -1,7 +1,7 @@
 {
   "name": "파리낚시",
   "short_name": "파리낚시",
-  "description": "전국 방방곡곡, 한 마리 낚으러 가자. 20개 하천에서 31종의 토종 민물고기를 낚는 캐주얼 낚시 게임.",
+  "description": "전국 방방곡곡, 한 마리 낚으러 가자. 20개 하천에서 50종의 토종 민물고기를 낚는 캐주얼 낚시 게임.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "fullscreen",
