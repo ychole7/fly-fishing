@@ -2225,8 +2225,7 @@ function FlyFishingGame() {
   useEffect(() => {
     if (!mapCoach) { setMapCoachRect(null); return; }
     const measure = () => {
-      const el = mapCoach === 1 ? toolbarRef.current : firstPinRef.current;
-      if (el) setMapCoachRect(el.getBoundingClientRect());
+      if (toolbarRef.current) setMapCoachRect(toolbarRef.current.getBoundingClientRect());
     };
     const t = setTimeout(measure, 260); // 지도 진입 스크롤 정착 후 측정
     window.addEventListener("resize", measure);
@@ -4376,7 +4375,7 @@ function FlyFishingGame() {
           top: mapCoachRect.top - 6,
           width: mapCoachRect.width + 12,
           height: mapCoachRect.height + 12,
-          borderRadius: mapCoach === 2 ? "50%" : 16,
+          borderRadius: 16,
           boxShadow: "0 0 0 9999px rgba(6,20,18,.62)",
           border: "3px solid #ffd86b",
           pointerEvents: "none"
@@ -4399,14 +4398,14 @@ function FlyFishingGame() {
         }
       },
         h("div", { style: { fontFamily: "'Jua',sans-serif", fontSize: 13, lineHeight: 1.5, marginBottom: 8 } },
-          mapCoach === 1 ? "🛒 여기서 상점·도감·업적·랭킹을 확인할 수 있어요" : "🎣 여기를 눌러 첫 낚시터에서 시작해보세요!"),
+          "🛒 여기서 상점·도감·업적·랭킹을 확인할 수 있어요"),
         h("button", {
-          onClick: () => setMapCoach(c => c === 1 ? 2 : 0),
+          onClick: () => setMapCoach(0),
           style: {
             background: "#27ae8f", color: "#fff", border: "none", borderRadius: 999,
             padding: "6px 16px", fontFamily: "'Jua',sans-serif", fontSize: 12.5, cursor: "pointer"
           }
-        }, mapCoach === 1 ? "다음 →" : "알겠어요!"))),
+        }, "알겠어요!"))),
     h("style", null, `@keyframes pinpulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,159,67,.5),0 4px 9px rgba(0,0,0,.28)} 50%{box-shadow:0 0 0 8px rgba(255,159,67,0),0 4px 9px rgba(0,0,0,.28)} } @keyframes starpulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,206,58,.45),0 4px 9px rgba(0,0,0,.28)} 50%{box-shadow:0 0 0 6px rgba(255,206,58,0),0 4px 9px rgba(0,0,0,.28)} } @keyframes jflow { to { stroke-dashoffset: -12; } } @keyframes jslideup { from { opacity:0; transform: translate(-50%,10px);} to { opacity:1; transform: translate(-50%,0);} } @keyframes jfade { from { opacity:0; transform: translateY(10px);} to { opacity:1; transform: translateY(0);} } @keyframes jbob { 0%,100%{ transform: translate(-50%,0);} 50%{ transform: translate(-50%,-5px);} } @keyframes mapfishswim { 0%,100%{ transform: translateX(0) scaleX(var(--fdir,1)); } 50%{ transform: translateX(26px) scaleX(var(--fdir,1)); } }`));
   }
 
