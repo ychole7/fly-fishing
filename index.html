@@ -2216,6 +2216,7 @@ function FlyFishingGame() {
   }); // 지도 이동
   const panRef = useRef(null); // 드래그 상태
   const [newCatches, setNewCatches] = useState([]); // 이번 판에 처음 잡은 신규 어종
+  const [newBestSizes, setNewBestSizes] = useState([]); // 이번 판에 갱신된 개인 최고 사이즈 {name, size}
   const [bookSel, setBookSel] = useState(null); // 도감 상세로 볼 어종명
 
   const [score, setScore] = useState(0);
@@ -3163,6 +3164,7 @@ function FlyFishingGame() {
     setCreel({});
     setDrag(null);
     setNewCatches([]);
+    setNewBestSizes([]);
     setSplashes([]);
     setFanfare(null);
     setShake(0);
@@ -3308,7 +3310,10 @@ function FlyFishingGame() {
     setBestSize(bs => {
       const prevBest = bs[f.name] || 0;
       if (sizeCm > prevBest) {
-        if (prevBest > 0) addPop(lineX(line), lineDepth(line) - 44, `📏 신기록 ${sizeCm}cm!`, "#ffd86b");
+        if (prevBest > 0) {
+          addPop(lineX(line), lineDepth(line) - 44, `📏 신기록 ${sizeCm}cm!`, "#ffd86b");
+          setNewBestSizes(nb => [...nb.filter(x => x.name !== f.name), { name: f.name, size: sizeCm, prev: prevBest }]);
+        }
         return {
           ...bs,
           [f.name]: sizeCm
@@ -5593,7 +5598,10 @@ function FlyFishingGame() {
         style: { fontSize: 11.5, color: "#3a6b62", width: "100%", textAlign: "left", marginBottom: 4 }
       }, creelList.map(([n, c]) => `${FISH[n].emoji}${n}×${c}`).join("  ")),
 
-      (newCatches.length > 0 || nextLocked) && h("div", { style: { display: "flex", flexDirection: "column", gap: 4, width: "100%", marginBottom: 4 } },
+      (newCatches.length > 0 || nextLocked || newBestSizes.length > 0) && h("div", { style: { display: "flex", flexDirection: "column", gap: 4, width: "100%", marginBottom: 4 } },
+        newBestSizes.length > 0 && h("div", {
+          style: { fontSize: 11, color: "#a0631f", background: "#fff1de", padding: "5px 9px", borderRadius: 9, textAlign: "left" }
+        }, "📏 개인 최고 기록: ", newBestSizes.map(b => `${FISH[b.name] ? FISH[b.name].emoji : ""}${b.name} ${b.size}cm`).join(" · ")),
         newCatches.length > 0 && h("div", {
           style: { fontSize: 11, color: "#1c7a5e", background: "#e3f7ef", padding: "5px 9px", borderRadius: 9, textAlign: "left" }
         }, "✨ 도감 신규: ", newCatches.join("·")),
