@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.flyfishing.app",
+        "sha256_cert_fingerprints": ["15:C9:71:3E:2C:92:19:1A:E4:A6:E0:86:8B:79:CC:E1:60:88:B0:FF:74:13:38:54:EA:DD:32:05:D7:B0:FB:22"]
+      }
+    }]
