@@ -611,6 +611,12 @@ const FISH = {
     desc: "전설로만 전해지는 황금빛 대물. 행운의 상징."
   }
 };
+// 실사 일러스트가 준비된 어종. 있으면 SVG 대신 이 이미지를 사용한다.
+const FISH_IMG = {
+  갈겨니: "assets/fish/galgyeoni.png",
+  송사리: "assets/fish/songsari.png",
+  피라미: "assets/fish/pirami.png"
+};
 const FISH_ART = {
   "피라미": `<defs><linearGradient id="fg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#7297a1"/><stop offset="45%" stopColor="#9fd3e0"/><stop offset="100%" stopColor="#c1ffff"/></linearGradient></defs><path d="M82,24 Q94,14 98,10 Q95,19 94,26 Q95,33 98,42 Q94,38 82,29 Z" fill="#82adb7"/><path d="M10,26 Q18,15 42,14 Q68,14 80,25 Q68,38 42,38 Q18,37 10,26 Z" fill="url(#fg1)"/><path d="M40,14 Q49.0,5 58,15 Q49.0,12 40,14 Z" fill="#7ca4ae"/><path d="M40,37 Q48.0,45 56,37 Q48.0,38 40,37 Z" fill="#7ca4ae"/><path d="M30,30 Q37.0,39 44,33 Q37.0,32 30,30 Z" fill="#7ca4ae" opacity="0.9"/><g stroke="#7297a1" strokeWidth="1.4" opacity="0.4" fill="none"><path d="M32,16 Q29.5,26 32,36"/><path d="M42,16 Q39.5,26 42,36"/><path d="M52,16 Q49.5,26 52,36"/><path d="M62,16 Q59.5,26 62,36"/></g><path d="M22,17 Q19,26 22,35" stroke="#6f939c" strokeWidth="1.5" fill="none" opacity="0.75"/><path d="M34,17 Q32,26 34,35" stroke="#62828a" strokeWidth="2.2" fill="none" opacity="0.4"/><path d="M44,17 Q42,26 44,35" stroke="#62828a" strokeWidth="2.2" fill="none" opacity="0.4"/><path d="M54,17 Q52,26 54,35" stroke="#62828a" strokeWidth="2.2" fill="none" opacity="0.4"/><circle cx="16" cy="23" r="3.3" fill="#fff"/><circle cx="15.2" cy="23" r="1.815" fill="#12232b"/><circle cx="14.5" cy="22.1" r="0.66" fill="#fff"/>`,
   "버들치": `<defs><linearGradient id="fg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#839066"/><stop offset="45%" stopColor="#b7c98f"/><stop offset="100%" stopColor="#dff5ae"/></linearGradient></defs><path d="M82,24 Q94,14 98,10 Q95,19 94,26 Q95,33 98,42 Q94,38 82,29 Z" fill="#96a475"/><path d="M10,26 Q18,15 42,14 Q68,14 80,25 Q68,38 42,38 Q18,37 10,26 Z" fill="url(#fg2)"/><path d="M40,14 Q49.0,5 58,15 Q49.0,12 40,14 Z" fill="#8e9c6f"/><path d="M40,37 Q48.0,45 56,37 Q48.0,38 40,37 Z" fill="#8e9c6f"/><path d="M30,30 Q37.0,39 44,33 Q37.0,32 30,30 Z" fill="#8e9c6f" opacity="0.9"/><g stroke="#839066" strokeWidth="1.4" opacity="0.4" fill="none"><path d="M32,16 Q29.5,26 32,36"/><path d="M42,16 Q39.5,26 42,36"/><path d="M52,16 Q49.5,26 52,36"/><path d="M62,16 Q59.5,26 62,36"/></g><path d="M22,17 Q19,26 22,35" stroke="#808c64" strokeWidth="1.5" fill="none" opacity="0.75"/><g fill="#646e4e" opacity="0.65"><circle cx="32" cy="23" r="1.4"/><circle cx="44" cy="28" r="1.4"/><circle cx="56" cy="24" r="1.4"/><circle cx="66" cy="29" r="1.4"/></g><circle cx="16" cy="23" r="3.3" fill="#fff"/><circle cx="15.2" cy="23" r="1.815" fill="#12232b"/><circle cx="14.5" cy="22.1" r="0.66" fill="#fff"/>`,
@@ -1075,7 +1081,7 @@ const SPOTS = [{
     lon: 126.95
   },
   bg: ["#cfeccb", "#7fc4ad", "#3f8f7a"],
-  bgImage: "bg-stream.jpg",
+  bgImage: "assets/bg/bg-stream.jpg",
   waterTop: 0.41,
   fish: [["피라미", 34], ["붕어", 23], ["갈겨니", 13], ["돌고기", 9], ["모래무지", 7], ["송사리", 6], ["왜몰개", 4], ["몰개", 4]],
   unlock: {
@@ -2061,7 +2067,7 @@ const sfx = {
 
 // 배경음: 앱을 켜는 동안 계속 은은하게 흐르고, 실제 낚시 플레이 중엔 살짝 낮춰(덕킹)
 // 효과음이 더 잘 들리게 한다. 화면 전환마다 start/stop을 반복하지 않는다.
-const BGM_SRC = "bgm.mp3"; // Kevin MacLeod - "Almost New" (CC BY 4.0)
+const BGM_SRC = "assets/audio/bgm.mp3"; // Kevin MacLeod - "Almost New" (CC BY 4.0)
 const bgm = {
   el: null,
   vol: 0.35,       // 사용자가 설정한 기준 볼륨(0~1)
@@ -7057,7 +7063,20 @@ function FishArt({
     }, "?"));
   }
 
-  return /*#__PURE__*/React.createElement("svg", {
+  return FISH_IMG[name] ? /*#__PURE__*/React.createElement("img", {
+    src: FISH_IMG[name],
+    alt: name,
+    draggable: false,
+    style: {
+      display: "block",
+      width: size,
+      height: h,
+      objectFit: "contain",
+      filter,
+      overflow: "visible",
+      pointerEvents: "none"
+    }
+  }) : /*#__PURE__*/React.createElement("svg", {
     width: size,
     height: h,
     viewBox: "0 0 100 52",
