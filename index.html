@@ -1075,6 +1075,8 @@ const SPOTS = [{
     lon: 126.95
   },
   bg: ["#cfeccb", "#7fc4ad", "#3f8f7a"],
+  bgImage: "bg-stream.jpg",
+  waterTop: 0.41,
   fish: [["피라미", 34], ["붕어", 23], ["갈겨니", 13], ["돌고기", 9], ["모래무지", 7], ["송사리", 6], ["왜몰개", 4], ["몰개", 4]],
   unlock: {
     coin: 0,
@@ -1703,6 +1705,7 @@ const POOL_W = 720,
   WATER_TOP = 70,
   HOOK_Y = 150,
   RAIL_Y = 60;
+const waterTopOf = sp => sp && sp.waterTop != null ? Math.round(sp.waterTop * POOL_H) : WATER_TOP;
 const SAVE_KEY = "flyfishing:save:v3";
 function vibrate(p) {
   try {
@@ -2767,7 +2770,8 @@ function FlyFishingGame() {
     const preName = special ? null : pickFishType();
     const preSize = special === "gold" ? 1.1 : special === "legend" ? 1.6 : special === "trash" ? 0.9 : (FISH[preName] && FISH[preName].size) || 1;
     const topMargin = 40 + Math.max(0, preSize - 1) * 30;
-    const y = WATER_TOP + topMargin + Math.random() * (POOL_H - WATER_TOP - topMargin - 40);
+    const wt = waterTopOf(spot);
+    const y = wt + topMargin + Math.random() * (POOL_H - wt - topMargin - 40);
     if (special === "legend") {
       const l = LEGENDARY_FISH[Math.floor(Math.random() * LEGENDARY_FISH.length)];
       fishesRef.current.push({
@@ -2922,7 +2926,7 @@ function FlyFishingGame() {
     if (!inRush && nowMs > rushRef.current.next && elapsedRef.current < 52) {
       rushRef.current.until = nowMs + 5000;
       rushRef.current.next = nowMs + 22000 + Math.random() * 12000;
-      addPop(POOL_W / 2, WATER_TOP + 40, "🐟 떼가 몰려온다!", "#ffe066");
+      addPop(POOL_W / 2, waterTopOf(spot) + 40, "🐟 떼가 몰려온다!", "#ffe066");
       play("fever");
       setRushOn(true);
     }
@@ -2969,7 +2973,8 @@ function FlyFishingGame() {
         // 목표 깊이(targetY)를 가끔 바꿔서 위아래로 유영, 부드럽게 따라감
         if (now > (f.nextDepth || 0)) {
           const margin = 40;
-          f.targetY = WATER_TOP + margin + Math.random() * (POOL_H - WATER_TOP - margin * 2 - 30);
+          const wt = waterTopOf(spot);
+          f.targetY = wt + margin + Math.random() * (POOL_H - wt - margin * 2 - 30);
           f.nextDepth = now + 1500 + Math.random() * 2500;
         }
         const ty = f.targetY != null ? f.targetY : f.baseY;
@@ -5919,7 +5924,20 @@ function FlyFishingGame() {
       transform: "scale(1)",
       transformOrigin: "top left"
     }
-  }, BG_ART[spot.type] && /*#__PURE__*/React.createElement("svg", {
+  }, spot.bgImage ? /*#__PURE__*/React.createElement("img", {
+    src: spot.bgImage,
+    alt: "",
+    style: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: POOL_W,
+      height: POOL_H,
+      objectFit: "cover",
+      objectPosition: "center",
+      zIndex: 0
+    }
+  }) : BG_ART[spot.type] && /*#__PURE__*/React.createElement("svg", {
     width: POOL_W,
     height: POOL_H,
     viewBox: `0 0 ${POOL_W} ${POOL_H}`,
@@ -5932,7 +5950,7 @@ function FlyFishingGame() {
     dangerouslySetInnerHTML: {
       __html: BG_ART[spot.type]
     }
-  }), /*#__PURE__*/React.createElement("div", {
+  }), !spot.bgImage && /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
       left: 0,
@@ -5978,7 +5996,7 @@ function FlyFishingGame() {
       position: "absolute",
       left: 0,
       right: 0,
-      top: WATER_TOP,
+      top: waterTopOf(spot),
       bottom: 0,
       zIndex: 0,
       overflow: "hidden",
@@ -6022,7 +6040,7 @@ function FlyFishingGame() {
       position: "absolute",
       left: 0,
       right: 0,
-      top: WATER_TOP,
+      top: waterTopOf(spot),
       bottom: 0,
       zIndex: 0,
       overflow: "hidden",
@@ -6092,7 +6110,7 @@ function FlyFishingGame() {
       position: "absolute",
       left: 0,
       right: 0,
-      top: WATER_TOP,
+      top: waterTopOf(spot),
       height: 10,
       zIndex: 1,
       overflow: "hidden",
