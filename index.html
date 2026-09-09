@@ -2252,7 +2252,7 @@ function FlyFishingGame() {
     const calc = () => {
       const vw = window.innerWidth, vh = window.innerHeight;
       if (vw < 50 || vh < 50) return; // 과도기적인(레이아웃 미확정) 값은 무시
-      setGameScale(Math.min(vw / POOL_W, vh / POOL_H));
+      setGameScale(Math.max(vw / POOL_W, vh / POOL_H));
     };
     // 레이아웃이 완전히 자리잡을 시간을 주고 몇 차례 재측정 (모바일 주소창/회전 애니메이션 대비)
     const settleCalc = () => {
@@ -5695,20 +5695,7 @@ function FlyFishingGame() {
       overflow: "hidden",
       boxSizing: "border-box"
     }
-  }, spot.bgImage && /*#__PURE__*/React.createElement("img", {
-    src: spot.bgImage,
-    alt: "",
-    style: {
-      position: "fixed",
-      inset: 0,
-      width: "100%",
-      height: "100%",
-      objectFit: "cover",
-      filter: "blur(22px) brightness(.65) saturate(1.1)",
-      transform: "scale(1.1)", // 블러 가장자리가 화면 밖으로 나가게 살짝 확대
-      zIndex: 0
-    }
-  }), /*#__PURE__*/React.createElement(Fonts, null), /*#__PURE__*/React.createElement(RotateHint, null), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Fonts, null), /*#__PURE__*/React.createElement(RotateHint, null), /*#__PURE__*/React.createElement("div", {
     style: {
       width: POOL_W,
       height: POOL_H,
@@ -5719,9 +5706,9 @@ function FlyFishingGame() {
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
-      top: 8,
-      left: 12,
-      right: 12,
+      top: 24,
+      left: 52,
+      right: 52,
       display: "flex",
       justifyContent: "space-between",
       alignItems: "flex-start",
@@ -6557,9 +6544,9 @@ function FlyFishingGame() {
     }, legendReveal.cm, "cm · ", React.createElement(CoinIcon, { size: 13 }), "+", legendReveal.coin))))), /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
-      left: 10,
-      right: 10,
-      bottom: 6,
+      left: 52,
+      right: 52,
+      bottom: 22,
       background: "rgba(0,0,0,.32)",
       backdropFilter: "blur(3px)",
       borderRadius: 999,
