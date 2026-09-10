@@ -2230,7 +2230,6 @@ function FlyFishingGame() {
   const [mapCoach, setMapCoach] = useState(0); // 지도 코치마크 단계 (0=없음, 1=상점바, 2=첫 낚시터)
   const [mapCoachRect, setMapCoachRect] = useState(null); // 강조할 요소의 화면 좌표
   const toolbarRef = useRef(null);
-  const firstPinRef = useRef(null);
   useEffect(() => {
     if (!mapCoach) { setMapCoachRect(null); return; }
     const measure = () => {
@@ -3951,22 +3950,6 @@ function FlyFishingGame() {
       fontSize: 14,
       padding: "9px 15px"
     };
-    const scenery = [
-      [0.4, "🌾", 20], [1.05, "🏙️", 24], [1.6, "🦆", 15], [2.5, "🌸", 17],
-      [3.45, "🌉", 22], [4.5, "🛶", 16], [5.5, "🪨", 18], [6.45, "🌲", 22],
-      [7.5, "🦢", 15], [8.5, "🌳", 20], [9.45, "🌻", 17], [10.5, "⛵", 18],
-      [11.5, "🌲", 20], [12.45, "🎋", 18], [13.5, "🍂", 15], [14.5, "🪨", 17],
-      [15.45, "🌾", 18], [16.5, "🌊", 16], [17.5, "🍊", 18], [18.5, "❄️", 16]
-    ];
-    // 강물 속을 헤엄치는 배경 물고기 (장식용, 낚시터 노드와 겹치지 않게 y를 물 하단쪽에 배치)
-    const riverFish = Array.from({ length: Math.max(10, Math.round(W / 150)) }, (_, k) => ({
-      x: 60 + (k * 150 + (k % 4) * 55) % (W - 120),
-      y: SH * 0.88 + (k % 5) * (SH * 0.02),
-      dir: k % 2 === 0 ? 1 : -1,
-      size: 11 + (k % 3) * 3,
-      dur: 3.2 + (k % 5) * 0.6,
-      delay: (k % 7) * 0.6
-    }));
     return h("div", {
       style: {
         width: "100%",
@@ -3996,6 +3979,19 @@ function FlyFishingGame() {
       style: { position: "relative", width: W, height: "100%" },
       onClick: e => { if (e.target === e.currentTarget) setSelPin(null); }
     },
+    h("img", {
+      src: "assets/bg/map-panorama.jpg",
+      alt: "",
+      style: {
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        objectFit: "fill",
+        pointerEvents: "none",
+        zIndex: 0
+      }
+    }),
     h("svg", {
       viewBox: `0 0 ${W} ${SH}`,
       preserveAspectRatio: "none",
@@ -4021,20 +4017,6 @@ function FlyFishingGame() {
         h("linearGradient", { id: "jWater", x1: "0", y1: "0", x2: "0", y2: "1" },
           h("stop", { offset: "0%", stopColor: "#9fd8e8" }),
           h("stop", { offset: "100%", stopColor: "#5fb0c8" }))),
-      h("path", {
-        d: `M0,${SH * 0.52} ` + Array.from({ length: Math.ceil(W / 260) + 1 }, (_, k) => `Q ${k * 260 + 130} ${SH * 0.40} ${(k + 1) * 260} ${SH * 0.52}`).join(" ") + ` L${W},${SH} L0,${SH} Z`,
-        fill: "url(#jHillFar)",
-        opacity: 0.75
-      }),
-      h("path", {
-        d: `M0,${SH * 0.68} ` + Array.from({ length: Math.ceil(W / 340) + 1 }, (_, k) => `Q ${k * 340 + 170} ${SH * 0.55} ${(k + 1) * 340} ${SH * 0.68}`).join(" ") + ` L${W},${SH} L0,${SH} Z`,
-        fill: "url(#jHillNear)",
-        opacity: 0.85
-      }),
-      h("path", {
-        d: `M0,${SH * 0.84} ` + Array.from({ length: Math.ceil(W / 300) + 1 }, (_, k) => `Q ${k * 300 + 150} ${SH * 0.80} ${(k + 1) * 300} ${SH * 0.84}`).join(" ") + ` L${W},${SH} L0,${SH} Z`,
-        fill: "url(#jWater)"
-      }),
       h("path", { d: pathD, fill: "none", stroke: "rgba(255,255,255,.55)", strokeWidth: 9, strokeLinecap: "round" }),
       SPOTS.slice(0, -1).map((sp, i) => {
         const doneSeg = unlocked.includes(SPOTS[i + 1].id);
@@ -4049,28 +4031,7 @@ function FlyFishingGame() {
           strokeDasharray: doneSeg ? "none" : "2 10",
           style: nextSeg ? { animation: "jflow 1.2s linear infinite" } : null
         });
-      }),
-      scenery.map(([fi, em, fs], k) => h("text", {
-        key: "sc" + k,
-        x: X0 + fi * GAP,
-        y: k % 3 === 0 ? 262 : k % 3 === 1 ? 236 : 250,
-        fontSize: fs,
-        opacity: 0.9
-      }, em)),
-      riverFish.map((rf, k) => h("text", {
-        key: "rf" + k,
-        x: rf.x,
-        y: rf.y,
-        fontSize: rf.size,
-        opacity: 0.4,
-        style: {
-          "--fdir": rf.dir,
-          transformBox: "fill-box",
-          transformOrigin: "center",
-          animation: `mapfishswim ${rf.dur}s ease-in-out ${rf.delay}s infinite`
-        }
-      }, "🐟")),
-      h("text", { x: nodeX(N - 1) - 4, y: 46, fontSize: 30 }, "🏔️")
+      })
     ),
     // 노드 버튼들
     SPOTS.map((sp, idx) => {
@@ -4082,7 +4043,6 @@ function FlyFishingGame() {
       const st = stars[sp.id] || 0;
       return h("div", {
         key: sp.id,
-        ref: idx === 0 ? firstPinRef : null,
         style: {
           position: "absolute",
           left: nodeX(idx),
